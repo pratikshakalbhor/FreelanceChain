@@ -80,23 +80,37 @@ https://stellar.expert/explorer/testnet/tx/a3c9a97672597dc4c1b9d2b65a9ca31fa6d15
 ## 📸 Screenshots
 
 ### Wallet & Payment Page
-![alt text](<Screenshot 2026-02-24 082732.png>)
-![alt text](<Screenshot 2026-02-24 082816.png>)
-![alt text](<Screenshot 2026-02-24 082855.png>)
-![alt text](<Screenshot 2026-02-24 082933.png>)
+<img width="1860" height="965" alt="Screenshot 2026-02-24 082732" src="https://github.com/user-attachments/assets/3ef99d3f-cc59-4089-8ff2-34f609654ca0" />
+
+<img width="1850" height="910" alt="Screenshot 2026-02-24 082816" src="https://github.com/user-attachments/assets/722094ce-8ff1-400d-b5ab-03571e712697" />
+
+<img width="1867" height="898" alt="Screenshot 2026-02-24 082855" src="https://github.com/user-attachments/assets/58d41f5f-3471-4630-8580-10ead92471fa" />
+
+
+### XLM Payment Success
+<img width="1853" height="903" alt="Screenshot 2026-02-24 082933" src="https://github.com/user-attachments/assets/07c13da4-9ca4-4ed5-a4d6-c9b6ae8411a1" />
+
+
+### NFT Mint Confirmation
+<img width="1920" height="1080" alt="Screenshot (86)" src="https://github.com/user-attachments/assets/1fa236c3-4df5-4e6b-b535-e8dd74921155" />
+
 
 ### NFT Mint Success
-![alt text](<Screenshot (86).png>)
-![alt text](<Screenshot 2026-02-24 084738.png>)
-![alt text](<Screenshot 2026-02-24 084738-1.png>)
+<img width="1853" height="906" alt="Screenshot 2026-02-24 084738" src="https://github.com/user-attachments/assets/2fd69d30-57d4-4bc6-952e-85f928207c2b" />
+
+### Explorer Page
+<img width="1876" height="911" alt="Screenshot 2026-02-24 084934" src="https://github.com/user-attachments/assets/83b0b650-b52d-4642-9603-6e5f0658fc28" />
+
 
 ### NFT Gallery Page
-![alt text](<Screenshot 2026-02-24 084911.png>)
+<img width="1854" height="910" alt="Screenshot 2026-02-24 084911" src="https://github.com/user-attachments/assets/e822a080-3d9b-4edd-a311-850b0e1d36bb" />
+
 
 ---
 
 ## Project Structure
-![alt text](image.png)
+<img width="1060" height="402" alt="Screenshot 2026-02-24 090452" src="https://github.com/user-attachments/assets/8e9ceff4-a07f-46b1-a945-3ed59c32a13b" />
+
 
 ## 🚀 Installation
 
@@ -111,33 +125,10 @@ cd stellar-new
 npm install
 ```
 
-### 3. Create .env.local
-```env
-REACT_APP_CONTRACT_ID= 
-```
-
-### 4. Start App
+### 3. Start App
 ```bash
 npm start
 ```
-
----
-
-## 📊 Level 1 Checklist
-- [x] Wallet integration
-- [x] XLM payment
-- [x] Transaction status
-- [x] Error handling
-
-## 📊 Level 2 Checklist
-- [x] Contract deployed on Testnet
-- [x] Contract called from frontend
-- [x] NFT minting
-- [x] Real-time transaction status
-- [x] NFT Gallery
-- [x] Verifiable transaction hash
-- [x] Minimum 2 meaningful commits
-
 ---
 
 ## 🎯 Learning Outcomes
@@ -151,3 +142,5 @@ npm start
 
 **Built for Stellar Developer Track**
 **Level 1 + Level 2 Submission 🚀**
+
+
