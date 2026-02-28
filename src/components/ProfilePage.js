@@ -17,7 +17,6 @@ const ProfilePage = ({ account, nfts }) => {
   if (!account) {
     return (
       <div className="profile-page-wrapper">
-        <div className="profile-bg-gradient" />
         <motion.div
           className="loading-container"
           initial={{ opacity: 0 }}
@@ -44,8 +43,6 @@ const ProfilePage = ({ account, nfts }) => {
 
   return (
     <div className="profile-page-wrapper">
-      <div className="profile-bg-gradient" />
-      
       <motion.div
         className="profile-container"
         variants={containerVariants}
@@ -58,8 +55,8 @@ const ProfilePage = ({ account, nfts }) => {
             <AccountIcon className="header-icon" />
           </div>
           <div>
-            <h1 className="profile-title">Account Overview</h1>
-            <p className="profile-subtitle">Web3 Wallet Details</p>
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Account Overview</h1>
+            <p className="text-sm text-gray-400 mt-1">Web3 Wallet Details</p>
           </div>
         </motion.div>
 

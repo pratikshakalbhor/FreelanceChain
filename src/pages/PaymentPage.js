@@ -114,8 +114,6 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
 
   return (
     <div className="payment-page-wrapper">
-      <div className="payment-bg-gradient" />
-      
       <motion.div 
         className="payment-container"
         variants={containerVariants}

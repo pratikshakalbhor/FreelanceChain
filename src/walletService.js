@@ -15,7 +15,13 @@ export const checkConnection = async () => {
     freighter = false;
   }
 
-  const xbull = !!window.xBull;
+  let xbull = false;
+  try {
+    xbull = !!window.xBull;
+  } catch (e) {
+    xbull = false;
+  }
+
   return { freighter, xbull };
 };
 

@@ -9,23 +9,21 @@ export default function GalleryPage({ nfts }) {
   const isEmpty = !nfts || nfts.length === 0;
 
   return (
-    <div className="gallery-page-wrapper">
-      <div className="gallery-bg-gradient" />
-
+    <div className="min-h-screen">
       <motion.div 
-        className="gallery-container"
+        className="max-w-6xl mx-auto p-8 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <motion.div className="gallery-header" variants={itemVariants}>
-          <h1 className="gallery-title">My NFT Collection</h1>
-          <p className="gallery-subtitle">Your minted digital assets on Stellar</p>
+          <h1 className="heading-xl">My NFT Collection</h1>
+          <p className="subtext">Your minted digital assets on Stellar.</p>
         </motion.div>
 
         {isEmpty ? (
           <motion.div 
-            className="empty-state-card"
+            className="card flex flex-col items-center justify-center text-center"
             variants={itemVariants}
           >
             <div style={{ 
@@ -45,12 +43,12 @@ export default function GalleryPage({ nfts }) {
             <p style={{ color: '#94a3b8', margin: 0 }}>
               Start your collection by minting your first digital asset.
             </p>
-            <Link to="/mint" className="button button-primary" style={{ marginTop: '10px', display: 'inline-block' }}>
+            <Link to="/mint" className="btn-primary mt-6">
               Mint Your First NFT
             </Link>
           </motion.div>
         ) : (
-          <motion.div className="gallery-grid" variants={containerVariants}>
+          <motion.div className="gallery-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" variants={containerVariants}>
             {nfts.map((nft, index) => {
               // Handle both imageId and image field safely
               const imageKey = (nft.imageId || nft.image || "").toUpperCase();
@@ -62,10 +60,37 @@ export default function GalleryPage({ nfts }) {
               return (
                 <motion.div 
                   key={index} 
-                  className="nft-card"
+                  className="relative flex justify-center mt-8"
                   variants={itemVariants}
-                  whileHover={{ y: -5 }}
                 >
+                  {/* Gradient Glow Layer */}
+                  <div className="
+                    absolute 
+                    top-1/2 left-1/2 
+                    -translate-x-1/2 
+                    -translate-y-[40%]
+                    w-[500px]
+                    h-[500px]
+                    bg-gradient-to-br 
+                    from-purple-600/40 
+                    via-pink-500/20 
+                    to-blue-500/30
+                    rounded-full
+                    blur-[180px]
+                    opacity-70
+                    z-0
+                  "></div>
+
+                  {/* Card */}
+                  <motion.div 
+                    className="
+                      relative
+                      z-10
+                      w-[380px]
+                      card
+                    "
+                    whileHover={{ y: -5 }}
+                  >
                   <div className="nft-image-container">
                     <img
                       src={imageSrc}
@@ -89,6 +114,7 @@ export default function GalleryPage({ nfts }) {
                       <span>Stellar Network</span>
                     </div>
                   </div>
+                  </motion.div>
                 </motion.div>
               );
             })}

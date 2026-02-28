@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,79 +12,61 @@ html, body, #root {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-  /* Premium Web3 Application Background */
-  background-color: #0B1120; /* Deep Navy Fallback */
-  background-image: linear-gradient(135deg, #1E1B4B 0%, #111827 50%, #0B1120 100%);
+  @apply bg-gradient-to-br from-[#0b0b15] via-[#12122b] to-[#1b1035] text-white min-h-screen;
   background-attachment: fixed;
-  position: relative;
-  overflow-x: hidden;
 }
 
-/* Layer 1: Animated Soft Glows */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: 
-    /* Purple Glow */
-    radial-gradient(ellipse 50% 60% at 20% 40%, rgba(139, 92, 246, 0.15), transparent),
-    /* Cyan Glow */
-    radial-gradient(ellipse 50% 60% at 80% 60%, rgba(6, 182, 212, 0.15), transparent);
-  filter: blur(120px);
-  z-index: -2;
-  animation: animate-glows 18s ease-in-out infinite alternate;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
 }
 
-/* Layer 2: Animated Patterns (Lines & Particles) */
-body::after {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: 
-    /* Thin glowing lines */
-    repeating-linear-gradient(
-      -45deg, 
-      transparent 0, 
-      transparent 200px, 
-      rgba(255, 255, 255, 0.02) 200px, 
-      rgba(255, 255, 255, 0.02) 201px
-    ),
-    /* Dotted particle clusters */
-    repeating-radial-gradient(
-      circle at 10% 90%, 
-      rgba(255, 255, 255, 0.03), 
-      rgba(255, 255, 255, 0.03) 1px, 
-      transparent 1px, 
-      transparent 80px
-    ),
-    repeating-radial-gradient(
-      circle at 90% 10%, 
-      rgba(255, 255, 255, 0.03), 
-      rgba(255, 255, 255, 0.03) 1px, 
-      transparent 1px, 
-      transparent 80px
-    );
-  z-index: -1;
-  animation: animate-patterns 30s linear infinite;
+h1 {
+  font-weight: 600;
+  font-size: 2.75rem;
 }
 
-@keyframes animate-glows {
-  from { transform: rotate(0deg) scale(1.1); }
-  to { transform: rotate(10deg) scale(1); }
+h2 {
+  font-weight: 600;
+  font-size: 2rem;
 }
 
-@keyframes animate-patterns {
-  from { background-position: 0 0; }
-  to { background-position: 400px 400px; }
+h3 {
+  font-weight: 600;
+  font-size: 1.5rem;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+@layer components {
+  .card {
+    @apply bg-[#111118]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/40;
+  }
+
+  .heading-xl {
+    @apply text-2xl font-semibold tracking-wide text-white;
+  }
+
+  .heading-md {
+    @apply text-lg font-medium text-white;
+  }
+
+  .subtext {
+    @apply text-sm text-gray-400;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all duration-200 shadow-lg shadow-purple-500/30 text-white font-medium inline-block text-center cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white font-medium cursor-pointer;
+  }
 }

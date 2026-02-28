@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import NavBar from "./components/navBar";
 import { HORIZON_URL } from "./constants";
+import Background from "./components/Background"; 
 import { fetchNFTs } from "./utils/soroban";
 import PaymentPage from "./pages/PaymentPage";
 import MintPage from "./pages/MintPage";
@@ -57,57 +58,82 @@ function App() {
   }, [walletAddress, server]);
 
   return (
-    <div className={`app-container ${walletAddress ? "loggedin" : "loggedout"}`}>
-      <WalletModal />
-      {!walletAddress ? (
-        <div className="card">
-          <h1 className="title">Stellar Payment dApp</h1>
-          <p className="subtitle">Connect your wallet to get started</p>
-          <button
-            className="button button-primary button-large"
-            onClick={() => setModalOpen(true)}
-          >
-            Connect Wallet
-          </button>
-        </div>
-      ) : (
-        <>
-          <NavBar />
-          <div className="pages-container">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <PaymentPage
-                    walletAddress={walletAddress}
-                    balance={balance}
-                    setBalance={setBalance}
-                    server={server}
-                  />
-                }
-              />
-              <Route
-                path="/mint"
-                element={
-                  <MintPage
-                    walletAddress={walletAddress}
-                    server={server}
-                    setBalance={setBalance}
-                    setNfts={setNfts}
-                    nfts={nfts}
-                  />
-                }
-              />
-              <Route
-                path="/profile"
-                element={<ProfilePage account={accountDetails} nfts={nfts} />}
-              />
-              <Route path="/gallery" element={<GalleryPage nfts={nfts} />} />
-            </Routes>
-          </div>
-        </>
-      )}
-    </div>
+    <>
+      {Background && <Background />}
+      <div className={`app-container relative z-10 ${walletAddress ? "loggedin" : "loggedout"}`}>
+        <WalletModal />
+        {walletAddress && <NavBar />}
+        
+        <Routes>
+          <Route path="/login" element={
+            !walletAddress ? (
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-purple-900/40 p-8 transition-all duration-300 hover:shadow-purple-600/50 hover:scale-[1.02] text-center max-w-[480px] w-full mt-[120px] mx-auto">
+                <h1 className="title">Stellar Payment dApp</h1>
+                <p className="subtitle">Connect your wallet to get started</p>
+                <button
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-3 rounded-xl shadow-lg shadow-purple-900/40 transition-all duration-300 hover:scale-[1.03]"
+                  onClick={() => setModalOpen(true)}
+                >
+                  Connect Wallet
+                </button>
+              </div>
+            ) : <Navigate to="/" replace />
+          } />
+
+          <Route
+            path="/"
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                    <PaymentPage
+                      walletAddress={walletAddress}
+                      balance={balance}
+                      setBalance={setBalance}
+                      server={server}
+                    />
+                </div>
+              ) : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/mint"
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                    <MintPage
+                      walletAddress={walletAddress}
+                      server={server}
+                      setBalance={setBalance}
+                      setNfts={setNfts}
+                      nfts={nfts}
+                    />
+                </div>
+              ) : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                  <ProfilePage account={accountDetails} nfts={nfts} />
+                </div>
+              ) : <Navigate to="/login" replace />
+            }
+          />
+          <Route 
+            path="/gallery" 
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                  <GalleryPage nfts={nfts} />
+                </div>
+              ) : <Navigate to="/login" replace />
+            } 
+          />
+        </Routes>
+      </div>
+    </>
   );
 }
 

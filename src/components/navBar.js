@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../WalletContext';
 import './navBar.css';
 
+// Inline Lucide Icons for immediate usage
+const Gem = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/>
+  </svg>
+);
+
+const LogOut = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>
+  </svg>
+);
+
 const NavBar = () => {
-  const { walletAddress, walletType, disconnectWallet, setModalOpen } = useWallet();
+  const { walletAddress, disconnectWallet, setModalOpen } = useWallet();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Handle scroll effect
   useEffect(() => {
@@ -122,8 +136,9 @@ const NavBar = () => {
     `}</style>
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       {/* Logo */}
-      <Link to="/" className="nav-logo">
-        Stellar dApp
+      <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-white hover:opacity-80 transition-opacity">
+        <Gem className="w-5 h-5 text-purple-400" />
+        NFT dApp
       </Link>
 
       {/* Desktop Navigation */}
@@ -135,27 +150,21 @@ const NavBar = () => {
       <div className="nav-wallet">
         {walletAddress ? (
           <div className="wallet-widget-container">
-            <div 
-              className="wallet-badge" 
-              onClick={() => setModalOpen(true)} 
-              title="Manage Wallets"
+            <span 
+              className="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-green-500/20 transition-colors border border-green-500/20"
+              onClick={() => setModalOpen(true)}
             >
-              <span className="wallet-badge-dot"></span>
-              <div className="wallet-badge-info">
-                <span className="wallet-badge-name">{walletType}</span>
-                <span className="wallet-badge-address">{shortenAddress(walletAddress)}</span>
-              </div>
-              <span className="wallet-badge-network">TESTNET</span>
-            </div>
+              {shortenAddress(walletAddress)}
+            </span>
             <button 
-              className="logout-button" 
-              onClick={() => disconnectWallet()} 
-              title="Logout"
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-300 text-sm font-medium"
+              onClick={() => {
+                disconnectWallet();
+                navigate('/login');
+              }} 
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M7.5 1v7a.5.5 0 0 0 1 0V1a.5.5 0 0 0-1 0z"/>
-                <path d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11.91 3.94l-.485.874A4.999 4.999 0 0 1 3 8.812z"/>
-              </svg>
+              <LogOut className="w-4 h-4" />
+              Logout
             </button>
           </div>
         ) : (

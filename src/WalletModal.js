@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useWallet } from './WalletContext';
 import { WALLET_TYPES, checkConnection } from './walletService';
 import './WalletModal.css';
@@ -18,9 +19,12 @@ const WalletModal = () => {
   const [available, setAvailable] = useState({ freighter: false, xbull: false });
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    checkConnection().then(setAvailable);
+    checkConnection()
+      .then(setAvailable)
+      .catch((e) => console.warn("Wallet check failed:", e));
   }, []);
 
   useEffect(() => {
@@ -235,7 +239,21 @@ const WalletModal = () => {
               <button className="close-btn" onClick={() => setModalOpen(false)}>✕</button>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && (
+              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex flex-col gap-2">
+                <span>{error}</span>
+                {error.includes("Freighter not installed") && (
+                  <a 
+                    href="https://freighter.app/" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-purple-400 hover:text-purple-300 font-medium underline"
+                  >
+                    Install Freighter Extension →
+                  </a>
+                )}
+              </div>
+            )}
 
             {connectedWallets.length > 0 && (
               <div className="connected-wallets-section">
@@ -257,13 +275,18 @@ const WalletModal = () => {
                       <div className="wallet-actions">
                         {wallet.address === walletAddress && <span className="active-badge">Active</span>}
                         <button 
-                          className="disconnect-icon-btn"
+                          className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-300 text-sm font-medium"
                           onClick={(e) => {
                             e.stopPropagation();
                             disconnectWallet(wallet.address);
+                            navigate('/login');
                           }}
-                          title="Disconnect"
-                        >✕</button>
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
+                          </svg>
+                          Logout
+                        </button>
                       </div>
                     </div>
                   ))}

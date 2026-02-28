@@ -234,7 +234,6 @@ const MintPage = ({ walletAddress, server, setBalance, setNfts, nfts }) => {
 
   return (
     <div className="mint-page-wrapper">
-      <div className="mint-bg-gradient" />
       <motion.div
         className="mint-container"
         variants={containerVariants}
@@ -242,8 +241,8 @@ const MintPage = ({ walletAddress, server, setBalance, setNfts, nfts }) => {
         animate="visible"
       >
         <motion.div className="mint-header" variants={itemVariants}>
-          <h1 className="mint-title">Mint an NFT</h1>
-          <p className="mint-subtitle">Create a new unique digital asset on the Stellar blockchain.</p>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Mint NFT</h1>
+          <p className="text-sm text-gray-400 mt-1">Create and manage your digital assets on Stellar.</p>
         </motion.div>
 
         <motion.div className="card mint-card" variants={itemVariants}>
