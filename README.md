@@ -53,6 +53,8 @@ https://stellar.expert/explorer/testnet/tx/7f6a249aa4833b3842d7fd986ced2663b0ec0
 
 
 ## Screenshots
+### Wallet 
+<img width="1888" height="956" alt="Screenshot 2026-02-22 102749" src="https://github.com/user-attachments/assets/358042ff-723e-45c5-a2b5-14a7ab59f15d" />
 
 ### Wallet Connection
 <img width="1878" height="893" alt="image" src="https://github.com/user-attachments/assets/91bc9810-00ee-4968-b342-1e6b47e76228" />
@@ -145,6 +147,7 @@ Minimum 3 tests passing.
 
 Token Name: NFTREWARD  
 Network: Stellar Testnet  
+Admin: pratiksha
 
 Contract ID:  
 CC727BIT26EWN3XINZBVCEUDZONAA34ABNUDCDW724DMSKPOBZ2H6LQZ  
@@ -158,4 +161,3 @@ https://stellar.expert/explorer/testnet/tx/d7475766ad63160b63ab396340d57c8402aa3
 
 
 
-![alt text](image.png)
