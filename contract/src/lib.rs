@@ -4,71 +4,86 @@ use soroban_sdk::{
     Address, Env, Symbol, String,
 };
 
-const TOTAL: Symbol = symbol_short!("TOTAL");
+const SUPPLY: Symbol = symbol_short!("SUPPLY");
+const ADMIN: Symbol = symbol_short!("ADMIN");
 
 #[contract]
-pub struct NFTContract;
+pub struct SNFTToken;
 
 #[contractimpl]
-impl NFTContract {
-    pub fn mint_nft(
-        env: Env,
-        minter: Address,
-        owner: Address,
-        name: String,
-        image_url: String,
-    ) {
-        minter.require_auth();
-        let total: u32 = env.storage().instance()
-            .get(&TOTAL).unwrap_or(0);
-        let nft_id = total + 1;
+impl SNFTToken {
 
-        env.storage().persistent()
-            .set(&(symbol_short!("OWN"), nft_id), &owner);
-        env.storage().persistent()
-            .set(&(symbol_short!("NAM"), nft_id), &name);
-        env.storage().persistent()
-            .set(&(symbol_short!("IMG"), nft_id), &image_url);
-        env.storage().instance()
-            .set(&TOTAL, &nft_id);
+    pub fn initialize(env: Env, admin: Address) {
+        admin.require_auth();
+        env.storage().instance().set(&ADMIN, &admin);
+        env.storage().instance().set(&SUPPLY, &0i128);
+    }
 
-        let bal: u32 = env.storage().persistent()
-            .get(&(symbol_short!("BAL"), owner.clone()))
+    pub fn mint(env: Env, to: Address, amount: i128) {
+        let admin: Address = env.storage().instance()
+            .get(&ADMIN).unwrap();
+        admin.require_auth();
+
+        let bal: i128 = env.storage().persistent()
+            .get(&(symbol_short!("BAL"), to.clone()))
             .unwrap_or(0);
         env.storage().persistent()
-            .set(&(symbol_short!("BAL"), owner.clone()), &(bal + 1));
+            .set(&(symbol_short!("BAL"), to.clone()), &(bal + amount));
+
+        let supply: i128 = env.storage().instance()
+            .get(&SUPPLY).unwrap_or(0);
+        env.storage().instance()
+            .set(&SUPPLY, &(supply + amount));
 
         env.events().publish(
-            (symbol_short!("MINTED"), nft_id),
-            (owner, name),
+            (symbol_short!("MINT"), to.clone()),
+            amount
         );
     }
 
-    pub fn get_total(env: Env) -> u32 {
-        env.storage().instance().get(&TOTAL).unwrap_or(0)
+    pub fn transfer(env: Env, from: Address, to: Address, amount: i128) {
+        from.require_auth();
+
+        let from_bal: i128 = env.storage().persistent()
+            .get(&(symbol_short!("BAL"), from.clone()))
+            .unwrap_or(0);
+        assert!(from_bal >= amount, "Insufficient balance");
+
+        env.storage().persistent()
+            .set(&(symbol_short!("BAL"), from.clone()), &(from_bal - amount));
+
+        let to_bal: i128 = env.storage().persistent()
+            .get(&(symbol_short!("BAL"), to.clone()))
+            .unwrap_or(0);
+        env.storage().persistent()
+            .set(&(symbol_short!("BAL"), to.clone()), &(to_bal + amount));
+
+        env.events().publish(
+            (symbol_short!("XFER"), from.clone()),
+            (to, amount)
+        );
     }
 
-    pub fn balance(env: Env, user: Address) -> u32 {
+    pub fn balance(env: Env, account: Address) -> i128 {
         env.storage().persistent()
-            .get(&(symbol_short!("BAL"), user))
+            .get(&(symbol_short!("BAL"), account))
             .unwrap_or(0)
     }
 
-    pub fn get_owner(env: Env, id: u32) -> Address {
-        env.storage().persistent()
-            .get(&(symbol_short!("OWN"), id))
-            .unwrap()
+    pub fn total_supply(env: Env) -> i128 {
+        env.storage().instance().get(&SUPPLY).unwrap_or(0)
     }
 
-    pub fn get_name(env: Env, id: u32) -> String {
-        env.storage().persistent()
-            .get(&(symbol_short!("NAM"), id))
-            .unwrap()
+    
+    pub fn name(env: Env) -> String {
+        String::from_str(&env, "Stellar NFT Token")
     }
 
-    pub fn get_image(env: Env, id: u32) -> String {
-        env.storage().persistent()
-            .get(&(symbol_short!("IMG"), id))
-            .unwrap()
+    pub fn symbol(env: Env) -> String {
+        String::from_str(&env, "SNFT")
+    }
+
+    pub fn decimals(_env: Env) -> u32 {
+        7
     }
 }

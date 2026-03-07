@@ -36,16 +36,19 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         const response = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
             maxBodyLength: "Infinity",
             headers: {
-                'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+                ...formData.getHeaders(),
                 'Authorization': `Bearer ${process.env.PINATA_JWT}`
             }
         });
 
-        fs.unlinkSync(req.file.path);
         res.json({ cid: response.data.IpfsHash });
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).json({ error: 'Failed to upload to IPFS' });
+    } finally {
+        if (req.file && req.file.path) {
+            fs.unlink(req.file.path, (err) => { if (err) console.error("Cleanup error:", err); });
+        }
     }
 });
 
