@@ -1,5 +1,5 @@
 
-# 🌟 Stellar NFT dApp 
+# 🌟 Stellar NFT dApp - Level 4 (Green Belt)
 
 A full-stack decentralized application built on Stellar Testnet. Users can connect their wallet, mint NFTs, view them in a gallery, and verify transactions on-chain.
 
@@ -8,6 +8,11 @@ A full-stack decentralized application built on Stellar Testnet. Users can conne
 ## 🚀 Live Demo
 
 📹 **Demo Video:** https://drive.google.com/file/d/1VqA4rUtSywQL947pCeHwyqXz2nJtDg0E/view?usp=sharing
+
+🚀 **Live Demo:** https://nft-based-dapp.vercel.app/login
+![CI/CD](https://github.com/pratikshakalbhor/NFT_Based-dapp/actions/workflows/ci.yml/badge.svg)
+
+## 📱 Mobile Responsive
 
 
 ## Deployment Details
@@ -85,8 +90,10 @@ https://stellar.expert/explorer/testnet/tx/43f5474a4dc656214093f4980380cda10e3b0
 | Storage | IPFS via Pinata |
 | Wallets | Freighter, Albedo |
 | SDK | @stellar/stellar-sdk |
+| CI/CD | GitHub Actions |
 | Deploy | Vercel |
 | Testing | Jest (39 tests) |
+
 
 ---
 
@@ -95,6 +102,8 @@ https://stellar.expert/explorer/testnet/tx/43f5474a4dc656214093f4980380cda10e3b0
 ```
 stellar-nft-dapp/
 ├── .github/
+│   └── workflows/
+│       └── ci.yml              # ✅ CI/CD pipeline
 ├── stellar-new/                # React Frontend
 │   ├── src/
 │   │   ├── pages/
@@ -112,7 +121,9 @@ stellar-nft-dapp/
 │   └── src/lib.rs              # Custom token
 └── backend/
     └── server.js               # IPFS proxy
+
 ```
+
 
 ## ⚙️ Setup & Run
 
@@ -160,6 +171,12 @@ npm test
 | Activity Feed | L2 | ✅ |
 | 39 Unit Tests | L3 | ✅ |
 | README + Docs | L3 | ✅ |
+| Custom SNFT Token | L4 | ✅ |
+| **Inter-contract calls** | **L4** | ✅ |
+| CI/CD Pipeline | L4 | ✅ |
+| Mobile Responsive | L4  | ✅ |
+| Token Reward Page | L4 | ✅ |
+
 ---
 
 ## 🔗 Useful Links
@@ -173,23 +190,4 @@ npm test
 ---
 
 
-
-### Level 4
-
----
-## 🔗 Smart Contract Details
-## NFTREWARD Token Deployment Details
-
-Token Name: NFTREWARD  
-Network: Stellar Testnet  
-Admin: pratiksha
-
-Contract ID:  
-CC727BIT26EWN3XINZBVCEUDZONAA34ABNUDCDW724DMSKPOBZ2H6LQZ  
-
-Deployment Transaction Hash:  
-d7475766ad63160b63ab396340d57c8402aa33721c26b22aff2d2099e3b4357  
-
-Explorer Link:  
-https://stellar.expert/explorer/testnet/tx/d7475766ad63160b63ab396340d57c8402aa33721c26b22aff2d2099e3b4357
 
