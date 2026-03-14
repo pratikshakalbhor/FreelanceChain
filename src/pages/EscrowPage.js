@@ -102,6 +102,7 @@ export default function EscrowPage({ walletAddress }) {
         }
       }
       setJobs(jobList);
+      console.log("Jobs loaded:", jobList);
     } catch (e) {
       console.error("Load jobs error:", e);
       setJobs([]);
@@ -226,10 +227,15 @@ export default function EscrowPage({ walletAddress }) {
     if (walletAddress) loadJobs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
-
   const openJobs = jobs.filter(j => {
-    const s = typeof j.status === "string" ? j.status : Object.keys(j.status || {})[0];
-    return s === "Open";
+    const raw = typeof j.status === "string"
+      ? j.status
+      : typeof j.status === "object"
+        ? Object.keys(j.status)[0]
+        : String(j.status || "");
+    const s = (raw || "").toLowerCase();
+    console.log("Job status:", s, j);
+    return s === "open";
   });
 
   const myJobs = jobs.filter(j =>

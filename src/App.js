@@ -11,6 +11,7 @@ import MintPage from "./pages/MintPage";
 import GalleryPage from "./pages/GalleryPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import ActivityPage from "./pages/ActivityPage";
+import EscrowPage from "./pages/EscrowPage";
 import { useWallet } from "./WalletContext";
 import WalletModal from "./WalletModal";
 import ProfilePage from "./components/ProfilePage";
@@ -215,6 +216,46 @@ function App() {
               walletAddress ? (
                 <div className="pages-container">
                   <ActivityPage walletAddress={walletAddress} />
+                </div>
+              ) : <Navigate to="/login" replace />
+            } 
+          />
+          <Route 
+            path="/escrow" 
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                  <EscrowPage walletAddress={walletAddress} server={server} />
+                </div>
+              ) : <Navigate to="/login" replace />
+            } 
+          />
+          <Route 
+            path="/escrow" 
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                  <EscrowPage walletAddress={walletAddress} server={server} />
+                </div>
+              ) : <Navigate to="/login" replace />
+            } 
+          />
+         <Route 
+            path="/escrow" 
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                  <EscrowPage walletAddress={walletAddress} server={server} />
+                </div>
+              ) : <Navigate to="/login" replace />
+            } 
+          />
+         <Route 
+            path="/escrow" 
+            element={
+              walletAddress ? (
+                <div className="pages-container">
+                  <EscrowPage walletAddress={walletAddress} server={server} />
                 </div>
               ) : <Navigate to="/login" replace />
             } 
