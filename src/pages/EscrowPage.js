@@ -48,7 +48,7 @@ const isSubmittedStatus  = (s) => { const k = getStatusKey(s); return k === 2 ||
 // ─── Core: build → prepareTransaction → sign → submit → poll ─────────────────
 // Uses rpc.prepareTransaction (handles simulation + resource fees in one call)
 const buildSignSubmit = async (txUnsigned, walletType, label, onStatus) => {
-  onStatus(`⏳ ${label}: preparing...`, "info");
+  onStatus(`⏳ ${label}: preparing transaction (10-15 sec)...`, "info");
 
   let prepared;
   try {
