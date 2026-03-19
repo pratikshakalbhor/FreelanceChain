@@ -171,8 +171,8 @@ npm test
  
 | Resource | Link |
 |----------|------|
-| NFT Transaction Hash| 5d443fa90009166cc963fcbbb6cf46457683777e28d45bcbd653a6ce9e772078 |
-| NFT Explorer Link | https://stellar.expert/explorer/testnet/tx/5d443fa90009166cc963fcbbb6cf46457683777e28d45bcbd653a6ce9e772078 |
+| NFT Transaction Hash| 9e4c99076dc055632629722c7423eb6212ee613e057af647487147f1bd369c5f |
+| NFT Explorer Link | https://stellar.expert/explorer/testnet/tx/9e4c99076dc055632629722c7423eb6212ee613e057af647487147f1bd369c5f |
 | 🔍 NFT Contract | [stellar.expert](https://stellar.expert/explorer/testnet/tx/5d443fa90009166cc963fcbbb6cf46457683777e28d45bcbd653a6ce9e772078) |
 | 🔍 Escrow Contract | [stellar.expert](https://stellar.expert/explorer/testnet/tx/b876a0c829087b1a3c3c881cbfde941f8253f596ee3a74396a7834c2c67756ad) |
 | 🔍 My Wallet | [stellar.expert](https://stellar.expert/explorer/testnet/tx/3bc8c25758cceaf7e3c28299c7c3d49b7233e0a222700823f1fb1d68b470d5da) |
@@ -194,38 +194,41 @@ npm test
 <img width="1919" height="902" alt="Screenshot 2026-03-16 091931" src="https://github.com/user-attachments/assets/05f23a97-3b60-482c-a587-9a3ca7782d72" />
 
 ### Dashboard
-<img width="1901" height="907" alt="Image" src="https://github.com/user-attachments/assets/67b63292-46f5-4705-94d4-06ce7667dc8a" />
+<img width="1903" height="893" alt="image" src="https://github.com/user-attachments/assets/6af9b6f0-4bc2-46cf-914c-5777da3756cb" />
 
 ### Jobs (Escrow) — Post Job
-<img width="1918" height="907" alt="Image" src="https://github.com/user-attachments/assets/7f78c65e-562c-420a-baa9-18c975496647" />
+<img width="1901" height="905" alt="image" src="https://github.com/user-attachments/assets/5eb7eb31-b35a-4e25-8044-a45eb13ed6a2" />
 
 ### Jobs — In Progress
-<img width="1907" height="907" alt="Image" src="https://github.com/user-attachments/assets/331804e1-a61c-4bc5-b5e3-da4074ab15e4" />
+<img width="1906" height="907" alt="image" src="https://github.com/user-attachments/assets/c965486e-4052-47ef-8d31-3b3c11f17a23" />
 
 ### Jobs - Find Job
-<img width="1901" height="900" alt="Image" src="https://github.com/user-attachments/assets/c4f49873-e319-412e-b106-298ee47c5539" />
+<img width="1898" height="912" alt="image" src="https://github.com/user-attachments/assets/4bfcce57-5688-4917-ae75-11af6a520099" />
 
 ### Jobs - MyJob
-<img width="1901" height="906" alt="Image" src="https://github.com/user-attachments/assets/73fb43dd-f3bf-4a61-a928-b5c9eb5a8c2b" />
+<img width="1918" height="901" alt="image" src="https://github.com/user-attachments/assets/2c92754b-7d0d-45b3-880a-dc2cd32075f9" />
+
+### FreelanceChain Chat
+<img width="1917" height="898" alt="image" src="https://github.com/user-attachments/assets/4a3b3d1c-833f-407d-b2e0-0e10946ef2a0" />
 
 ### Payment
-<img width="1906" height="902" alt="Image" src="https://github.com/user-attachments/assets/af168003-a412-44ab-84a9-32de1818347c" />
+<img width="1905" height="912" alt="image" src="https://github.com/user-attachments/assets/e8537bea-1a11-47ae-b3b4-75fc1a49ad04" />
 
 ### NFT Minting
-<img width="1903" height="901" alt="Image" src="https://github.com/user-attachments/assets/4018822a-b569-4110-a949-d8dc005dab1e" />
-<img width="1897" height="912" alt="Image" src="https://github.com/user-attachments/assets/95a17d44-2c21-4567-85a2-624125e1e335" />
+<img width="1907" height="911" alt="image" src="https://github.com/user-attachments/assets/76fb673e-331b-48cc-84df-d66a14d7150f" />
+<img width="1907" height="898" alt="image" src="https://github.com/user-attachments/assets/c508fd99-63a6-4f1b-bffd-2caabdf290bf" />
 
 ### NFT Gallery
-<img width="1908" height="902" alt="Image" src="https://github.com/user-attachments/assets/7eacc69c-b587-42e4-b95e-775c88357910" />
+<img width="1897" height="905" alt="image" src="https://github.com/user-attachments/assets/7b57c1b3-b2ec-49c1-a85f-1294c20ebc52" />
 
 ### Marketplace
-<img width="1915" height="905" alt="Image" src="https://github.com/user-attachments/assets/f917e82a-9f2a-4adc-a085-fc9398020e16" />
+<img width="1897" height="902" alt="Screenshot 2026-03-19 181159" src="https://github.com/user-attachments/assets/61c72055-129a-4b59-9a2a-35ffe099bace" />
 
 ### Activity Feed
-<img width="1906" height="905" alt="Image" src="https://github.com/user-attachments/assets/47788e66-1a50-465c-abc0-754466f97abc" />
+<img width="1905" height="906" alt="image" src="https://github.com/user-attachments/assets/71a8b0fe-f043-4b15-b4fe-eb85bc926617" />
 
 ### Profile Page
-<img width="1900" height="902" alt="Image" src="https://github.com/user-attachments/assets/49e8b48b-3162-41a6-8526-f36bfe23bb6a" />
+<img width="1902" height="902" alt="image" src="https://github.com/user-attachments/assets/0eea897b-6354-41b8-8a06-262dfc639a4b" />
 
 ### Test Output (3+ Tests Passing)
 <img width="1506" height="914" alt="Screenshot 2026-03-16 130131" src="https://github.com/user-attachments/assets/895b84c9-bac0-4179-ad0b-4fbdfd364d28" />
