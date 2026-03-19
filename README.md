@@ -181,7 +181,7 @@ npm test
 ---
 
 ## 📱 Mobile Responsive
-<img width="1592" height="848" alt="Image" src="https://github.com/user-attachments/assets/3553f6e5-d980-48d2-8856-747e9703c504" />
+<img width="962" height="848" alt="image" src="https://github.com/user-attachments/assets/5a103ea4-e52b-489a-896f-617301f23c50" />
 
 ## ⚙️ CI/CD Pipeline
 <img width="1482" height="592" alt="image" src="https://github.com/user-attachments/assets/bb306b8d-fed8-4fb8-93bb-8d22c4af2edc" />
