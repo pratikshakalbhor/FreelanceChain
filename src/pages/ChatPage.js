@@ -18,7 +18,7 @@ const ChatPage = () => {
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Notification permission maag
+  // Notification permission 
   useEffect(() => {
     if ("Notification" in window) {
       Notification.requestPermission().then(permission => {
@@ -47,7 +47,7 @@ const ChatPage = () => {
     }
   }, [location.state, walletAddress]);
 
-  // Messages fetch kara Firebase madhun
+
   useEffect(() => {
     if (!chatId) return;
 
@@ -88,14 +88,13 @@ const ChatPage = () => {
     }
     setError("");
 
-    // Unique chat ID banva — dono addresses sort karun
     const addresses = [walletAddress, recipientAddress].sort();
     const id = `${addresses[0]}_${addresses[1]}`;
     setChatId(id);
     setChatStarted(true);
   };
 
-  // Message pathava
+
   const handleSend = async () => {
     if (!newMessage.trim()) return;
 
@@ -110,7 +109,7 @@ const ChatPage = () => {
         timestamp: serverTimestamp(),
       });
 
-      // ✅ Recipient la notification pathava
+     
       if (recipientAddress) {
         await storeNotification(
           recipientAddress,

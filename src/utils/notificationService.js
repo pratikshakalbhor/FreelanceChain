@@ -1,7 +1,7 @@
 import { ref, push, onValue, update } from "firebase/database";
 import { db } from "../firebase";
 
-// Notification store kara Firebase madhe
+
 export const storeNotification = async (toAddress, fromAddress, message, jobTitle, jobId) => {
   try {
     const notifRef = ref(db, `notifications/${toAddress}`);
@@ -19,7 +19,7 @@ export const storeNotification = async (toAddress, fromAddress, message, jobTitl
   }
 };
 
-// Notifications fetch kara
+
 export const getNotifications = (walletAddress, callback) => {
   const notifRef = ref(db, `notifications/${walletAddress}`);
   return onValue(notifRef, (snapshot) => {
@@ -37,7 +37,7 @@ export const getNotifications = (walletAddress, callback) => {
   });
 };
 
-// Notification read mark kara
+
 export const markAsRead = async (walletAddress, notifId) => {
   try {
     const notifRef = ref(db, `notifications/${walletAddress}/${notifId}`);
@@ -47,7 +47,7 @@ export const markAsRead = async (walletAddress, notifId) => {
   }
 };
 
-// Sagale notifications read mark kara
+
 export const markAllAsRead = async (walletAddress, notifications) => {
   try {
     const updates = {};

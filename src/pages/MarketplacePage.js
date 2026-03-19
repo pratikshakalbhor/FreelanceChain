@@ -186,7 +186,7 @@ export default function MarketplacePage({ walletAddress, nfts, server }) {
           </div>
         </motion.div>
 
-        {/* Controls — Certificate filter add केला */}
+    
         <motion.div variants={itemVariants} style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "24px", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {[

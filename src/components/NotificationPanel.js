@@ -11,7 +11,7 @@ const NotificationPanel = ({ walletAddress }) => {
   const navigate = useNavigate();
   const { isDark } = useTheme();
 
-  // Notifications load kara
+  
   useEffect(() => {
     if (!walletAddress) return;
     const unsubscribe = getNotifications(walletAddress, (notifs) => {
@@ -20,7 +20,7 @@ const NotificationPanel = ({ walletAddress }) => {
     return () => unsubscribe();
   }, [walletAddress]);
 
-  // Outside click — panel band kara
+  
   useEffect(() => {
     const handleClick = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) {

@@ -45,18 +45,18 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
       setLoading(true);
       setStatus("Checking destination account...");
 
-      // ✅ Step 1: Destination account exist check
+      //  Step 1: Destination account exist check
       try {
         await server.loadAccount(receiver.trim());
       } catch {
         throw new Error("Destination account not found! Fund it first with at least 1 XLM.");
       }
 
-      // ✅ Step 2: Source account load
+      //  Step 2: Source account load
       setStatus("Loading your account...");
       const account = await server.loadAccount(walletAddress);
 
-      // ✅ Step 3: Amount - 7 decimal places, string format
+      //  Step 3: Amount - 7 decimal places, string format
       const fixedAmount = parseFloat(amount).toFixed(7);
 
 
@@ -74,10 +74,10 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
             amount: fixedAmount,
           })
         )
-        .setTimeout(60) // ✅ 60 seconds timeout
+        .setTimeout(60) //  60 seconds timeout
         .build();
 
-      // ✅ Step 4: Sign
+      //  Step 4: Sign
       setStatus("Please sign in your wallet...");
       const xdr = transaction.toXDR();
       console.log("📝 TX XDR built successfully");
@@ -90,7 +90,7 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
         return;
       }
 
-      // ✅ Step 5: Handle both Freighter formats
+      //  Step 5: Handle both Freighter formats
       const signedXDRString =
         typeof signedXDR === "object" && signedXDR.signedTxXdr
           ? signedXDR.signedTxXdr
@@ -101,7 +101,7 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
         NETWORK_PASSPHRASE
       );
 
-      // ✅ Step 6: Submit
+      //  Step 6: Submit
       setStatus("Submitting transaction...");
       console.log("📤 Submitting to Horizon...");
 
@@ -111,7 +111,7 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
       setTxHash(result.hash);
       setStatus(`✅ Payment Successful!`);
 
-      // ✅ Step 7: Refresh balance
+      //  Step 7: Refresh balance
       setTimeout(async () => {
         try {
           const updatedAccount = await server.loadAccount(walletAddress);
@@ -128,7 +128,7 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
     } catch (e) {
       console.error("❌ Payment Error:", e);
 
-      // ✅ Detailed error decode
+      // Detailed error decode
       let errorMessage = "Transaction Failed. Please try again.";
       const message = (e?.message || "").toLowerCase();
 

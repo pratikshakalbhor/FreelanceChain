@@ -31,6 +31,7 @@ function App() {
   const [nfts, setNfts] = useState([]);
   const [accountDetails, setAccountDetails] = useState(null);
   const [jobsPosted, setJobsPosted] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const server = useMemo(
     () => new StellarSdk.Horizon.Server(HORIZON_URL),
@@ -113,6 +114,8 @@ function App() {
             <Sidebar
               walletAddress={walletAddress}
               onDisconnect={() => disconnectWallet()}
+              isOpen={mobileMenuOpen}
+              setIsOpen={setMobileMenuOpen}
             />
           )}
 
@@ -121,7 +124,7 @@ function App() {
             <div style={{
               position: "fixed",
               top: 0,
-              left: "240px",
+              left: 0,
               right: 0,
               height: "60px",
               background: isDark ? "rgba(13,17,28,0.95)" : "rgba(255,255,255,0.95)",
@@ -129,55 +132,93 @@ function App() {
               borderBottom: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.08)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-end",
-              padding: "0 24px",
-              gap: "12px",
-              zIndex: 40,
+              justifyContent: "space-between",
+              padding: "0 16px",
+              gap: "8px",
+              zIndex: 45,
             }}>
 
-              {/* Chat Icon */}
-              <div
-                onClick={() => navigate('/chat')}
-                style={{
-                  width: "38px", height: "38px",
+              {/* Left — Logo */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}>
+                <div style={{
+                  width: "28px", height: "28px",
+                  background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                  borderRadius: "8px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "14px",
+                }}>💎</div>
+                <span style={{
+                  color: isDark ? "#fff" : "#1a1a2e",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                }}>FreelanceChain</span>
+              </div>
+
+              {/* Right — Icons + Wallet + Hamburger */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}>
+                {/* Chat Icon */}
+                <div
+                  onClick={() => navigate('/chat')}
+                  style={{
+                    width: "34px", height: "34px",
+                    background: "rgba(99,102,241,0.15)",
+                    border: "1px solid rgba(99,102,241,0.3)",
+                    borderRadius: "10px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                  title="Chat"
+                >
+                  <MessageCircle size={16} color="#a78bfa" />
+                </div>
+
+                {/* Notification */}
+                <NotificationPanel walletAddress={walletAddress} />
+
+                {/* Wallet Address */}
+                <div className="wallet-info-badge" style={{
+                  padding: "4px 10px",
                   background: "rgba(99,102,241,0.15)",
                   border: "1px solid rgba(99,102,241,0.3)",
                   borderRadius: "10px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-                title="Chat"
-              >
-                <MessageCircle size={18} strokeWidth={2} color="#a78bfa" />
+                  fontSize: "0.72rem",
+                  fontFamily: "monospace",
+                  color: isDark ? "#a78bfa" : "#6d28d9",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}>
+                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
+                  {walletAddress.slice(0, 4)}...{walletAddress.slice(-3)}
+                </div>
+
+                {/* Hamburger (Mobile Only) */}
+                <div
+                  className="mobile-menu-btn"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  style={{
+                    width: "34px", height: "34px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "20px",
+                  }}>
+                  ☰
+                </div>
               </div>
-
-              {/* Notification Icon */}
-              <NotificationPanel walletAddress={walletAddress} />
-
-              {/* Wallet Address */}
-              <div style={{
-                padding: "6px 14px",
-                background: "rgba(99,102,241,0.15)",
-                border: "1px solid rgba(99,102,241,0.3)",
-                borderRadius: "10px",
-                fontSize: "0.8rem",
-                fontFamily: "monospace",
-                color: isDark ? "#a78bfa" : "#6d28d9",
-                fontWeight: 600,
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-              }}>
-                <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981" }} />
-                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-              </div>
-
             </div>
           )}
 
           <main className={`main-content ${walletAddress ? 'with-sidebar' : ''}`}
-            style={{ paddingTop: walletAddress ? "60px" : "0" }}
+            style={{ paddingTop: walletAddress ? "70px" : "0" }}
           >
             <Routes>
               {/* ✅ Mobile Responsive Login Page */}

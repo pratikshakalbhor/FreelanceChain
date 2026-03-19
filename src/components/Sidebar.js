@@ -89,8 +89,7 @@ const SettingsModal = ({ isDark, toggleTheme, onClose }) => {
   );
 };
 
-const Sidebar = ({ walletAddress, onDisconnect }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
 
@@ -315,27 +314,6 @@ const Sidebar = ({ walletAddress, onDisconnect }) => {
 
       {/* Desktop */}
       <div className="hidden md:block">{sidebarContent}</div>
-
-      {/* Mobile top bar */}
-      <div
-        className="md:hidden fixed top-0 left-0 w-full z-40 p-4 flex justify-between items-center"
-        style={{
-          background: themeStyles.sidebarBg,
-          backdropFilter: "blur(10px)",
-          borderBottom: `1px solid ${themeStyles.borderColor}`
-        }}
-      >
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <div style={{ width: "28px", height: "28px", background: "linear-gradient(135deg, #6366f1, #4f46e5)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>💎</div>
-          <span style={{ color: themeStyles.logoText, fontWeight: 700 }}>FreelanceChain</span>
-        </div>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          style={{ background: "transparent", border: "none", color: themeStyles.activeLinkColor, fontSize: "24px", cursor: "pointer" }}
-        >
-          ☰
-        </button>
-      </div>
 
       {/* Mobile overlay */}
       <AnimatePresence>
