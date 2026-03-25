@@ -74,6 +74,21 @@ A full-stack decentralized application built on Stellar Testnet combining NFT mi
 | NFT Marketplace price range | Min/Max XLM price filter added | ✅ Done |
 | Add Search box in job page | Instant keyword search implemented | ✅ Done |
 
+## 🔄 User Feedback Implementation
+
+### Selected Feedback Items:
+
+**1. "Add chat feature between client and freelancer"**
+- Implemented Firebase real-time chat in `src/pages/ChatPage.js`
+- Job-based chat rooms — no wallet address needed
+- Real-time notifications via Firebase Realtime Database
+- **Commit:** `40bb7fa` — User Feedback: Add chat feature between client and freelancer: Fixed ✅
+
+**2. "Reducing load times would improve experience"**
+- Implemented parallel fetch using `Promise.all()` in `src/utils/soroban.js`
+- NFTs and Jobs load simultaneously instead of sequentially
+- **Commit:** `a65f2db` — User Feedback: Reducing load times would improve experience: Fixed ✅
+
 
 ## 🏗️ How the Escrow Works
 
