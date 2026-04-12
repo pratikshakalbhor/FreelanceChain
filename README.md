@@ -51,6 +51,48 @@ A full-stack decentralized application built on Stellar Testnet combining NFT mi
  **Response Sheet:** https://docs.google.com/spreadsheets/d/1HZBbu-YZKPYKPvBpQO9JgqwQ8d-HiTKqCquwiilamLc/edit?resourcekey=&gid=9050602#gid=9050602
 
 ---
+# User Feed Implementation
+ 
+This table documents user feedback received for FreelancerShield and the corresponding commits made to address the feedback.
+ 
+## User Feedback Table
+ 
+| # | User Name | User Email | User Wallet Address | Feedback | Commit ID |
+|---|-----------|------------|---------------------|----------|-----------|
+| 1 | Ingle Munja | inglemunja51@gmail.com | GDUXWQNSPNM5GUMP3KWXSNOY62GRKPRHUD6IKDJORCRET7CWBKQ3TVR4 | NFT certificate idea is unique | TBD |
+| 2 | Revan Hlandage | revanhlandage2006@gmail.com | GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF | Easy to understand | TBD |
+| 3 | Rohit Labase | rohitlabase@gmail.com | GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX | — | TBD |
+| 4 | Kalbhor Sppu | kalbhorsppu12@gmail.com | GBZHZSGVKSROKQPUD3QHQWF42YDE3PPFUINEKW3NZ2NLOZXNLM7UVQW4 | Reducing load times would improve experience | TBD |
+| 5 | Dipali Kalbhor | dipalikalbhor98@gmail.com | GCYO66SNVSGBBJB3LDGDIGNTW5Y7H4FEWF65MU4BBH7YSXDRYZWWMY6C | Overall, the Dapp looks good | TBD |
+| 6 | Nikita Biradar | nikitabiradar300@gmail.com | GAVOLZD4APA2R7LOG5T45OBWGXAXQ57J63L7Z2YUOL2EZ33FY7YMC4PX | NFT making is easy, non-technical people can also do it very easily | TBD |
+| 7 | Sudhakar Sutar | sudhakarsutar101@gmail.com | GALULA4PSYS4AVX7AIUDZ5IVUUWJAGT4BECMICA3JQMCO3HICKQEKJXS | I loved the UI | TBD |
+| 8 | Dnyaneshwari Badhe | dnyaneshwaribadhe2323@gmail.com | GDYUC3ZIK2EVEYQOZLKBMEQWAE77UZ5OQHIX2EKKHHYIUJPQHKXHQUAS | The interface was user-friendly and the functionality works smoothly | TBD |
+| 9 | N Palande | npalande2106@gmail.com | GCILDVVAWHQOSBWXYSXHP3ZYVJQZKQZGM63XFSFY3OGFS5KTUYAGJ7V3 | The UI is user-friendly, and using the app is easy | TBD |
+| 10 | Arya Kale | aryakale1052@gmail.com | GDP3LC2RSGXIFCRMO33HGRT4ACU4Y2DL73BJQQ74KJKVK7I7ICP6Y5KL | The UI and working of the model | TBD |
+| 11 | Ankita Khopade | ankitakhopade.811@gmail.com | GDP3LC2RSGXIFCRMO33HGRT4ACU4Y2DL73BJQQ74KJKVK7I7ICP6Y5KL | UI | TBD |
+| 12 | Janhavi Lipare | janhavilipare9948@gmail.com | GBLUMAX4IIPS54AIGD5WXRRAXISG4HLV3BE3YR3SQAD3GZSXRTVJY5GI | Working is soo goood | TBD |
+| 13 | N D Kindia | ndkindia09@gmail.com | GCI3R7F3UZ3V6HY7L35ISGQE7GMW55U3LPG4YNPSLHSXCXBGNJERXSVH | Its easy — need more wallet connection buttons | TBD |
+| 14 | Babar Payal | babarpayal953@gmail.com | 0xa930f229FDbA3d7F7c772900CACF41A7967A8533 | User-friendly interface and smooth navigation — need clearer instructions for beginners | TBD |
+| 15 | Pooja Kohinkar | poojakohinkar06@gmail.com | GA56O2VQSLKWPSCB57HC6UHASQ5O7P2WIVXYIJIUL3ZT6JZAFVVLB2DK | NFT Marketplace | TBD |
+| 16 | Sankruti C | csankruti@gmail.com | GBROW5BI5VDRZ4ZKO432LAPTTDODYQCJQXTCUXAEBWGTPG7JIGLVB5M3 | Fast and smooth transactions with very low fees — improve UI design slightly | TBD |
+| 17 | Nandini Jadhav | nandinijadhavv06@gmail.com | GCT3E7HUMKYVC2MXFURGRQJF5PMS4V6ZFZQORNW75L2TZIWFF2HM5CMH | Fast and smooth transactions with very low fees | TBD |
+| 18 | Vishvajit Bhagave | vishvajitbhagave@gmail.com | GDQCMJ4QRAAPAE6RGWHXWIDJEX76KKOWHKPS5S7LA2KOFW5O5SDK4OT2 | NFT Minting — Everything is Okay. No Need to Improvement | TBD |
+| 19 | Nevse Samruddhi | nevsesamruddhi@gmail.com | GCWHSFPEKYG5OYYQT2M5VRRVM3LSCXACMBNKSZUTH7XCIUGQTGFDAYWD | Its smooth features | TBD |
+ 
+
+---
+
+## Feedback Summary
+ 
+| Feature | Feedback | Status |
+|---------|----------|--------|
+| UI/UX | Most users praised — user-friendly | Done - No change needed |
+| NFT Minting | Working well — easy for non-technical users | Done - Working well |
+| NFT Certificate | Unique idea appreciated | Done - No change needed |
+| Load Time | Reducing load times suggested | In Progress - Optimization done |
+| Wallet Connection | More wallet options requested | In Progress - Mobile wallet support added |
+| Instructions | Clearer docs requested | In Progress - README updated |
+---
 ## 👥 Testnet Users (5+ Real Users)
  
 | No. | Wallet Address | Explorer | 
@@ -294,5 +336,3 @@ stellar-new/
 - [User Feedback](docs/User_Feedback_Documentation.docx)
 
 ---
-
-*Built for Rise In Stellar Quest — Level 5 Blue Belt | March 2026*
