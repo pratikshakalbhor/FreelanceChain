@@ -1,3 +1,10 @@
+/**
+ * User Feedback: Add more advanced features
+ * Advanced Feature: Fee Sponsorship (Gasless Transactions)
+ * - Sponsor account pays network fee on behalf of users
+ * - Users can transact without holding XLM for fees
+ * - Implements Stellar Fee Bump transaction standard
+ */
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
 
@@ -108,3 +115,11 @@ export const getSponsorAddress = () => {
     return null;
   }
 };
+
+export const getFeeBumpInfo = () => ({
+  feature: "Fee Sponsorship",
+  description: "Sponsor pays network fees — users transact for free",
+  sponsorConfigured: isSponsorAvailable(),
+  sponsorAddress: getSponsorAddress(),
+  standard: "Stellar Fee Bump (SEP-0)",
+});
