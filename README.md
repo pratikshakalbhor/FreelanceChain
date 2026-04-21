@@ -1,5 +1,4 @@
 # 🌟 Decentralized Freelancer Escrow Platform
-### Level 5 — Blue Belt Submission | Rise In Stellar Quest
 
 A full-stack decentralized application built on Stellar Testnet combining NFT minting, XLM payments, and a trustless freelancer escrow system — like **Fiverr on blockchain** with zero middleman fees.
 
@@ -89,6 +88,17 @@ This table documents user feedback received for FreelancerShield and the corresp
   | 30 | |   |  |    |
 
 ---
+
+
+## 🔄 User Feedback Implementation
+
+| Feedback | Change Made | Commit ID |
+|----------|-------------|-----------|
+| Add chat feature | Firebase real-time chat in ChatPage.js | `40bb7fa` |
+| Reducing load times | Parallel fetch with Promise.all() | `a65f2db` |
+| Add Search box in job page | Instant search in Find Jobs tab | `3818585` |
+| Improve UI design slightly | Mobile wallet detection, better UI | `64fb77c` |
+| Add more advanced features | Fee Sponsorship (gasless transactions) | `ff5ef67` |
 
 ## Feedback Summary
  
