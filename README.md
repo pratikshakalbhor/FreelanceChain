@@ -92,14 +92,14 @@ This table documents user feedback received for FreelancerShield and the corresp
 
 ## 🔄 User Feedback Implementation
 
-| Feedback | Change Made | Commit ID |
-|----------|-------------|-----------|
-| Add chat feature | Firebase real-time chat in ChatPage.js | `40bb7fa` |
-| Reducing load times | Parallel fetch with Promise.all() | `a65f2db` |
-| Add Search box in job page | Instant search in Find Jobs tab | `3818585` |
-| Improve UI design slightly | Mobile wallet detection, better UI | `64fb77c` |
-| Add more advanced features | Fee Sponsorship (gasless transactions) | `ff5ef67` |
-| activity page very slow  |Fix Activity Page functionality, restore missing files, and implement real-time tracking with activityService | `7470cb1` |
+|| | Feedback | Change Made | Commit ID |
+|---------|-------------|----------|-------------|-----------|
+| Rohit Labase| rohitlabase@gmail.com| Add chat feature | Firebase real-time chat in ChatPage.js | `40bb7fa` |
+| Revan Landage|revanhlandage2006@gmail.com | Reducing load times | Parallel fetch with Promise.all() | `a65f2db` |
+| Dipali kalbhor|dipalikalbhor98@gmail.com | Add Search box in job page | Instant search in Find Jobs tab | `3818585` |
+| Nirupam Karankale| ndkindia09@gmail.com|Add wallet install links | Mobile wallet detection, better UI | `64fb77c` |
+|Dnyaneshwari Badhe |dnyaneshwaribadhe2323@gmail.com |Add more advanced features | Fee Sponsorship (gasless transactions) | `ff5ef67` |
+|Diksha Sawant  |sawantdiksha83@gmail.com | activity page very slow  |Fix Activity Page functionality, restore missing files, and implement real-time tracking with activityService | `7470cb1` |
 
 ## Feedback Summary
  
