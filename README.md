@@ -84,8 +84,8 @@ This table documents user feedback received for FreelancerShield and the corresp
   | 26 | Anjali Prasad | anjaliprasad9581@gmail.com  | GCE2MJUAI4CVRA52XGDN3ZZWWFI66LJAPEQ3GZ6U664J2FEKDOBGILCR |  No any improvement need  |
   | 27 | Snehal balghare | balgharesnehal27@gmail.com  |  GDYK646NA4EYYXYVTKJH3C5EYJIRHN24X3TI6NLPDSF6353INWOH7LV3 | Nothing  |
   | 28 |Swati chavan  |  chavansomnath0960@gmail.com | GCDDHHSB2MFLM2KPJQ6DQ5EQJBTQE7C7KC6J3C3UOV2YJICNFYP4SGC5 | Add wallet install links   |
-  | 29 | |   | |   |
-  | 30 | |   |  |    |
+  | 29 | Diksha Sawant  | sawantdiksha83@gmail.com  | GCVGVTPL3WIJ4WUVFRYJKFVMCZTKWJ6GRUP7Y2BCDXWKHOGZX72NPXSS | activity page very slow   |
+  | 30 | Vaishnavi Raut  |  vaishnaviraut034@gmail.com | GDCQ2H2CQEGAGOWNCVYQUJ7A4JBQGXG6OUU425T7JTREQXORM5D7Q6YL |   - |
 
 ---
 
@@ -99,6 +99,7 @@ This table documents user feedback received for FreelancerShield and the corresp
 | Add Search box in job page | Instant search in Find Jobs tab | `3818585` |
 | Improve UI design slightly | Mobile wallet detection, better UI | `64fb77c` |
 | Add more advanced features | Fee Sponsorship (gasless transactions) | `ff5ef67` |
+| activity page very slow  |Fix Activity Page functionality, restore missing files, and implement real-time tracking with activityService | `7470cb1` |
 
 ## Feedback Summary
  
