@@ -10,7 +10,6 @@ A full-stack decentralized application built on Stellar Testnet combining NFT mi
 |---|---|
 | 🌐 **Live Demo** | https://freelancechain-dapp.vercel.app/login |
 | 📹 **Demo Video** | https://drive.google.com/file/d/1x3azpS7cS6JXB5bEXG07bxpUbHcTRg0u/view?usp=sharing |
-| 📂 **GitHub** | https://github.com/pratikshakalbhor/FreelanceChain |
 | 🐦 **Community Contribution** [Twitter Post] | https://x.com/PratikshaK61510/status/2039695252710469654 |
 ---
 
@@ -55,10 +54,10 @@ This table documents user feedback received for FreelancerShield and the corresp
 ## User Feedback Table
  
 | # | User Name | User Email | User Wallet Address | Feedback | 
-|---|-----------|------------|---------------------|--------------|
+|---|-----------|------------|---------------------|---------------------------|
 | 1 | Ingale Munja | inglemunja51@gmail.com | GDUXWQNSPNM5GUMP3KWXSNOY62GRKPRHUD6IKDJORCRET7CWBKQ3TVR4 | Albedo popup is not opening  | 
-| 2 | Revan Hlandage | revanhlandage2006@gmail.com | GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF | - | 
-| 3 | Rohit Labase | rohitlabase@gmail.com | GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX | NFT Marketplace price range | 
+| 2 | Revan Hlandage | revanhlandage2006@gmail.com | GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF | Reducing load times | 
+| 3 | Rohit Labase | rohitlabase@gmail.com | GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX | NFT Marketplace price range and 	Add chat feature | 
 | 4 | Kalbhor  Priya | kalbhorsppu12@gmail.com | GBZHZSGVKSROKQPUD3QHQWF42YDE3PPFUINEKW3NZ2NLOZXNLM7UVQW4 |- | 
 | 5 | Dipali Kalbhor | dipalikalbhor98@gmail.com | GCYO66SNVSGBBJB3LDGDIGNTW5Y7H4FEWF65MU4BBH7YSXDRYZWWMY6C | add Search box in job page | 
 | 6 | Nikita Biradar | nikitabiradar300@gmail.com | GAVOLZD4APA2R7LOG5T45OBWGXAXQ57J63L7Z2YUOL2EZ33FY7YMC4PX | Nothing|
