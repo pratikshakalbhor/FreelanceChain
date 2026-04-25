@@ -310,6 +310,8 @@ export default function EscrowPage({
   };
 
   const handleApproveJob = async (jobId) => {
+    console.log("walletType:", walletType);
+    console.log("walletAddress:", walletAddress);
     setLoading(true);
     try {
       const job = jobs.find((j) => j.id === jobId);
