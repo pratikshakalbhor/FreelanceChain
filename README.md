@@ -88,17 +88,16 @@ This table documents user feedback received for FreelancerShield and the corresp
 
 ---
 
-
 ## 🔄 User Feedback Implementation
 
-|| | Feedback | Change Made | Commit ID |
-|---------|-------------|----------|-------------|-----------|
-| Rohit Labase| rohitlabase@gmail.com| Add chat feature | Firebase real-time chat in ChatPage.js | `40bb7fa` |
-| Revan Landage|revanhlandage2006@gmail.com | Reducing load times | Parallel fetch with Promise.all() | `a65f2db` |
-| Dipali kalbhor|dipalikalbhor98@gmail.com | Add Search box in job page | Instant search in Find Jobs tab | `3818585` |
-| Nirupam Karankale| ndkindia09@gmail.com|Add wallet install links | Mobile wallet detection, better UI | `64fb77c` |
-|Dnyaneshwari Badhe |dnyaneshwaribadhe2323@gmail.com |Add more advanced features | Fee Sponsorship (gasless transactions) | `ff5ef67` |
-|Diksha Sawant  |sawantdiksha83@gmail.com | activity page very slow  |Fix Activity Page functionality, restore missing files, and implement real-time tracking with activityService | `7470cb1` |
+|User Name| Email Id | Feedback | Change Made | Commit ID |
+|----------|-------------|-------------|-----------------------------------------------------------|-----------|
+| Rohit Labase| rohitlabase@gmail.com| Add chat feature | Added real-time chat documentation and integration comments in ChatPage.js. Full Firebase chat implementation (send/receive messages, job-based rooms, notifications) was developed across multiple commits. | `40bb7fa` |
+| Revan Landage|revanhlandage2006@gmail.com | Reducing load times | Added parallel fetch documentation in soroban.js. Promise.all() implementation for NFT fetching reduces load time significantly. | `a65f2db` |
+| Dipali kalbhor|dipalikalbhor98@gmail.com | Add Search box in job page | Added search input field and instant filtering logic in EscrowPage.js Find Jobs tab (16 lines added) | `3818585` |
+| Nirupam Karankale| ndkindia09@gmail.com| Add wallet install links | Added mobile wallet detection, install prompts and UI improvements in WalletModal.js | `64fb77c` |
+|Dnyaneshwari Badhe |dnyaneshwaribadhe2323@gmail.com | Add more advanced features | Implemented fee sponsorship (gasless transactions) utility in feeBump.js | `ff5ef67` |
+|Diksha Sawant  |sawantdiksha83@gmail.com | Activity page very slow | Fixed ActivityPage.js performance, restored missing files, implemented real-time tracking with activityService.js (260+ lines changed across 6 files) | `7470cb1` |
 
 ## Feedback Summary
  
