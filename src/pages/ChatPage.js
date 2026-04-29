@@ -1,4 +1,12 @@
-// User Feedback: Real-time chat feature implemented
+/**
+ * User Feedback: Add chat feature between client and freelancer
+ * Implementation: Firebase Realtime Database used for real-time messaging
+ * - Messages stored at: chats/{chatId}/messages
+ * - Job-based chat rooms — unique chatId per user pair
+ * - Send/receive messages with timestamp
+ * - Notification sent to recipient via storeNotification()
+ * - Auto-scroll to latest message
+ */
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";

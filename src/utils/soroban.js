@@ -1,4 +1,11 @@
-// User Feedback: Parallel fetch implemented - reduces load times
+/**
+ * User Feedback: Reducing load times - Parallel NFT fetching
+ * Optimization: Promise.all() used for parallel data fetching
+ * - All NFT owner/name/image calls run simultaneously
+ * - Reduces load time from O(n) sequential to O(1) parallel
+ * - Significant improvement for wallets with 10+ NFTs
+ */
+
 
 import {
   rpc,
