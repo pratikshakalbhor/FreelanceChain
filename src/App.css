@@ -30,7 +30,7 @@ body {
   margin: 0;
   overflow-x: hidden;
   position: relative;
-  z-index: 1;
+  z-index: 2;          /* above canvas (z:0) AND overlay (z:1) */
   background: transparent;
 }
 
@@ -56,13 +56,31 @@ body {
   max-width: 1200px;
 }
 
-/* ===== Card Layout - Glassmorphism ===== */
+/* ===== Card Layout - Glassmorphism (sharp foreground) ===== */
 .card {
-  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-purple-900/40 p-8 transition-all duration-300 hover:shadow-purple-600/50 hover:scale-[1.02];
-
+  background: rgba(10, 14, 26, 0.72);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  padding: 32px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
   text-align: center;
   animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  color: #f1f5f9;  /* sharp white text */
+}
+
+.card:hover {
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.65),
+    0 4px 16px rgba(99, 102, 241, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* Landing page card - small centered */
@@ -551,3 +569,9 @@ body {
     display: none !important;
   }
 }
+
+/* Floating animation for stats cards + sidebar logo */
+@keyframes float-up {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-4px); }
+}

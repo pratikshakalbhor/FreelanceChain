@@ -62,29 +62,61 @@ export const connectXBull = async () => {
 };
 
 // ── Sign transaction ──────────────────────────────────────────────────────────
-export const signTransaction = async (xdr, opts = {}) => {
-  const { walletType, network, address } = opts;
+// Supports BOTH call signatures:
+//   signTransaction(xdr, walletType, network, networkPassphrase)   ← positional
+//   signTransaction(xdr, { walletType, network, networkPassphrase, address })  ← object
+export const signTransaction = async (xdr, optsOrWalletType = {}, networkArg, networkPassphraseArg) => {
+  let walletType, network, networkPassphrase, address;
+
+  if (typeof optsOrWalletType === "string") {
+    // Positional call: (xdr, walletType, network, networkPassphrase)
+    walletType        = optsOrWalletType;
+    network           = networkArg;
+    networkPassphrase = networkPassphraseArg;
+  } else {
+    // Object call: (xdr, { walletType, network, networkPassphrase, address })
+    ({ walletType, network, networkPassphrase, address } = optsOrWalletType);
+  }
+
+  // Guard — must be a known Stellar wallet
+  const VALID_TYPES = Object.values(WALLET_TYPES);
+  if (!walletType || !VALID_TYPES.includes(walletType)) {
+    const hint = walletType ? `"${walletType}"` : "(empty — wallet not connected?)"
+    throw new Error(
+      `Unsupported wallet type: ${hint}. ` +
+      `Please connect Freighter, Albedo, or xBull first.`
+    );
+  }
 
   switch (walletType) {
     case WALLET_TYPES.FREIGHTER: {
-      // v2+: signTransaction(xdr, { networkPassphrase }) or { network }
-      // v6: signTransaction(xdr, { networkPassphrase }) → { signedTxXdr }
-      const result = await freighterSignTx(xdr, { networkPassphrase: network });
-      return typeof result === "string" ? result : result?.signedTxXdr;
+      const result = await freighterSignTx(xdr, {
+        networkPassphrase: networkPassphrase || network,
+      });
+      const signed = typeof result === "string" ? result : result?.signedTxXdr;
+      if (!signed) throw new Error("Freighter: signing was cancelled or returned empty.");
+      return signed;
     }
     case WALLET_TYPES.ALBEDO: {
       const albedoRes = await albedo.tx({
         xdr,
-        network: network?.toLowerCase(),
+        network: (network || "testnet").toLowerCase(),
       });
-      return albedoRes.signed_envelope_xdr || albedoRes.signed_envelope;
+      const signed = albedoRes.signed_envelope_xdr || albedoRes.signed_envelope;
+      if (!signed) throw new Error("Albedo: signing was cancelled or returned empty.");
+      return signed;
     }
     case WALLET_TYPES.XBULL: {
       const xbull = window.xBull || window.xbull;
-      if (!xbull) throw new Error("xBull not found");
-      return await xbull.signTransaction(xdr, { publicKey: address, network });
+      if (!xbull) throw new Error("xBull extension not found. Please install it.");
+      const signed = await xbull.signTransaction(xdr, {
+        publicKey: address,
+        network: networkPassphrase || network,
+      });
+      if (!signed) throw new Error("xBull: signing was cancelled or returned empty.");
+      return signed;
     }
     default:
-      throw new Error("Unsupported wallet type");
+      throw new Error("Unsupported wallet type.");
   }
 };

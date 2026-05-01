@@ -83,7 +83,11 @@ export default function PaymentPage({ walletAddress, balance, setBalance, server
       const xdr = transaction.toXDR();
       console.log(" TX XDR built successfully");
 
-      const signedXDR = await signTransaction(xdr, walletType, NETWORK, NETWORK_PASSPHRASE);
+      const signedXDR = await signTransaction(xdr, {
+        walletType,
+        network: NETWORK,
+        networkPassphrase: NETWORK_PASSPHRASE,
+      });
 
       if (!signedXDR) {
         setStatus("Transaction Cancelled by User.");

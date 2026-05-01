@@ -172,6 +172,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
           borderRadius: "10px",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: "18px", flexShrink: 0,
+          animation: "float-up 3s ease-in-out infinite",
         }}>💎</div>
         <span style={{
           color: themeStyles.logoText,

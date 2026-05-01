@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Menu } from "lucide-react";
 import "./App.css";
 import * as StellarSdk from "@stellar/stellar-sdk";
@@ -27,6 +28,7 @@ import { useTheme } from "./context/ThemeContext";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { walletAddress, setModalOpen, disconnectWallet } = useWallet();
   const { isDark } = useTheme();
   const [balance, setBalance] = useState("0");
@@ -109,7 +111,7 @@ function App() {
           }
         }
       `}</style>
-      <div style={{ position: "relative", zIndex: 1, display: "flex", width: "100%", minHeight: "100vh" }}>
+      <div style={{ position: "relative", zIndex: 2, display: "flex", width: "100%", minHeight: "100vh" }}>
         <div
           className={`app-container ${walletAddress ? "loggedin" : "loggedout"}`}
           style={{
@@ -232,6 +234,15 @@ function App() {
           <main className={`main-content ${walletAddress ? 'with-sidebar' : ''}`}
             style={{ paddingTop: walletAddress ? "70px" : "0" }}
           >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25 }}
+                style={{ width: "100%", minHeight: "100%" }}
+              >
             <Routes>
               {/*  Mobile Responsive Login Page */}
               <Route path="/login" element={
@@ -465,6 +476,8 @@ function App() {
                 element={<Navigate to="/" replace />}
               />
             </Routes>
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
       </div>

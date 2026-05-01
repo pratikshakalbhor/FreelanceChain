@@ -179,12 +179,11 @@ const MintPage = ({ walletAddress, server, setBalance, setNfts, nfts }) => {
 
       let signedTxXdr;
       try {
-        signedTxXdr = await signTransaction(
-          assembledTx.toXDR(),
+        signedTxXdr = await signTransaction(assembledTx.toXDR(), {
           walletType,
-          NETWORK,           // "TESTNET" — walletService handles lowercase conversion
-          NETWORK_PASSPHRASE
-        );
+          network: NETWORK,
+          networkPassphrase: NETWORK_PASSPHRASE,
+        });
       } catch (signErr) {
         console.error("❌ Signing error:", signErr);
         throw new Error(signErr.message || "Signing failed or was cancelled");

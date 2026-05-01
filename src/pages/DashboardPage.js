@@ -117,9 +117,13 @@ export default function DashboardPage({ walletAddress, balance, nfts }) {
     boxShadow: isDark ? "none" : "0 4px 12px rgba(0,0,0,0.05)",
   };
 
-  const StatCard = ({ icon, label, value, color, sub, delay }) => (
+  const StatCard = ({ icon, label, value, color, sub, delay, floatDelay }) => (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-      style={{ ...cardStyle, display: "flex", alignItems: "center", gap: "16px", flex: "1 1 200px" }}>
+      style={{
+        ...cardStyle,
+        display: "flex", alignItems: "center", gap: "16px", flex: "1 1 200px",
+        animation: `float-up 4s ease-in-out ${floatDelay} infinite`,
+      }}>
       <div style={{ width: "52px", height: "52px", borderRadius: "16px", background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", flexShrink: 0 }}>
         {icon}
       </div>
@@ -131,12 +135,14 @@ export default function DashboardPage({ walletAddress, balance, nfts }) {
     </motion.div>
   );
 
+
   const stats = [
-    { icon: <Wallet size={24} />, label: "XLM Balance", value: `${balance} XLM`, color: "rgba(124,58,237,0.25)", delay: 0.05 },
-    { icon: <ShoppingBag size={24} />, label: "Total NFTs", value: nfts?.length ?? 0, color: "rgba(59,130,246,0.25)", delay: 0.1 },
-    { icon: <Briefcase size={24} />, label: "Jobs Posted", value: jobsPosted, color: "rgba(234,179,8,0.25)", delay: 0.15, sub: "As client" },
-    { icon: <CheckCircle size={24} />, label: "Jobs Completed", value: jobsDone, color: "rgba(16,185,129,0.25)", delay: 0.2, sub: xlmEarned > 0 ? `+${xlmEarned.toFixed(0)} XLM earned` : undefined },
+    { icon: <Wallet size={24} />, label: "XLM Balance", value: `${balance} XLM`, color: "rgba(124,58,237,0.25)", delay: 0.05, floatDelay: "0s" },
+    { icon: <ShoppingBag size={24} />, label: "Total NFTs", value: nfts?.length ?? 0, color: "rgba(59,130,246,0.25)", delay: 0.1, floatDelay: "1s" },
+    { icon: <Briefcase size={24} />, label: "Jobs Posted", value: jobsPosted, color: "rgba(234,179,8,0.25)", delay: 0.15, sub: "As client", floatDelay: "2s" },
+    { icon: <CheckCircle size={24} />, label: "Jobs Completed", value: jobsDone, color: "rgba(16,185,129,0.25)", delay: 0.2, sub: xlmEarned > 0 ? `+${xlmEarned.toFixed(0)} XLM earned` : undefined, floatDelay: "3s" },
   ];
+
 
   const actions = [
     { icon: <Briefcase size={24} />, label: "Post a Job", to: "/escrow" },

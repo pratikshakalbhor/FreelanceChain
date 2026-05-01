@@ -180,7 +180,11 @@ export default function MarketplacePage({ walletAddress }) {
         .setTimeout(300).build();
 
       setStatusMsg(" Please sign the XLM payment...");
-      const signedXDR = await signTransaction(tx.toXDR(), walletType, NETWORK, NETWORK_PASSPHRASE);
+      const signedXDR = await signTransaction(tx.toXDR(), {
+        walletType,
+        network: NETWORK,
+        networkPassphrase: NETWORK_PASSPHRASE,
+      });
       if (!signedXDR) throw new Error("Signing cancelled");
 
       const signedTxXdr = typeof signedXDR === "object" && signedXDR.signedTxXdr
