@@ -29,7 +29,15 @@ import { useTheme } from "./context/ThemeContext";
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { walletAddress, setModalOpen, disconnectWallet } = useWallet();
+  const { 
+    walletAddress, 
+    isModalOpen, 
+    setModalOpen, 
+    disconnectWallet, 
+    setWalletAddress, 
+    setWalletType, 
+    setConnectedWallets 
+  } = useWallet();
   const { isDark } = useTheme();
   const [balance, setBalance] = useState("0");
   const [nfts, setNfts] = useState([]);
@@ -121,7 +129,25 @@ function App() {
             minHeight: "100vh"
           }}
         >
-          <WalletModal />
+          {/* Wallet Connection Modal */}
+          {isModalOpen && (
+            <WalletModal
+              onClose={() => setModalOpen(false)}
+              onConnect={({ wallet, address }) => {
+                setWalletAddress(address);
+                setWalletType(wallet.toUpperCase());
+                setConnectedWallets(prev => {
+                  if (prev.some(w => w.address === address)) return prev;
+                  return [...prev, { 
+                    address, 
+                    type: wallet.toUpperCase(), 
+                    name: wallet.charAt(0).toUpperCase() + wallet.slice(1) 
+                  }];
+                });
+                setModalOpen(false);
+              }}
+            />
+          )}
 
           {walletAddress && (
             <Sidebar

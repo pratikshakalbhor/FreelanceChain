@@ -130,7 +130,8 @@ export const WalletProvider = ({ children }) => {
     <WalletContext.Provider value={{
       walletAddress, walletType, connectedWallets,
       connectWallet: handleConnect, disconnectWallet, switchWallet,
-      isModalOpen, setModalOpen
+      isModalOpen, setModalOpen,
+      setWalletAddress, setWalletType, setConnectedWallets
     }}>
       {children}
     </WalletContext.Provider>
