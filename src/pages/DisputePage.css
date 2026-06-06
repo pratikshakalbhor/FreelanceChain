@@ -1,0 +1,87 @@
+/* DisputePage.css */
+.dispute-page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dispute-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dispute-item-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dispute-item-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dispute-status-pill {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dispute-status-pill.open { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.dispute-status-pill.review { background: rgba(234, 179, 8, 0.15); color: #fbbf24; }
+.dispute-status-pill.resolved { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.dispute-detail-view {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 40px;
+}
+
+.voting-section {
+  margin-top: 32px;
+  padding: 24px;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 16px;
+}
+
+.vote-btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.vote-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vote-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vote-btn.active.refund { background: #ef4444; border-color: #ef4444; }
+.vote-btn.active.release { background: #10b981; border-color: #10b981; }
+
+.timer-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 0.9rem;
+}

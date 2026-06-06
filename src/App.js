@@ -23,6 +23,8 @@ import { runFullIndex, isIndexStale } from "./utils/dataIndexer";
 import { errorHandler } from "./utils/errorHandler";
 import ChatPage from "./pages/ChatPage";
 import NotificationPanel from "./components/NotificationPanel";
+import EscrowPage from "./pages/EscrowPage";
+import DisputePage from "./pages/DisputePage";
 
 import { useTheme } from "./context/ThemeContext";
 
@@ -446,11 +448,30 @@ function App() {
               />
               <Route
                 path="/escrow"
-                element={<Navigate to="/post-job" replace />}
+                element={
+                  walletAddress ? (
+                    <div className="pages-container">
+                      <EscrowPage 
+                        walletAddress={walletAddress} 
+                        onJobPosted={() => setJobsPosted(jobsPosted + 1)}
+                      />
+                    </div>
+                  ) : <Navigate to="/login" replace />
+                }
               />
               <Route
                 path="/dashboard"
                 element={<Navigate to="/" replace />}
+              />
+              <Route
+                path="/disputes"
+                element={
+                  walletAddress ? (
+                    <div className="pages-container">
+                      <DisputePage walletAddress={walletAddress} />
+                    </div>
+                  ) : <Navigate to="/login" replace />
+                }
               />
             </Routes>
               </motion.div>
