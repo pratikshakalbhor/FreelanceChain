@@ -15,7 +15,8 @@ import {
   Search,
   History,
   ShieldCheck,
-  Scale
+  Scale,
+  Compass
 } from "lucide-react";
 import logo from "../assets/logo.png";
 
@@ -34,6 +35,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
     { to: "/", icon: <LayoutDashboard size={18} />, label: "Dashboard" },
     { to: "/post-job", icon: <PlusCircle size={18} />, label: "Post Job", badge: "NEW" },
     { to: "/find-jobs", icon: <Search size={18} />, label: "Find Jobs" },
+    { to: "/categories", icon: <Compass size={18} />, label: "Explore" },
     { to: "/my-jobs", icon: <Briefcase size={18} />, label: "My Jobs" },
     { to: "/payment", icon: <CreditCard size={18} />, label: "Payment" },
     { to: "/activity", icon: <History size={18} />, label: "Activity" },

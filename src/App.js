@@ -25,6 +25,7 @@ import ChatPage from "./pages/ChatPage";
 import NotificationPanel from "./components/NotificationPanel";
 import EscrowPage from "./pages/EscrowPage";
 import DisputePage from "./pages/DisputePage";
+import CategoriesPage from "./pages/CategoriesPage";
 
 import { useTheme } from "./context/ThemeContext";
 
@@ -471,6 +472,14 @@ function App() {
                       <DisputePage walletAddress={walletAddress} />
                     </div>
                   ) : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/categories"
+                element={
+                  <div className="pages-container">
+                    <CategoriesPage />
+                  </div>
                 }
               />
             </Routes>

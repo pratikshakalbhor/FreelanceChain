@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { HORIZON_URL, ESCROW_CONTRACT_ID, SOROBAN_SERVER, NETWORK_PASSPHRASE } from "../constants";
 import { useTheme } from "../context/ThemeContext";
-import { Wallet, Briefcase, CheckCircle, Send, Plus, Zap } from "lucide-react";
+import { Wallet, Briefcase, CheckCircle, Send, Plus, Zap, Search, SlidersHorizontal } from "lucide-react";
+import { CategoriesRow, PopularServices } from "../components/LandingSections";
 
 const shortenAddr = (addr) => {
   if (!addr || typeof addr !== "string") return "";
@@ -44,6 +45,7 @@ export default function DashboardPage({ walletAddress, balance }) {
   const [jobsPosted, setJobsPosted] = useState(0);
   const [jobsDone, setJobsDone] = useState(0);
   const [xlmEarned, setXlmEarned] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // ── Load jobs from escrow contract ─────────────────────────────────────────
   useEffect(() => {
@@ -158,19 +160,80 @@ export default function DashboardPage({ walletAddress, balance }) {
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       style={{ maxWidth: "1200px", margin: "0 auto", padding: "8px" }}>
 
-      {/* Header */}
-      <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ color: isDark ? "#fff" : "#1a1a2e", fontSize: "2rem", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, marginBottom: "8px" }}>Overview</h1>
-        <p style={{ color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", fontFamily: "'Inter', sans-serif", fontSize: "0.95rem" }}>
-          Welcome back,{" "}
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", color: isDark ? "#a78bfa" : "#7c3aed" }}>{shortenAddr(walletAddress)}</span>
-        </p>
+      {/* Discovery Header & Search Bar */}
+      <div style={{ marginBottom: "48px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", marginBottom: "32px" }}>
+          <div>
+            <h1 style={{ color: isDark ? "#fff" : "#1a1a2e", fontSize: "2.5rem", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>Discover Services</h1>
+            <p style={{ color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", fontSize: "1.05rem", marginTop: "6px", fontFamily: "'Inter', sans-serif" }}>Find the best blockchain talent for your global projects.</p>
+          </div>
+          <div className="wallet-status" style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(99,102,241,0.12)", padding: "10px 18px", borderRadius: "14px", border: "1px solid rgba(99,102,241,0.25)" }}>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 12px rgba(16,185,129,0.5)" }} />
+            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#a78bfa", fontFamily: "'JetBrains Mono', monospace" }}>{shortenAddr(walletAddress)}</span>
+          </div>
+        </div>
+
+        {/* Global Search Bar (Fiverr Style) */}
+        <div style={{ position: "relative", maxWidth: "850px", margin: "0 auto" }}>
+          <input
+            type="text"
+            placeholder="What blockchain service are you looking for?"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ 
+              width: "100%", 
+              padding: "20px 24px 20px 64px", 
+              borderRadius: "18px", 
+              background: isDark ? "rgba(255,255,255,0.06)" : "#fff", 
+              border: isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e2e8f0", 
+              color: isDark ? "#fff" : "#1a1a2e",
+              fontSize: "1.1rem",
+              boxShadow: isDark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.05)",
+              outline: "none",
+              transition: "all 0.3s ease"
+            }}
+            onFocus={(e) => e.target.style.borderColor = "rgba(99,102,241,0.5)"}
+            onBlur={(e) => e.target.style.borderColor = isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0"}
+          />
+          <Search size={24} style={{ position: "absolute", left: "24px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.3)" }} />
+          <button style={{ 
+            position: "absolute", 
+            right: "14px", 
+            top: "50%", 
+            transform: "translateY(-50%)", 
+            background: "rgba(99,102,241,0.15)", 
+            padding: "10px", 
+            borderRadius: "12px", 
+            border: "1px solid rgba(99,102,241,0.3)",
+            color: "#a78bfa",
+            cursor: "pointer",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.25)"}
+          onMouseLeave={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.15)"}
+          >
+            <SlidersHorizontal size={20} />
+          </button>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginBottom: "32px" }}>
-        {stats.map((s) => <StatCard key={s.label} {...s} />)}
+      {/* Categories Horizontal Scroll Row */}
+      <CategoriesRow />
+
+      {/* Popular Services Grid */}
+      <PopularServices />
+
+      {/* Personal Activity Summary Section */}
+      <div style={{ margin: "72px 0 32px" }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: 700, margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Your Activity Summary</h2>
+          <div style={{ height: "1px", flex: 1, background: "rgba(255,255,255,0.06)", margin: "0 24px" }} />
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+          {stats.map((s) => <StatCard key={s.label} {...s} />)}
+        </div>
       </div>
+
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
 
