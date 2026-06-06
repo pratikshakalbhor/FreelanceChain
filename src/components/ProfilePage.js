@@ -9,12 +9,14 @@ import {
   LayoutGrid, 
   Briefcase,
   ExternalLink,
-  CreditCard
+  CreditCard,
+  Star
 } from "lucide-react";
 import { shortenAddress } from "../utils";
 import { motion } from "framer-motion";
 import { ESCROW_CONTRACT_ID, SOROBAN_SERVER, NETWORK_PASSPHRASE } from "../constants";
 import * as StellarSdk from "@stellar/stellar-sdk";
+import { ReviewsList, useUserReviews } from "./ReviewCard";
 
 
 export const containerVariants = {
@@ -54,6 +56,10 @@ const ProfilePage = ({ account }) => {
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+
+  // Fetch user reviews
+  const { averageRating, totalReviews } = useUserReviews(walletAddress);
 
   const avatar = generateAvatar(walletAddress);
 
@@ -320,6 +326,19 @@ const ProfilePage = ({ account }) => {
           <button style={tabButtonStyle("jobs")} onClick={() => setActiveTab("jobs")}>
             <Briefcase size={16} /> Jobs
           </button>
+          <button style={tabButtonStyle("reviews")} onClick={() => { setActiveTab("reviews"); setReviewRefreshKey(k => k + 1); }}>
+            <Star size={16} /> Reviews
+            {totalReviews > 0 && (
+              <span style={{
+                background: "rgba(245,158,11,0.15)",
+                color: "#f59e0b",
+                padding: "1px 7px",
+                borderRadius: "10px",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+              }}>{totalReviews}</span>
+            )}
+          </button>
         </div>
       </motion.div>
 
@@ -341,7 +360,7 @@ const ProfilePage = ({ account }) => {
               <p style={{ margin: 0 }}><strong>Subentry Count:</strong> {account?.subentry_count || 0}</p>
             </div>
 
-            {/* Reputation Score */}
+            {/* Reputation Score + Reviews */}
             <div style={{
               marginTop: "20px",
               background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc",
@@ -358,6 +377,10 @@ const ProfilePage = ({ account }) => {
               <div style={{ display: "flex", gap: "16px", marginTop: "10px", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "0.78rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>
                   {completedJobs.length} jobs completed
+                </span>
+                <span style={{ fontSize: "0.78rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Star size={12} fill={averageRating > 0 ? "#f59e0b" : "none"} stroke={averageRating > 0 ? "#f59e0b" : "currentColor"} />
+                  {averageRating > 0 ? `${averageRating.toFixed(1)} avg rating` : "No ratings yet"} • {totalReviews} review{totalReviews !== 1 ? "s" : ""}
                 </span>
               </div>
             </div>
@@ -428,6 +451,13 @@ const ProfilePage = ({ account }) => {
                 )}
               </>
             )}
+          </motion.div>
+        )}
+
+        {/* REVIEWS TAB */}
+        {activeTab === "reviews" && (
+          <motion.div variants={itemVariants}>
+            <ReviewsList targetWallet={walletAddress} refreshKey={reviewRefreshKey} />
           </motion.div>
         )}
       </div>
