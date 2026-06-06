@@ -7,10 +7,13 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 import Sidebar from "./components/Sidebar";
 import { HORIZON_URL } from "./constants";
 import Background from "./components/Background";
+import logo from "./assets/logo.png";
 
 import PaymentPage from "./pages/PaymentPage";
 import ActivityPage from "./pages/ActivityPage";
-import EscrowPage from "./pages/EscrowPage";
+import PostJobPage from "./pages/PostJobPage";
+import FindJobsPage from "./pages/FindJobsPage";
+import MyJobsPage from "./pages/MyJobsPage";
 import DashboardPage from "./pages/DashboardPage";
 import MonitoringPage from "./pages/MonitoringPage";
 import { useWallet } from "./WalletContext";
@@ -170,18 +173,12 @@ function App() {
                 alignItems: "center",
                 gap: "8px",
               }}>
-                <div style={{
-                  width: "28px", height: "28px",
-                  background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                  borderRadius: "8px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "14px",
-                }}>💎</div>
+                <img src={logo} alt="FreelanceChain Logo" style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }} />
                 <span style={{
                   color: isDark ? "#fff" : "#1a1a2e",
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                   fontWeight: 800,
-                  fontSize: "0.9rem",
+                  fontSize: "1rem",
                 }}>FreelanceChain</span>
               </div>
 
@@ -278,19 +275,15 @@ function App() {
                       textAlign: "center",
                       boxShadow: isDark ? "0 25px 50px rgba(88,28,135,0.4)" : "0 4px 24px rgba(0,0,0,0.1)",
                     }}>
-                      <div style={{
-                        width: "64px",
-                        height: "64px",
-                        background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        margin: "0 auto 20px",
-                        fontSize: "28px",
-                      }}>
-                        💎
-                      </div>
+                      <img src={logo} alt="FreelanceChain Logo" style={{
+                        width: "80px",
+                        height: "80px",
+                        borderRadius: "20px",
+                        marginBottom: "24px",
+                        display: "block",
+                        margin: "0 auto 24px",
+                        boxShadow: "0 10px 40px rgba(99,102,241,0.3)"
+                      }} />
 
                       <h1 style={{
                         fontSize: "clamp(1.4rem, 5vw, 2rem)",
@@ -419,30 +412,41 @@ function App() {
                 }
               />
               <Route
-                path="/escrow"
+                path="/post-job"
                 element={
                   walletAddress ? (
                     <div className="pages-container">
-                      <EscrowPage
+                      <PostJobPage
                         walletAddress={walletAddress}
-                        server={server}
                         onJobPosted={() => setJobsPosted(jobsPosted + 1)}
-                        onJobAccepted={(jobId) => {
-                          console.log("Job accepted:", jobId);
-                        }}
-                        onWorkSubmitted={() => console.log("Work Submitted")}
-                        onPaymentReleased={async (jobId) => {
-                          // Refresh balance
-                          try {
-                            const account = await server.loadAccount(walletAddress);
-                            const xlm = account.balances.find(b => b.asset_type === "native");
-                            setBalance(parseFloat(xlm.balance).toFixed(2));
-                          } catch (e) { console.error("Balance refresh error:", e); }
-                        }}
                       />
                     </div>
                   ) : <Navigate to="/login" replace />
                 }
+              />
+              <Route
+                path="/find-jobs"
+                element={
+                  walletAddress ? (
+                    <div className="pages-container">
+                      <FindJobsPage walletAddress={walletAddress} />
+                    </div>
+                  ) : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/my-jobs"
+                element={
+                  walletAddress ? (
+                    <div className="pages-container">
+                      <MyJobsPage walletAddress={walletAddress} />
+                    </div>
+                  ) : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/escrow"
+                element={<Navigate to="/post-job" replace />}
               />
               <Route
                 path="/dashboard"
