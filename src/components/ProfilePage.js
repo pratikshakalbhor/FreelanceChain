@@ -10,7 +10,8 @@ import {
   LayoutGrid, 
   History, 
   Briefcase,
-  ExternalLink
+  ExternalLink,
+  CreditCard
 } from "lucide-react";
 import { shortenAddress } from "../utils";
 import { motion } from "framer-motion";
@@ -53,6 +54,8 @@ const ProfilePage = ({ account }) => {
 
   const [jobs, setJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   const avatar = generateAvatar(walletAddress);
 
