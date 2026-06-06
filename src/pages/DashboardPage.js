@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { HORIZON_URL, ESCROW_CONTRACT_ID, SOROBAN_SERVER, NETWORK_PASSPHRASE } from "../constants";
 import { useTheme } from "../context/ThemeContext";
-import { Wallet, Briefcase, CheckCircle, Send, Plus, ShoppingBag, Zap } from "lucide-react";
+import { Wallet, Briefcase, CheckCircle, Send, Plus, Zap } from "lucide-react";
 
 const shortenAddr = (addr) => {
   if (!addr || typeof addr !== "string") return "";

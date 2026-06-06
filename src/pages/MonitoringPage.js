@@ -27,7 +27,7 @@ export default function MonitoringPage({ walletAddress }) {
 
   const [totalChats, setTotalChats] = useState(0);
   const [totalNotifications, setTotalNotifications] = useState(0);
-  const [uniqueUsers, setUniqueUsers] = useState(new Set());
+
 
   // System health
   const [horizonStatus, setHorizonStatus] = useState("checking");
@@ -62,6 +62,7 @@ export default function MonitoringPage({ walletAddress }) {
 
       // Escrow jobs total
       try {
+        setSorobanStatus("healthy"); // Mark as healthy if we can build a tx
         const dummy = new StellarSdk.Account(walletAddress, "0");
         const jobTx = new StellarSdk.TransactionBuilder(dummy, {
           fee: "100", networkPassphrase: NETWORK_PASSPHRASE,

@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useWallet } from "../WalletContext";
-import { ref, onValue } from "firebase/database";
-import { db } from "../firebase";
+
 import { 
   Copy, 
   Check, 
   Wallet, 
   LayoutGrid, 
-  History, 
   Briefcase,
   ExternalLink,
   CreditCard
