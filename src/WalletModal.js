@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./WalletModal.css";
 
 const WALLETS = [
@@ -8,7 +8,7 @@ const WALLETS = [
     subtitle: "Stellar Extension",
     letter: "F",
     color: "#7C3AED",
-    detect: () => typeof window.freighter !== "undefined",
+    detect: (status) => status.freighter,
     installUrl: {
       desktop: "https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk",
       android: "https://play.google.com/store/apps/details?id=app.freighter",
@@ -32,9 +32,6 @@ const WALLETS = [
       ios: "https://albedo.link",
     },
     connect: async () => {
-      // Note: In a real app, Albedo uses its own SDK. 
-      // For this demonstration, we assume it returns an address if available or opens a window.
-      // The user's provided code for Albedo just opens a window.
       window.open("https://albedo.link", "_blank");
       return null;
     },
@@ -45,7 +42,7 @@ const WALLETS = [
     subtitle: "Stellar Wallet",
     letter: "X",
     color: "#7C3AED",
-    detect: () => typeof window.xBullSDK !== "undefined",
+    detect: (status) => status.xbull,
     installUrl: {
       desktop: "https://chromewebstore.google.com/detail/xbull-wallet/omajpeaffjgmlpmhbfdjepdejoemkkd",
       android: "https://play.google.com/store/apps/details?id=io.xbull.app",
@@ -68,18 +65,58 @@ const getInstallUrl = (wallet) => {
 const isMobileDevice = () => /android|iphone|ipad/i.test(navigator.userAgent);
 
 export default function WalletModal({ onClose, onConnect }) {
-  const [selected, setSelected]   = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
+  const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [installing, setInstalling] = useState(null);
+  const [detecting, setDetecting] = useState(true);
+  const [walletStatus, setWalletStatus] = useState({
+    freighter: false,
+    xbull: false,
+  });
+
+  const checkWallets = () => {
+    return {
+      freighter: !!(window.freighter || window.freighter?.isFreighter),
+      xbull: !!(window.xBullSDK || window.xBullSDK?.isConnected),
+    };
+  };
+
+  useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 6; // 3 seconds total (6 * 500ms)
+
+    const interval = setInterval(() => {
+      const status = checkWallets();
+      setWalletStatus(status);
+      attempts++;
+
+      // If both wallets detected or max attempts reached
+      if ((status.freighter && status.xbull) || attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 500);
+
+    // Initial check
+    setWalletStatus(checkWallets());
+
+    // Show detecting state for at least 1.5 seconds for smoother UX
+    const timer = setTimeout(() => {
+      setDetecting(false);
+    }, 1500);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
+  }, []);
 
   const handleWalletClick = async (wallet) => {
     setError("");
     setSelected(wallet.id);
 
-    const isInstalled = wallet.detect();
+    const isInstalled = wallet.detect(walletStatus);
 
-    // Not installed — redirect to install page
     if (!isInstalled) {
       setInstalling(wallet.id);
       const url = getInstallUrl(wallet);
@@ -91,7 +128,6 @@ export default function WalletModal({ onClose, onConnect }) {
       return;
     }
 
-    // Installed — connect karo
     try {
       setLoading(true);
       const address = await wallet.connect();
@@ -110,75 +146,73 @@ export default function WalletModal({ onClose, onConnect }) {
   return (
     <div className="wm-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="wm-modal">
-
-        {/* Header */}
         <div className="wm-header">
           <h2 className="wm-title">Connect Wallet</h2>
           <button className="wm-close" onClick={onClose}>✕</button>
         </div>
 
-        <p className="wm-subtitle">Select Wallet</p>
+        {detecting ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <div className="wm-spinner" style={{ margin: "0 auto 16px", width: "40px", height: "40px" }} />
+            <p className="wm-subtitle">Detecting wallets...</p>
+          </div>
+        ) : (
+          <>
+            <p className="wm-subtitle">Select Wallet</p>
 
-        {/* Wallet List */}
-        <div className="wm-list">
-          {WALLETS.map((wallet) => {
-            const isInstalled  = wallet.detect();
-            const isSelected   = selected === wallet.id;
-            const isInstalling = installing === wallet.id;
-            const isMobile     = isMobileDevice();
+            <div className="wm-list">
+              {WALLETS.map((wallet) => {
+                const isInstalled = wallet.detect(walletStatus);
+                const isSelected = selected === wallet.id;
+                const isInstalling = installing === wallet.id;
+                const isMobile = isMobileDevice();
 
-            return (
-              <button
-                key={wallet.id}
-                className={`wm-item ${isSelected ? "wm-item--selected" : ""}`}
-                onClick={() => handleWalletClick(wallet)}
-                disabled={loading}
-              >
-                {/* Icon */}
-                <div
-                  className="wm-icon"
-                  style={{ background: wallet.color }}
-                >
-                  {wallet.letter}
-                </div>
+                return (
+                  <button
+                    key={wallet.id}
+                    className={`wm-item ${isSelected ? "wm-item--selected" : ""}`}
+                    onClick={() => handleWalletClick(wallet)}
+                    disabled={loading}
+                  >
+                    <div className="wm-icon" style={{ background: wallet.color }}>
+                      {wallet.letter}
+                    </div>
 
-                {/* Info */}
-                <div className="wm-info">
-                  <div className="wm-name">{wallet.name}</div>
-                  <div className="wm-desc">
-                    {isInstalling
-                      ? "Opening install page..."
-                      : !isInstalled && !isMobile
-                      ? "Click to install extension"
-                      : !isInstalled && isMobile
-                      ? "Click to install app"
-                      : wallet.subtitle}
-                  </div>
-                </div>
+                    <div className="wm-info">
+                      <div className="wm-name">{wallet.name}</div>
+                      <div className="wm-desc">
+                        {isInstalling
+                          ? "Opening install page..."
+                          : !isInstalled && !isMobile
+                          ? "Click to install extension"
+                          : !isInstalled && isMobile
+                          ? "Click to install app"
+                          : wallet.subtitle}
+                      </div>
+                    </div>
 
-                {/* Right Badge */}
-                <div className="wm-right">
-                  {isInstalling ? (
-                    <div className="wm-spinner" />
-                  ) : isSelected && isInstalled ? (
-                    <div className="wm-check">✓</div>
-                  ) : !isInstalled ? (
-                    <span className="wm-install-badge">
-                      {isMobile ? "📱 Install" : "⬇ Install"}
-                    </span>
-                  ) : (
-                    <span className="wm-available">●</span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                    <div className="wm-right">
+                      {isInstalling ? (
+                        <div className="wm-spinner" />
+                      ) : isSelected && isInstalled ? (
+                        <div className="wm-check">✓</div>
+                      ) : !isInstalled ? (
+                        <span className="wm-install-badge">
+                          {isMobile ? "📱 Install" : "⬇ Install"}
+                        </span>
+                      ) : (
+                        <span className="wm-available">●</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
-        {/* Error */}
         {error && <div className="wm-error">{error}</div>}
 
-        {/* Cancel */}
         <button className="wm-cancel" onClick={onClose}>
           Cancel
         </button>
