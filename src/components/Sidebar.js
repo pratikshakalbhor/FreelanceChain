@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
@@ -6,88 +6,21 @@ import {
   LayoutDashboard,
   CreditCard,
   Briefcase,
-  Activity,
   User,
-  Settings,
   Sun,
   Moon,
   LogOut,
-  Wallet
+  Wallet,
+  PlusCircle,
+  Search,
+  History,
+  ShieldCheck
 } from "lucide-react";
+import logo from "../assets/logo.png";
 
-const SettingsModal = ({ isDark, toggleTheme, onClose }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0, bottom: 0,
-        background: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.95, y: 10 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 10 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        style={{
-          background: isDark ? 'rgba(30, 30, 40, 0.98)' : '#ffffff',
-          borderRadius: '16px',
-          padding: '24px',
-          width: '90%',
-          maxWidth: '400px',
-          border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-          color: isDark ? '#ffffff' : '#1a1a2e'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>Settings</h2>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: isDark ? '#fff' : '#000', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
-            <span style={{ fontWeight: 600 }}>Theme</span>
-            <button
-              onClick={toggleTheme}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                padding: '8px 16px', borderRadius: '8px',
-                background: isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)',
-                border: isDark ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(99,102,241,0.5)',
-                color: isDark ? '#c7d2fe' : '#4f46e5',
-                cursor: 'pointer', fontWeight: 600
-              }}
-            >
-              {isDark ? <Moon size={16} /> : <Sun size={16} />}
-              {isDark ? 'Dark' : 'Light'}
-            </button>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
-            <span style={{ fontWeight: 600 }}>Network</span>
-            <span style={{ color: isDark ? '#a78bfa' : '#7c3aed', background: isDark ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.1)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 700 }}>Testnet</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
-            <span style={{ fontWeight: 600 }}>Version</span>
-            <span style={{ opacity: 0.7, fontSize: '0.9rem' }}>1.0.0</span>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
+
 
 const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
 
   const shortenAddress = (addr) => {
@@ -98,10 +31,12 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
   // ── Navigation links — Chat removed ──
   const links = [
     { to: "/", icon: <LayoutDashboard size={18} />, label: "Dashboard" },
-    { to: "/escrow", icon: <Briefcase size={18} />, label: "Jobs", badge: "NEW" },
+    { to: "/post-job", icon: <PlusCircle size={18} />, label: "Post Job", badge: "NEW" },
+    { to: "/find-jobs", icon: <Search size={18} />, label: "Find Jobs" },
+    { to: "/my-jobs", icon: <Briefcase size={18} />, label: "My Jobs" },
     { to: "/payment", icon: <CreditCard size={18} />, label: "Payment" },
-    { to: "/activity", icon: <Activity size={18} />, label: "Activity" },
-    { to: "/monitoring", icon: <Activity size={20} />, label: "Monitoring" },
+    { to: "/activity", icon: <History size={18} />, label: "Activity" },
+    { to: "/monitoring", icon: <ShieldCheck size={20} />, label: "Monitoring" },
     { to: "/profile", icon: <User size={18} />, label: "Profile" },
   ];
 
@@ -160,17 +95,10 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
         marginBottom: "8px",
         borderBottom: `1px solid ${themeStyles.borderColor}`,
       }}>
-        <div style={{
-          width: "36px", height: "36px",
-          background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-          borderRadius: "10px",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "18px", flexShrink: 0,
-          animation: "float-up 3s ease-in-out infinite",
-        }}>💎</div>
+        <img src={logo} alt="FreelanceChain Logo" style={{ width: "40px", height: "40px", borderRadius: "12px", objectFit: "cover" }} />
         <span style={{
           color: themeStyles.logoText,
-          fontSize: "1rem",
+          fontSize: "1.1rem",
           fontFamily: "'Plus Jakarta Sans', sans-serif",
           fontWeight: 800,
           letterSpacing: "-0.5px",
@@ -215,23 +143,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
         {/* Divider */}
         <div style={{ margin: "16px 20px", borderTop: `1px solid ${themeStyles.borderColor}` }} />
 
-        {/* Settings */}
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          style={{
-            display: "flex", alignItems: "center", gap: "12px",
-            padding: "12px 20px", margin: "4px 12px", width: "calc(100% - 24px)",
-            borderRadius: "8px", fontWeight: 600, fontSize: "0.95rem",
-            background: "transparent", border: "none",
-            borderLeft: "3px solid transparent",
-            color: themeStyles.inactiveLinkColor, cursor: "pointer", textAlign: "left"
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)" }}>
-            <Settings size={18} />
-          </span>
-          Settings
-        </button>
+
 
         {/* Theme Toggle */}
         <button
@@ -300,15 +212,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
 
   return (
     <>
-      <AnimatePresence>
-        {isSettingsOpen && (
-          <SettingsModal
-            isDark={isDark}
-            toggleTheme={toggleTheme}
-            onClose={() => setIsSettingsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+
 
       {/* Desktop */}
       <div className="hidden md:block">{sidebarContent}</div>
