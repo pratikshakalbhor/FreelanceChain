@@ -9,10 +9,6 @@ import {
   Wallet, 
   LayoutGrid, 
   History, 
-  CreditCard, 
-  Image as ImageIcon,
-  Tag,
-  ShoppingBag,
   Briefcase,
   ExternalLink
 } from "lucide-react";
@@ -49,15 +45,10 @@ const generateAvatar = (address) => {
   };
 };
 
-const ProfilePage = ({ account, nfts: propNfts }) => {
+const ProfilePage = ({ account }) => {
   const { isDark } = useTheme();
   const { walletAddress } = useWallet();
   
-  const [activeTab, setActiveTab] = useState("overview");
-  const [copied, setCopied] = useState(false);
-  const [soldCount, setSoldCount] = useState(0);
-  const [purchasedCount, setPurchasedCount] = useState(0);
-  const [marketHistory, setMarketHistory] = useState([]);
   const [xlmBalance, setXlmBalance] = useState("0");
 
   const [jobs, setJobs] = useState([]);
@@ -73,34 +64,6 @@ const ProfilePage = ({ account, nfts: propNfts }) => {
       const native = account.balances.find(b => b.asset_type === "native");
       if (native) setXlmBalance(parseFloat(native.balance).toFixed(2));
     }
-
-    // 2. Fetch Firebase History
-    const marketRef = ref(db, "marketplace");
-    const unsubscribe = onValue(marketRef, (snap) => {
-      const data = snap.val() || {};
-      const history = [];
-      let sCount = 0;
-      let pCount = 0;
-
-      Object.values(data).forEach(item => {
-        // Sold items
-        if (item.sold && item.previousOwner === walletAddress) {
-          sCount++;
-          history.push({ ...item, actionType: "sold", date: item.soldAt });
-        }
-        // Purchased items
-        if (item.sold && item.ownerFull === walletAddress) {
-          pCount++;
-          history.push({ ...item, actionType: "bought", date: item.soldAt });
-        }
-      });
-
-      setSoldCount(sCount);
-      setPurchasedCount(pCount);
-      setMarketHistory(history.sort((a, b) => b.date - a.date));
-    });
-
-    return () => unsubscribe();
   }, [walletAddress, account]);
 
   useEffect(() => {
@@ -214,10 +177,7 @@ const ProfilePage = ({ account, nfts: propNfts }) => {
   const myFreelanceJobs = jobs.filter(j => String(j.freelancer) === walletAddress && String(j.freelancer) !== String(j.client));
   const completedJobs = jobs.filter(j => getStatusKey(j.status) === "Completed" && (String(j.client) === walletAddress || String(j.freelancer) === walletAddress));
   
-  const reputationScore = Math.min(100, completedJobs.length * 20 + (propNfts?.length || 0) * 5);
-
-  const certificates = propNfts?.filter(n => n.name?.toLowerCase().includes("certificate") || n.name?.toLowerCase().includes("job cert")) || [];
-  const regularNFTs = propNfts?.filter(n => !n.name?.toLowerCase().includes("certificate") && !n.name?.toLowerCase().includes("job cert")) || [];
+  const reputationScore = Math.min(100, completedJobs.length * 20);
 
   if (!walletAddress) return <div style={{ padding: "40px", textAlign: "center" }}>Please connect wallet</div>;
 
@@ -330,56 +290,24 @@ const ProfilePage = ({ account, nfts: propNfts }) => {
           </div>
         </div>
 
-        {/* Owned */}
+        {/* Jobs Done */}
         <div style={statCardStyle}>
           <div style={{ 
             width: "48px", height: "48px", borderRadius: "50%", 
             background: isDark ? "rgba(16, 185, 129, 0.15)" : "#ecfdf5",
             color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "12px" 
           }}>
-            <ImageIcon size={24} />
+            <Briefcase size={24} />
           </div>
           <div style={{ fontSize: "1.5rem", fontWeight: 800, color: isDark ? "#fff" : "#0f172a" }}>
-            {propNfts ? propNfts.length : 0}
+            {completedJobs.length}
           </div>
           <div style={{ fontSize: "0.8rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", marginTop: "4px" }}>
-            NFTs Owned
+            Jobs Completed
           </div>
         </div>
 
-        {/* Sold */}
-        <div style={statCardStyle}>
-          <div style={{ 
-            width: "48px", height: "48px", borderRadius: "50%", 
-            background: isDark ? "rgba(245, 158, 11, 0.15)" : "#fffbeb",
-            color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "12px" 
-          }}>
-            <Tag size={24} />
-          </div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 800, color: isDark ? "#fff" : "#0f172a" }}>
-            {soldCount}
-          </div>
-          <div style={{ fontSize: "0.8rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", marginTop: "4px" }}>
-            NFTs Sold
-          </div>
-        </div>
 
-        {/* Purchased */}
-        <div style={statCardStyle}>
-          <div style={{ 
-            width: "48px", height: "48px", borderRadius: "50%", 
-            background: isDark ? "rgba(236, 72, 153, 0.15)" : "#fdf2f8",
-            color: "#ec4899", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "12px" 
-          }}>
-            <ShoppingBag size={24} />
-          </div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 800, color: isDark ? "#fff" : "#0f172a" }}>
-            {purchasedCount}
-          </div>
-          <div style={{ fontSize: "0.8rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", marginTop: "4px" }}>
-            NFTs Purchased
-          </div>
-        </div>
       </motion.div>
 
       {/* Tabs */}
@@ -387,12 +315,6 @@ const ProfilePage = ({ account, nfts: propNfts }) => {
         <div style={{ display: "flex", gap: "8px" }}>
           <button style={tabButtonStyle("overview")} onClick={() => setActiveTab("overview")}>
             <LayoutGrid size={16} /> Overview
-          </button>
-          <button style={tabButtonStyle("nfts")} onClick={() => setActiveTab("nfts")}>
-            <ImageIcon size={16} /> My NFTs
-          </button>
-          <button style={tabButtonStyle("history")} onClick={() => setActiveTab("history")}>
-            <History size={16} /> History
           </button>
           <button style={tabButtonStyle("jobs")} onClick={() => setActiveTab("jobs")}>
             <Briefcase size={16} /> Jobs
@@ -436,121 +358,12 @@ const ProfilePage = ({ account, nfts: propNfts }) => {
                 <span style={{ fontSize: "0.78rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>
                   {completedJobs.length} jobs completed
                 </span>
-                <span style={{ fontSize: "0.78rem", color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>
-                  {propNfts?.length || 0} NFTs owned
-                </span>
               </div>
             </div>
           </motion.div>
         )}
 
-        {/* MY NFTS TAB */}
-        {activeTab === "nfts" && (
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "20px" }}>
-            
-            {/* Certificates */}
-            {certificates.length > 0 && (
-              <div style={{ gridColumn: "1/-1", marginBottom: "16px" }}>
-                <h4 style={{ color: "#f59e0b", marginBottom: "12px", fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  Certificates ({certificates.length})
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "12px" }}>
-                  {certificates.map((nft, i) => (
-                    <div key={i} style={{
-                      background: isDark ? "rgba(245,158,11,0.1)" : "rgba(245,158,11,0.05)",
-                      border: "1px solid rgba(245,158,11,0.3)",
-                      borderRadius: "12px", padding: "16px", textAlign: "center",
-                    }}>
-                      <div style={{ fontSize: "2.5rem", marginBottom: "8px" }}>🏆</div>
-                      <div style={{ fontWeight: 700, color: "#f59e0b", fontSize: "0.85rem" }}>{nft.name}</div>
-                      <div style={{ fontSize: "0.7rem", color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", marginTop: "4px" }}>Stellar Blockchain</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* Regular NFTs */}
-            {regularNFTs.length > 0 ? (
-              regularNFTs.map((nft) => (
-                <motion.div key={nft.id} variants={itemVariants} style={{ 
-                  background: isDark ? "rgba(30, 41, 59, 0.4)" : "#fff",
-                  border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  transition: "transform 0.2s",
-                }}>
-                  <div style={{ 
-                    height: "200px", 
-                    background: isDark ? "#0f172a" : "#f1f5f9",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
-                    fontSize: "3rem"
-                  }}>
-                    {nft.image ? (
-                        <img src={nft.image} alt={nft.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    ) : "🖼️"}
-                  </div>
-                  <div style={{ padding: "16px" }}>
-                    <h4 style={{ margin: "0 0 4px", color: isDark ? "#fff" : "#0f172a", fontSize: "1rem" }}>{nft.name || `NFT #${nft.id}`}</h4>
-                    <span style={{ fontSize: "0.75rem", color: "#6366f1", background: "rgba(99, 102, 241, 0.1)", padding: "2px 8px", borderRadius: "4px" }}>
-                      ID: {nft.id.toString().slice(0,8)}...
-                    </span>
-                  </div>
-                </motion.div>
-              ))
-            ) : certificates.length === 0 ? (
-              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "40px", opacity: 0.6 }}>
-                No NFTs found in this wallet.
-              </div>
-            ) : null}
-          </motion.div>
-        )}
-
-        {/* HISTORY TAB */}
-        {activeTab === "history" && (
-          <motion.div variants={containerVariants} initial="hidden" animate="visible" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {marketHistory.length > 0 ? (
-              marketHistory.map((item, i) => (
-                <motion.div key={i} variants={itemVariants} style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  padding: "16px",
-                  background: isDark ? "rgba(255,255,255,0.03)" : "#fff",
-                  border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid #e2e8f0",
-                  borderRadius: "12px"
-                }}>
-                  <div style={{ 
-                    padding: "10px", 
-                    borderRadius: "50%", 
-                    background: item.actionType === "bought" ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.1)",
-                    color: item.actionType === "bought" ? "#10b981" : "#f59e0b",
-                    marginRight: "16px"
-                  }}>
-                    {item.actionType === "bought" ? <ShoppingBag size={20} /> : <Tag size={20} />}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, color: isDark ? "#fff" : "#0f172a" }}>
-                      {item.actionType === "bought" ? "Purchased NFT" : "Sold NFT"}
-                    </div>
-                    <div style={{ fontSize: "0.85rem", color: isDark ? "#94a3b8" : "#64748b" }}>
-                      {item.name} for <strong>{item.price} XLM</strong>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: "0.8rem", color: isDark ? "#64748b" : "#94a3b8" }}>
-                    {new Date(item.soldAt).toLocaleDateString()}
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <div style={{ textAlign: "center", padding: "40px", opacity: 0.6 }}>
-                No transaction history found.
-              </div>
-            )}
-          </motion.div>
-        )}
 
         {/* JOBS TAB */}
         {activeTab === "jobs" && (

@@ -5,12 +5,12 @@ export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   // Check local storage for saved theme, default to dark
   const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('nft_dapp_dark_theme');
+    const saved = localStorage.getItem('freelancechain_dark_theme');
     return saved !== null ? JSON.parse(saved) : true;
   });
 
   useEffect(() => {
-    localStorage.setItem('nft_dapp_dark_theme', JSON.stringify(isDark));
+    localStorage.setItem('freelancechain_dark_theme', JSON.stringify(isDark));
 
     // Optional: apply class to body for global styles if needed
     if (isDark) {

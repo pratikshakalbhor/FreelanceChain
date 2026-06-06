@@ -88,16 +88,18 @@ This table documents user feedback received for FreelancerShield and the corresp
 
 ---
 
-## 🔄 User Feedback Implementation
+## 🔄 Implemented User Feedbacks
 
-|User Name| Email Id | Feedback | Change Made | Commit ID |
-|----------|-------------|-------------|-----------------------------------------------------------|-----------|
-| Rohit Labase| rohitlabase@gmail.com| Add chat feature | Added real-time chat documentation and integration comments in ChatPage.js. Full Firebase chat implementation (send/receive messages, job-based rooms, notifications) was developed across multiple commits. | `40bb7fa` |
-| Revan Landage|revanhlandage2006@gmail.com | Reducing load times | Added parallel fetch documentation in soroban.js. Promise.all() implementation for NFT fetching reduces load time significantly. | `a65f2db` |
-| Dipali kalbhor|dipalikalbhor98@gmail.com | Add Search box in job page | Added search input field and instant filtering logic in EscrowPage.js Find Jobs tab (16 lines added) | `3818585` |
-| Nirupam Karankale| ndkindia09@gmail.com| Add wallet install links | Added mobile wallet detection, install prompts and UI improvements in WalletModal.js | `64fb77c` |
-|Dnyaneshwari Badhe |dnyaneshwaribadhe2323@gmail.com | Add more advanced features | Implemented fee sponsorship (gasless transactions) utility in feeBump.js | `ff5ef67` |
-|Diksha Sawant  |sawantdiksha83@gmail.com | Activity page very slow | Fixed ActivityPage.js performance, restored missing files, implemented real-time tracking with activityService.js (260+ lines changed across 6 files) | `7470cb1` |
+| User Name | User Email | User Wallet Address | Feedback | Change Made | Commit ID |
+|-----------|------------|---------------------|----------|-------------|-----------|
+| Rohit Labase | rohitlabase@gmail.com | GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX | Add chat feature | Implemented real-time Firebase chat with job-based rooms and notifications in ChatPage.js | `40bb7fa` |
+| Revan Handlage | revanhlandage2006@gmail.com | GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF | Reducing load times | Implemented parallel fetch with Promise.all() in soroban.js to reduce NFT load time. | `a65f2db` |
+| Dipali Kalbhor | dipalikalbhor98@gmail.com | GCYO66SNVSGBBJB3LDGDIGNTW5Y7H4FEWF65MU4BBH7YSXDRYZWWMY6C | add Search box in job page | Added search input field and instant filtering logic in EscrowPage.js Find Jobs tab. | `3818585` |
+| Nirupam Karankale| ndkindia09@gmail.com | GCI3R7F3UZ3V6HY7L35ISGQE7GMW55U3LPG4YNPSLHSXCXBGNJERXSVH | Add wallet install links | Added mobile wallet detection and automatic store redirect prompts in WalletModal.js | `64fb77c` |
+| Dnyaneshwari Badhe | dnyaneshwaribadhe2323@gmail.com | GDYUC3ZIK2EVEYQOZLKBMEQWAE77UZ5OQHIX2EKKHHYIUJPQHKXHQUAS | Add more advanced features | Implemented fee sponsorship (gasless transactions) utility in feeBump.js for better UX. | `ff5ef67` |
+| Diksha Sawant | sawantdiksha83@gmail.com | GCVGVTPL3WIJ4WUVFRYJKFVMCZTKWJ6GRUP7Y2BCDXWKHOGZX72NPXSS | activity page very slow | Optimized ActivityPage.js with efficient real-time transaction tracking logic. | `7470cb1` |
+| Ingale Munja | inglemunja51@gmail.com | GDUXWQNSPNM5GUMP3KWXSNOY62GRKPRHUD6IKDJORCRET7CWBKQ3TVR4 | Albedo popup is not opening | Fixed network parameter from "TESTNET" to "testnet" to resolve Albedo connection compatibility. | `1c96f57` |
+| Nandini Jadhav | nandinijadhavv06@gmail.com | GCT3E7HUMKYVC2MXFURGRQJF5PMS4V6ZFZQORNW75L2TZIWFF2HM5CMH | Improve UI design slightly. | Redesigned WalletModal with premium glassmorphism UI, improved icon hierarchy, and mobile responsiveness. | `bc9cd15` |
 
 ### 📸 Commit Proof (git show --stat)
 <img width="1737" height="801" alt="image" src="https://github.com/user-attachments/assets/1a6146e7-48f0-405d-8f86-2a060677f452" />
@@ -139,6 +141,7 @@ This table documents user feedback received for FreelancerShield and the corresp
 | Reducing load times | Parallel fetch with Promise.all() | ✅ Done |
 | NFT Marketplace price range | Min/Max XLM price filter added | ✅ Done |
 | Add Search box in job page | Instant keyword search implemented | ✅ Done |
+| Improve UI design slightly | Premium glassmorphism UI & mobile UX | ✅ Done |
 
 ## 🔄 User Feedback Implementation
 

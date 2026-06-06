@@ -52,7 +52,7 @@ export const submitWithFeeBump = async (
 
 /**
  * Fee Bump for Soroban transactions
- * Used for NFT mint, escrow operations
+ * Used for escrow operations
  */
 export const submitSorobanWithFeeBump = async (
   innerSignedXdr,

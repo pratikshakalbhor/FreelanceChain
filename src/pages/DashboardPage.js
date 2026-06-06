@@ -20,12 +20,11 @@ const getTxType = (tx) => {
     const op = envelope.operations?.[0];
     if (!op) return { icon: <Zap size={18} />, label: "Transaction", color: "rgba(99,102,241,0.15)", text: "#a78bfa" };
     if (op.type === "invokeHostFunction") {
-      // Check if escrow or NFT
       const xdr = op.func?.toXDR?.("base64") || "";
       if (xdr.includes(ESCROW_CONTRACT_ID.slice(0, 8))) {
         return { icon: <Briefcase size={18} />, label: "Job TX", color: "rgba(16,185,129,0.15)", text: "#34d399" };
       }
-      return { icon: <ShoppingBag size={18} />, label: "NFT Minted", color: "rgba(139,92,246,0.15)", text: "#a78bfa" };
+      return { icon: <Zap size={18} />, label: "Contract Call", color: "rgba(139,92,246,0.15)", text: "#a78bfa" };
     }
     if (op.type === "payment") {
       return { icon: <Send size={18} />, label: "Payment", color: "rgba(245,158,11,0.15)", text: "#fbbf24" };
@@ -37,7 +36,7 @@ const getTxType = (tx) => {
   return { icon: <Zap size={18} />, label: "Transaction", color: "rgba(99,102,241,0.15)", text: "#a78bfa" };
 };
 
-export default function DashboardPage({ walletAddress, balance, nfts }) {
+export default function DashboardPage({ walletAddress, balance }) {
   const navigate = useNavigate();
   const { isDark } = useTheme();
   const [recentTxs, setRecentTxs] = useState([]);
@@ -138,17 +137,15 @@ export default function DashboardPage({ walletAddress, balance, nfts }) {
 
   const stats = [
     { icon: <Wallet size={24} />, label: "XLM Balance", value: `${balance} XLM`, color: "rgba(124,58,237,0.25)", delay: 0.05, floatDelay: "0s" },
-    { icon: <ShoppingBag size={24} />, label: "Total NFTs", value: nfts?.length ?? 0, color: "rgba(59,130,246,0.25)", delay: 0.1, floatDelay: "1s" },
-    { icon: <Briefcase size={24} />, label: "Jobs Posted", value: jobsPosted, color: "rgba(234,179,8,0.25)", delay: 0.15, sub: "As client", floatDelay: "2s" },
-    { icon: <CheckCircle size={24} />, label: "Jobs Completed", value: jobsDone, color: "rgba(16,185,129,0.25)", delay: 0.2, sub: xlmEarned > 0 ? `+${xlmEarned.toFixed(0)} XLM earned` : undefined, floatDelay: "3s" },
+
+    { icon: <Briefcase size={24} />, label: "Jobs Posted", value: jobsPosted, color: "rgba(234,179,8,0.25)", delay: 0.1, sub: "As client", floatDelay: "1s" },
+    { icon: <CheckCircle size={24} />, label: "Jobs Completed", value: jobsDone, color: "rgba(16,185,129,0.25)", delay: 0.15, sub: xlmEarned > 0 ? `+${xlmEarned.toFixed(0)} XLM earned` : undefined, floatDelay: "2s" },
   ];
 
 
   const actions = [
     { icon: <Briefcase size={24} />, label: "Post a Job", to: "/escrow" },
     { icon: <Send size={24} />, label: "Send Payment", to: "/payment" },
-    { icon: <Plus size={24} />, label: "Mint NFT", to: "/mint" },
-    { icon: <ShoppingBag size={24} />, label: "Marketplace", to: "/marketplace" },
   ];
 
   const formatDate = (d) => {

@@ -11,7 +11,7 @@ import { useWallet } from "../WalletContext";
 import { signTransaction } from "../walletService";
 import {
   NETWORK, NETWORK_PASSPHRASE,
-  ESCROW_CONTRACT_ID, CONTRACT_ID,
+  ESCROW_CONTRACT_ID,
   NATIVE_XLM_TOKEN, SOROBAN_SERVER,
 } from "../constants";
 import { useTheme } from "../context/ThemeContext";
@@ -378,32 +378,13 @@ export default function EscrowPage({
         storeNotification(walletAddress, freelancer, ` Payment sent: ${amountXLM} XLM for "${job.title}"`, String(job.title)),
       ]);
 
-      showStatus(` Payment of ${amountXLM} XLM sent to ${shortenAddr(freelancer)}! Minting NFT certificate...`, "success");
+      showStatus(` Payment of ${amountXLM} XLM sent to ${shortenAddr(freelancer)}!`, "success");
 
       // Log Activities
       await recordActivity(walletAddress, { type: "payment_released", title: "Payment Released", description: `Released ${amountXLM} XLM for "${job.title}"`, color: "#34d399" });
       await recordActivity(freelancer, { type: "payment_received", title: "Payment Received", description: `Received ${amountXLM} XLM for "${job.title}"`, color: "#34d399" });
 
-      // Step 4: Mint NFT certificate
-      try {
-        const nftAccount = await SOROBAN_SERVER.getAccount(walletAddress);
-        const sanitizeSymbol = (s) =>
-          String(s).trim().toUpperCase().replace(/[^A-Z0-9_]/g, "_").slice(0, 32);
-        const nftTx = new StellarSdk.TransactionBuilder(nftAccount, { fee: "1000000", networkPassphrase: NETWORK_PASSPHRASE })
-          .addOperation(new StellarSdk.Contract(CONTRACT_ID).call(
-            "mint_nft",
-            new StellarSdk.Address(walletAddress).toScVal(),
-            new StellarSdk.Address(freelancer).toScVal(),
-            StellarSdk.nativeToScVal(sanitizeSymbol(`JOB_CERT_${job.title}`), { type: "symbol" }),
-            StellarSdk.nativeToScVal(sanitizeSymbol(job.work_url && String(job.work_url) !== "" ? String(job.work_url) : "IPFS_CERTIFICATE"), { type: "symbol" })
-          ))
-          .setTimeout(300).build();
-
-        await buildSignSubmit(nftTx, walletType, "mint_nft (certificate)", showStatus);
-        showStatus(` ${amountXLM} XLM sent + NFT Certificate minted for freelancer!`, "success");
-      } catch (nftErr) {
-        showStatus(` ${amountXLM} XLM sent to freelancer! (NFT cert failed — non-fatal)`, "success");
-      }
+      showStatus(` ${amountXLM} XLM sent to freelancer!`, "success");
 
       await loadJobs();
       onPaymentReleased?.(jobId);

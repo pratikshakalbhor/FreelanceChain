@@ -5,7 +5,7 @@ import { db } from "../firebase";
 import { useTheme } from "../context/ThemeContext";
 import { containerVariants, itemVariants } from "../components/ProfilePage";
 import * as StellarSdk from "@stellar/stellar-sdk";
-import { HORIZON_URL, ESCROW_CONTRACT_ID, CONTRACT_ID, NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
+import { HORIZON_URL, ESCROW_CONTRACT_ID, NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
 import IndexerStatus from "../components/IndexerStatus";
 
 const REFRESH_INTERVAL = 30000; // 30 seconds
@@ -18,15 +18,13 @@ export default function MonitoringPage({ walletAddress }) {
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Stellar metrics
-  const [totalNFTs, setTotalNFTs] = useState(0);
+
   const [totalJobs, setTotalJobs] = useState(0);
   const [recentTxs, setRecentTxs] = useState([]);
   const [xlmBalance, setXlmBalance] = useState("0");
 
   // Firebase metrics
-  const [totalListings, setTotalListings] = useState(0);
-  const [activeListings, setActiveListings] = useState(0);
-  const [soldNFTs, setSoldNFTs] = useState(0);
+
   const [totalChats, setTotalChats] = useState(0);
   const [totalNotifications, setTotalNotifications] = useState(0);
   const [uniqueUsers, setUniqueUsers] = useState(new Set());
@@ -60,24 +58,7 @@ export default function MonitoringPage({ walletAddress }) {
         .call().catch(() => null);
       if (txRes) setRecentTxs(txRes.records || []);
 
-      // NFT contract total
-      try {
-        const dummy = new StellarSdk.Account(walletAddress, "0");
-        const nftTx = new StellarSdk.TransactionBuilder(dummy, {
-          fee: "100", networkPassphrase: NETWORK_PASSPHRASE,
-        })
-          .addOperation(StellarSdk.Operation.invokeContractFunction({
-            contract: CONTRACT_ID,
-            function: "get_total",
-            args: [],
-          }))
-          .setTimeout(30).build();
-        const nftSim = await SOROBAN_SERVER.simulateTransaction(nftTx);
-        if (nftSim?.result?.retval) {
-          setTotalNFTs(Number(StellarSdk.scValToNative(nftSim.result.retval)));
-        }
-        setSorobanStatus("healthy");
-      } catch { setSorobanStatus("degraded"); }
+
 
       // Escrow jobs total
       try {
@@ -105,23 +86,7 @@ export default function MonitoringPage({ walletAddress }) {
 
   // ── Firebase listeners ────────────────────────────────────────────────────
   useEffect(() => {
-    // Marketplace data
-    const marketRef = ref(db, "marketplace");
-    const unsubMarket = onValue(marketRef, (snap) => {
-      const data = snap.val() || {};
-      const items = Object.values(data);
-      setTotalListings(items.length);
-      setActiveListings(items.filter(i => i.listed && !i.sold).length);
-      setSoldNFTs(items.filter(i => i.sold).length);
-
-      // Track unique users
-      const users = new Set();
-      items.forEach(i => {
-        if (i.ownerFull) users.add(i.ownerFull);
-      });
-      setUniqueUsers(users);
-      setFirebaseStatus("healthy");
-    }, () => setFirebaseStatus("degraded"));
+    setFirebaseStatus("healthy");
 
     // Chats
     const chatRef = ref(db, "chats");
@@ -141,7 +106,7 @@ export default function MonitoringPage({ walletAddress }) {
       setTotalNotifications(count);
     });
 
-    return () => { unsubMarket(); unsubChat(); unsubNotif(); };
+    return () => { unsubChat(); unsubNotif(); };
   }, []);
 
   // ── Initial load + auto refresh ───────────────────────────────────────────
@@ -249,7 +214,7 @@ export default function MonitoringPage({ walletAddress }) {
           <h2 style={{ fontWeight: 700, color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "0.8rem" }}>Blockchain Metrics</h2>
         </motion.div>
         <motion.div variants={containerVariants} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-          <MetricCard label="Total NFTs Minted" value={totalNFTs} sub="On-chain (Soroban)" color="#8b5cf6" />
+
           <MetricCard label="Total Jobs" value={totalJobs} sub="Escrow contract" color="#6366f1" />
           <MetricCard label="XLM Balance" value={`${xlmBalance} XLM`} sub="Connected wallet" color="#10b981" />
           <MetricCard label="Recent Transactions" value={recentTxs.length} sub="Last 5 on Horizon" color="#60a5fa" />
@@ -260,10 +225,6 @@ export default function MonitoringPage({ walletAddress }) {
           <h2 style={{ fontSize: "0.8rem", fontWeight: 700, color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Marketplace & Firebase Metrics</h2>
         </motion.div>
         <motion.div variants={containerVariants} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-          <MetricCard label="Total Listings" value={totalListings} sub="All NFTs listed" color="#f59e0b" />
-          <MetricCard label="Active Listings" value={activeListings} sub="Currently for sale" color="#34d399" />
-          <MetricCard label="NFTs Sold" value={soldNFTs} sub="Completed sales" color="#ec4899" />
-          <MetricCard label="Unique Users" value={uniqueUsers.size} sub="From marketplace" color="#fb923c" />
           <MetricCard label="Chat Rooms" value={totalChats} sub="Active job chats" color="#a78bfa" />
           <MetricCard label="Notifications" value={totalNotifications} sub="Total sent" color="#38bdf8" />
         </motion.div>
@@ -303,7 +264,7 @@ export default function MonitoringPage({ walletAddress }) {
           <h2 style={{ fontSize: "1rem", fontWeight: 700, color: isDark ? "#fff" : "#0f172a", margin: "0 0 16px" }}>Contract Registry</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {[
-              { name: "NFT Contract", id: CONTRACT_ID, explorer: `https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}` },
+
               { name: "Escrow Contract", id: ESCROW_CONTRACT_ID, explorer: `https://stellar.expert/explorer/testnet/contract/${ESCROW_CONTRACT_ID}` },
             ].map(c => (
               <div key={c.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc", borderRadius: "10px", border: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid #e2e8f0", flexWrap: "wrap", gap: "8px" }}>

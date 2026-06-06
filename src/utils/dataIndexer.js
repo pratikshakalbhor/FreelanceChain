@@ -20,90 +20,7 @@ const sanitizeBigInt = (data) => {
   ));
 };
 
-// ── Index all NFTs from blockchain → Firebase ─────────────────────────────
-export const indexNFTs = async (walletAddress) => {
-  if (!walletAddress) return;
-  try {
-    const dummy = new StellarSdk.Account(walletAddress, "0");
 
-    // Get total NFTs
-    const totalTx = new StellarSdk.TransactionBuilder(dummy, {
-      fee: "100", networkPassphrase: NETWORK_PASSPHRASE,
-    })
-      .addOperation(StellarSdk.Operation.invokeContractFunction({
-        contract: CONTRACT_ID,
-        function: "get_total",
-        args: [],
-      }))
-      .setTimeout(30).build();
-
-    const totalSim = await SOROBAN_SERVER.simulateTransaction(totalTx);
-    if (!totalSim?.result?.retval) return;
-    const total = Number(StellarSdk.scValToNative(totalSim.result.retval));
-
-    // Fetch all NFTs in parallel
-    const nftPromises = Array.from({ length: total }, (_, i) => {
-      const id = i + 1;
-      return (async () => {
-        try {
-          const [ownerSim, nameSim, imageSim] = await Promise.all([
-            SOROBAN_SERVER.simulateTransaction(
-              new StellarSdk.TransactionBuilder(dummy, { fee: "100", networkPassphrase: NETWORK_PASSPHRASE })
-                .addOperation(StellarSdk.Operation.invokeContractFunction({
-                  contract: CONTRACT_ID, function: "get_owner",
-                  args: [StellarSdk.nativeToScVal(id, { type: "u32" })],
-                })).setTimeout(30).build()
-            ),
-            SOROBAN_SERVER.simulateTransaction(
-              new StellarSdk.TransactionBuilder(dummy, { fee: "100", networkPassphrase: NETWORK_PASSPHRASE })
-                .addOperation(StellarSdk.Operation.invokeContractFunction({
-                  contract: CONTRACT_ID, function: "get_name",
-                  args: [StellarSdk.nativeToScVal(id, { type: "u32" })],
-                })).setTimeout(30).build()
-            ),
-            SOROBAN_SERVER.simulateTransaction(
-              new StellarSdk.TransactionBuilder(dummy, { fee: "100", networkPassphrase: NETWORK_PASSPHRASE })
-                .addOperation(StellarSdk.Operation.invokeContractFunction({
-                  contract: CONTRACT_ID, function: "get_image",
-                  args: [StellarSdk.nativeToScVal(id, { type: "u32" })],
-                })).setTimeout(30).build()
-            ),
-          ]);
-
-          const owner = ownerSim?.result?.retval
-            ? new StellarSdk.Address(StellarSdk.scValToNative(ownerSim.result.retval)).toString()
-            : null;
-          const name = nameSim?.result?.retval
-            ? String(StellarSdk.scValToNative(nameSim.result.retval))
-            : null;
-          const image = imageSim?.result?.retval
-            ? String(StellarSdk.scValToNative(imageSim.result.retval))
-            : null;
-
-          return { id, owner, name, image, indexedAt: Date.now() };
-        } catch { return null; }
-      })();
-    });
-
-    const nfts = (await Promise.all(nftPromises)).filter(Boolean);
-
-    // Save to Firebase index
-    const nftIndexRef = ref(db, `${INDEX_KEY}/nfts`);
-    const nftMap = {};
-    nfts.forEach(nft => { nftMap[`nft_${nft.id}`] = nft; });
-    await set(nftIndexRef, {
-      data: nftMap,
-      total,
-      lastIndexed: Date.now(),
-    });
-
-    console.log(`[Indexer] Indexed ${nfts.length} NFTs`);
-    return nfts;
-  } catch (e) {
-    console.error("[Indexer] NFT indexing error:", e);
-    return [];
-  }
-};
 
 // ── Index all Jobs from escrow contract → Firebase ────────────────────────
 export const indexJobs = async (walletAddress) => {
@@ -206,19 +123,7 @@ export const indexTransactions = async (walletAddress) => {
   }
 };
 
-// ── Read from index (fast!) ───────────────────────────────────────────────
-export const readIndexedNFTs = async () => {
-  try {
-    const snap = await get(ref(db, `${INDEX_KEY}/nfts`));
-    if (!snap.exists()) return null;
-    const data = snap.val();
-    return {
-      nfts: Object.values(data.data || {}),
-      total: data.total,
-      lastIndexed: data.lastIndexed,
-    };
-  } catch { return null; }
-};
+
 
 export const readIndexedJobs = async () => {
   try {
@@ -236,19 +141,18 @@ export const readIndexedJobs = async () => {
 // ── Full index run ────────────────────────────────────────────────────────
 export const runFullIndex = async (walletAddress) => {
   console.log("[Indexer] Starting full index...");
-  const [nfts, jobs, txs] = await Promise.all([
-    indexNFTs(walletAddress),
+  const [jobs, txs] = await Promise.all([
     indexJobs(walletAddress),
     indexTransactions(walletAddress),
   ]);
-  console.log("[Indexer] Full index complete:", { nfts: nfts?.length, jobs: jobs?.length, txs: txs?.length });
-  return { nfts, jobs, txs };
+  console.log("[Indexer] Full index complete:", { jobs: jobs?.length, txs: txs?.length });
+  return { jobs, txs };
 };
 
 // ── Check if index is stale (older than 5 mins) ───────────────────────────
 export const isIndexStale = async () => {
   try {
-    const snap = await get(ref(db, `${INDEX_KEY}/nfts/lastIndexed`));
+    const snap = await get(ref(db, `${INDEX_KEY}/jobs/lastIndexed`));
     if (!snap.exists()) return true;
     const lastIndexed = snap.val();
     const fiveMinutes = 5 * 60 * 1000;

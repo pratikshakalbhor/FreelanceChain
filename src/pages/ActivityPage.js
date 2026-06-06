@@ -8,8 +8,6 @@ import {
   RefreshCw,
   ArrowUpRight,
   ArrowDownLeft,
-  ShoppingCart,
-  Tag,
   Clock,
   Filter
 } from "lucide-react";
@@ -89,10 +87,7 @@ const ActivityPage = () => {
             else if (op.type === "invokeHostFunction") {
               title = "Contract Action";
               color = "#6366f1";
-              if (tx.envelope_xdr.includes("mint")) {
-                title = "NFT Minted";
-                description = "Created a new digital asset on Soroban";
-              } else if (tx.envelope_xdr.includes("approve")) {
+              if (tx.envelope_xdr.includes("approve")) {
                 title = "Contract Approved";
                 description = "Authorized XLM for escrow/contract";
               }
@@ -159,10 +154,7 @@ const ActivityPage = () => {
 
   // Icon Helper
   function getIconForType(type, color) {
-    if (type.includes("nft_minted")) return <RefreshCw size={18} />;
-    if (type.includes("nft_listed")) return <Tag size={18} />;
-    if (type.includes("nft_purchased")) return <ShoppingCart size={18} />;
-    if (type.includes("nft_sold")) return <Tag size={18} />;
+
     if (type.includes("job_")) return <RefreshCw size={18} />;
     if (type.includes("payment_")) return <ArrowDownLeft size={18} />;
     return <RefreshCw size={18} />;
@@ -173,7 +165,7 @@ const ActivityPage = () => {
   const filteredActivities = useMemo(() => {
     return activities.filter(act => {
       if (filter === "payments") return act.type.includes("payment");
-      if (filter === "nft") return act.type.includes("nft");
+
       return true;
     });
   }, [activities, filter]);
@@ -233,7 +225,7 @@ const ActivityPage = () => {
         <div>
           <h1 style={{ fontSize: "1.8rem", fontWeight: 700, margin: 0, color: isDark ? "#fff" : "#0f172a" }}>Activity</h1>
           <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: isDark ? "#94a3b8" : "#64748b" }}>
-            Real-time updates from blockchain & marketplace
+            Real-time updates from blockchain & jobs
           </p>
         </div>
         <button
@@ -262,7 +254,7 @@ const ActivityPage = () => {
       <div style={{ display: "flex", gap: "8px", marginBottom: "24px", overflowX: "auto", paddingBottom: "4px" }}>
         <button style={tabStyle("all")} onClick={() => setFilter("all")}>All Activity</button>
         <button style={tabStyle("payments")} onClick={() => setFilter("payments")}>Payments</button>
-        <button style={tabStyle("nft")} onClick={() => setFilter("nft")}>NFTs</button>
+
       </div>
 
       {/* Activity List */}
@@ -335,7 +327,7 @@ const ActivityPage = () => {
             <Filter size={48} style={{ opacity: 0.2, marginBottom: "16px" }} />
             <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", fontWeight: 600 }}>No activity found</h3>
             <p style={{ margin: 0, fontSize: "0.9rem", color: isDark ? "#64748b" : "#94a3b8" }}>
-              {filter === "all" ? "Transactions and marketplace actions will appear here." : "Try changing the filter to see more."}
+              {filter === "all" ? "Transactions and job actions will appear here." : "Try changing the filter to see more."}
             </p>
           </div>
         )}

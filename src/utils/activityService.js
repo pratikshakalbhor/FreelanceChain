@@ -3,10 +3,6 @@ import { db } from "../firebase";
 
 /**
  * Supported types: 
- * - mint
- * - list
- * - buy
- * - sell
  * - job_posted
  * - job_accepted
  * - work_submitted

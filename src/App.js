@@ -7,7 +7,7 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 import Sidebar from "./components/Sidebar";
 import { HORIZON_URL } from "./constants";
 import Background from "./components/Background";
-import { fetchNFTs } from "./utils/soroban";
+
 import PaymentPage from "./pages/PaymentPage";
 import ActivityPage from "./pages/ActivityPage";
 import EscrowPage from "./pages/EscrowPage";
@@ -37,7 +37,7 @@ function App() {
   } = useWallet();
   const { isDark } = useTheme();
   const [balance, setBalance] = useState("0");
-  const [nfts, setNfts] = useState([]);
+
   const [accountDetails, setAccountDetails] = useState(null);
   const [jobsPosted, setJobsPosted] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -83,16 +83,6 @@ function App() {
 
           console.error("Account error:", e);
           setBalance("N/A");
-        }
-
-        try {
-          console.log("Fetching NFTs for", walletAddress);
-          const userNfts = await fetchNFTs(walletAddress);
-          console.log("Fetched NFTs:", userNfts);
-          setNfts(userNfts);
-        } catch (e) {
-          console.error("Failed to fetch NFTs:", e);
-          setNfts([]);
         }
       }
     };
@@ -368,7 +358,6 @@ function App() {
                       <DashboardPage
                         walletAddress={walletAddress}
                         balance={balance}
-                        nfts={nfts}
                         jobs={[]}
                       />
                     </div>
@@ -396,7 +385,7 @@ function App() {
                 element={
                   walletAddress ? (
                     <div className="pages-container">
-                      <ProfilePage account={accountDetails} nfts={nfts} />
+                      <ProfilePage account={accountDetails} />
                     </div>
                   ) : <Navigate to="/login" replace />
                 }
@@ -449,11 +438,6 @@ function App() {
                             const xlm = account.balances.find(b => b.asset_type === "native");
                             setBalance(parseFloat(xlm.balance).toFixed(2));
                           } catch (e) { console.error("Balance refresh error:", e); }
-                          // Refresh NFTs
-                          try {
-                            const userNfts = await fetchNFTs(walletAddress);
-                            setNfts(userNfts);
-                          } catch (e) { console.error("NFT refresh error:", e); }
                         }}
                       />
                     </div>
