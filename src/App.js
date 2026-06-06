@@ -9,9 +9,6 @@ import { HORIZON_URL } from "./constants";
 import Background from "./components/Background";
 import { fetchNFTs } from "./utils/soroban";
 import PaymentPage from "./pages/PaymentPage";
-import MintPage from "./pages/MintPage";
-import GalleryPage from "./pages/GalleryPage";
-import MarketplacePage from "./pages/MarketplacePage";
 import ActivityPage from "./pages/ActivityPage";
 import EscrowPage from "./pages/EscrowPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -393,22 +390,7 @@ function App() {
                   ) : <Navigate to="/login" replace />
                 }
               />
-              <Route
-                path="/mint"
-                element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <MintPage
-                        walletAddress={walletAddress}
-                        server={server}
-                        setBalance={setBalance}
-                        setNfts={setNfts}
-                        nfts={nfts}
-                      />
-                    </div>
-                  ) : <Navigate to="/login" replace />
-                }
-              />
+
               <Route
                 path="/profile"
                 element={
@@ -419,26 +401,7 @@ function App() {
                   ) : <Navigate to="/login" replace />
                 }
               />
-              <Route
-                path="/gallery"
-                element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <GalleryPage nfts={nfts} walletAddress={walletAddress} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/marketplace"
-                element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <MarketplacePage walletAddress={walletAddress} nfts={nfts} server={server} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
-                }
-              />
+
               <Route
                 path="/activity"
                 element={
