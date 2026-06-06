@@ -9,7 +9,7 @@
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { ref, set, get } from "firebase/database";
 import { db } from "../firebase";
-import { CONTRACT_ID, ESCROW_CONTRACT_ID, NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
+import { ESCROW_CONTRACT_ID, NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 const INDEX_KEY = "indexed_data";

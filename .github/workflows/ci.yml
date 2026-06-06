@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-# Stellar NFT dApp - CI/CD Pipeline
+# FreelanceChain - CI/CD Pipeline
 
 name: CI/CD Pipeline
 
@@ -76,7 +76,6 @@ jobs:
         run: npm run build
         env:
           CI: false
-          REACT_APP_CONTRACT_ID: ${{ secrets.REACT_APP_CONTRACT_ID }}
           REACT_APP_NETWORK: TESTNET
 
       - name: Upload build artifact

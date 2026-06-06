@@ -1,371 +1,93 @@
-# 🌟 Decentralized Freelancer Escrow Platform
+# 🌟 FreelanceChain
+### Decentralized Freelancer Escrow Platform on Stellar
 
-A full-stack decentralized application built on Stellar Testnet combining NFT minting, XLM payments, and a trustless freelancer escrow system — like **Fiverr on blockchain** with zero middleman fees.
+A full-stack decentralized application built on Stellar Testnet providing a trustless freelancer escrow system — **Fiverr on blockchain** with zero middleman fees and instant on-chain settlements.
 
 ---
 
-## 🚀 Live Demo & Video
+## 🚀 Overview
 
-| | Link |
-|---|---|
-| 🌐 **Live Demo** | https://freelancechain-dapp.vercel.app/login |
-| 📹 **Demo Video** | https://drive.google.com/file/d/1x3azpS7cS6JXB5bEXG07bxpUbHcTRg0u/view?usp=sharing |
-| 🐦 **Community Contribution** [Twitter Post] | https://x.com/PratikshaK61510/status/2039695252710469654 |
----
+FreelanceChain eliminates the need for trusted third parties in the freelancing economy. Clients lock payments in a Soroban smart contract, which are released automatically to freelancers only when work is submitted and approved.
 
-## 💡 What is this?
-
-> A client posts a job and locks XLM in a smart contract. A freelancer accepts, does the work, and submits a URL. The client approves → XLM is released automatically + NFT Certificate is minted for the freelancer as proof of work. Zero middleman. Zero trust required.
+- **Trustless Escrow**: Payments are secured on-chain, not in a company's bank account.
+- **Zero Fees**: No platform commissions on your hard-earned XLM.
+- **Instant Settlement**: Payments move the moment work is approved.
+- **On-Chain Reputation**: Your work history is transparent and immutable.
 
 ---
 
 ## ✨ Features
 
-| Feature | Level | Status |
-|---------|-------|--------|
-| Wallet Connect (Freighter + Albedo + xBull) | L1 | ✅ |
-| XLM Payments | L1 | ✅ |
-| Mint NFT via Soroban + IPFS | L2 | ✅ |
-| NFT Gallery + Search | L2 | ✅ |
-| NFT Marketplace (Buy/Sell for XLM) | L2 | ✅ |
-| Activity Feed with TX type labels | L2 | ✅ |
-| 39 Unit Tests | L3 | ✅ |
-| CI/CD Pipeline | L4 | ✅ |
-| Custom SNFT Token + Inter-contract calls | L4 | ✅ |
-| Mobile Responsive | L4 | ✅ |
-| **Freelancer Escrow System** | **L5** | ✅ |
-| **Auto NFT Certificate on job completion** | **L5** | ✅ |
-| **Full Profile with reputation score** | **L5** | ✅ |
-| **5+ Real Testnet Users** | **L5** | ✅ |
-| **User Feedback + Iteration** | **L5** | ✅ |
-
----
-## 📝 User Feedback
-
-🔗 **Feedback Form:** https://docs.google.com/forms/d/e/1FAIpQLScnjiIULj3f7_4YY1VNo8slwi_C4jf8xQzIOsoceJM5Q4mXrw/viewform?usp=publish-editor
-
- **Response Sheet:** https://docs.google.com/spreadsheets/d/1HZBbu-YZKPYKPvBpQO9JgqwQ8d-HiTKqCquwiilamLc/edit?resourcekey=&gid=9050602#gid=9050602
-
----
-# User Feed Implementation
- 
-This table documents user feedback received for FreelancerShield and the corresponding commits made to address the feedback.
- 
-## User Feedback Table
- 
-| # | User Name | User Email | User Wallet Address | Feedback | 
-|---|-----------|------------|---------------------|---------------------------|
-| 1 | Ingale Munja | inglemunja51@gmail.com | GDUXWQNSPNM5GUMP3KWXSNOY62GRKPRHUD6IKDJORCRET7CWBKQ3TVR4 | Albedo popup is not opening  | 
-| 2 | Revan Hlandage | revanhlandage2006@gmail.com | GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF | Reducing load times | 
-| 3 | Rohit Labase | rohitlabase@gmail.com | GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX | NFT Marketplace price range and 	Add chat feature | 
-| 4 | Kalbhor  Priya | kalbhorsppu12@gmail.com | GBZHZSGVKSROKQPUD3QHQWF42YDE3PPFUINEKW3NZ2NLOZXNLM7UVQW4 |- | 
-| 5 | Dipali Kalbhor | dipalikalbhor98@gmail.com | GCYO66SNVSGBBJB3LDGDIGNTW5Y7H4FEWF65MU4BBH7YSXDRYZWWMY6C | add Search box in job page | 
-| 6 | Nikita Biradar | nikitabiradar300@gmail.com | GAVOLZD4APA2R7LOG5T45OBWGXAXQ57J63L7Z2YUOL2EZ33FY7YMC4PX | Nothing|
-| 7 | Sudhakar Sutar | sudhakarsutar101@gmail.com | GALULA4PSYS4AVX7AIUDZ5IVUUWJAGT4BECMICA3JQMCO3HICKQEKJXS |No I don't think so  | 
-| 8 | Dnyaneshwari Badhe | dnyaneshwaribadhe2323@gmail.com | GDYUC3ZIK2EVEYQOZLKBMEQWAE77UZ5OQHIX2EKKHHYIUJPQHKXHQUAS |The project can be improved by adding more advanced features | 
-| 9 | Nayan Palande | npalande2106@gmail.com | GCILDVVAWHQOSBWXYSXHP3ZYVJQZKQZGM63XFSFY3OGFS5KTUYAGJ7V3 | - |
-| 10 | Arya Kale | aryakale1052@gmail.com | GDP3LC2RSGXIFCRMO33HGRT4ACU4Y2DL73BJQQ74KJKVK7I7ICP6Y5KL | NA |
-| 11 | Ankita Khopade | ankitakhopade.811@gmail.com | GDP3LC2RSGXIFCRMO33HGRT4ACU4Y2DL73BJQQ74KJKVK7I7ICP6Y5KL |No improvement is required. Very Nice Application| 
-| 12 | Janhavi Lipare | janhavilipare9948@gmail.com | GBLUMAX4IIPS54AIGD5WXRRAXISG4HLV3BE3YR3SQAD3GZSXRTVJY5GI | no need | 
-| 13 |  Nirupam Karankale | ndkindia09@gmail.com | GCI3R7F3UZ3V6HY7L35ISGQE7GMW55U3LPG4YNPSLHSXCXBGNJERXSVH | Add wallet install links | 
-| 14 | Babar Payal | babarpayal953@gmail.com | 0xa930f229FDbA3d7F7c772900CACF41A7967A8533 | Nothing |
-| 15 | Pooja Kohinkar | poojakohinkar06@gmail.com | GA56O2VQSLKWPSCB57HC6UHASQ5O7P2WIVXYIJIUL3ZT6JZAFVVLB2DK |Nothing |
-| 16 | Sankruti Chavan | csankruti@gmail.com | GBROW5BI5VDRZ4ZKO432LAPTTDODYQCJQXTCUXAEBWGTPG7JIGLVB5M3 | Nothing | 
-| 17 | Nandini Jadhav | nandinijadhavv06@gmail.com | GCT3E7HUMKYVC2MXFURGRQJF5PMS4V6ZFZQORNW75L2TZIWFF2HM5CMH |Improve UI design slightly. | 
-| 18 | Vishvajit Bhagave | vishvajitbhagave@gmail.com | GDQCMJ4QRAAPAE6RGWHXWIDJEX76KKOWHKPS5S7LA2KOFW5O5SDK4OT2 |Everything is Okay. No Need to Improvement. |
-| 19 | Nevse Samruddhi | nevsesamruddhi@gmail.com | GCWHSFPEKYG5OYYQT2M5VRRVM3LSCXACMBNKSZUTH7XCIUGQTGFDAYWD |Nothing  |
-| 20 | Ruhika Biradar | ruhika1234y@gmail.com | GD2TSH3A2N6GMOXYDLTZRHG2ADBVX2I3HYCULOERZHZXCFAPV3KDYBBO |Nothing  | 
-| 21 |Harshal Jagdale | harshaljagdale40@gmail.com | GCATAASNFHODIKA4VTIEZHONZB3BGZJL42FXHHZ3VS6YKX2PCDIJ3LDY | Nothing to improve anything, everything is okay |
-| 22 | Omkar Kalbhor | omkarkalbhor28@gmail.com | GB4HBFH74L74OP5M4H3ROOF4UACWKTDARKN7S2RNQ2MWTNYMQ2LVHQDM | Nothing |
-| 23 | Durga Ingale| durgaingale5@gmail.com | GCEUW6ZI7HNCQWAN6VV4O66RPDKISAXS4MA3AKZXXFHWTIFFJEIX6NPJ |Nothing |
- | 24 | Shubhankaroti Jagadale  | shubhankarotijagadale@gmail.com | GCKUPQGTTY6SRTJR5LX6VZUVBK6ORGGBTGKG7HOCLTSWLO43GPIG4REG |Nothing to  improvement  |
- | 25 | Pranita Sakat| sakatpranita@gmail.com  | GBEV3VKOVK5RX7EBWTTRF74USKLFQZ2F2COMGYCRTCFM5356EIL2CEWH |Add  link- wallet install     |
-  | 26 | Anjali Prasad | anjaliprasad9581@gmail.com  | GCE2MJUAI4CVRA52XGDN3ZZWWFI66LJAPEQ3GZ6U664J2FEKDOBGILCR |  No any improvement need  |
-  | 27 | Snehal balghare | balgharesnehal27@gmail.com  |  GDYK646NA4EYYXYVTKJH3C5EYJIRHN24X3TI6NLPDSF6353INWOH7LV3 | Nothing  |
-  | 28 |Swati chavan  |  chavansomnath0960@gmail.com | GCDDHHSB2MFLM2KPJQ6DQ5EQJBTQE7C7KC6J3C3UOV2YJICNFYP4SGC5 | Add wallet install links   |
-  | 29 | Diksha Sawant  | sawantdiksha83@gmail.com  | GCVGVTPL3WIJ4WUVFRYJKFVMCZTKWJ6GRUP7Y2BCDXWKHOGZX72NPXSS | activity page very slow   |
-  | 30 | Vaishnavi Raut  |  vaishnaviraut034@gmail.com | GDCQ2H2CQEGAGOWNCVYQUJ7A4JBQGXG6OUU425T7JTREQXORM5D7Q6YL |   - |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Multi-Wallet Support** | Freighter, Albedo, and xBull integration. | ✅ |
+| **Escrow Smart Contract** | Robust Rust-based logic for job lifecycle. | ✅ |
+| **XLM Payments** | Native asset transfers for direct hiring. | ✅ |
+| **Real-time Monitoring** | Admin dashboard for system health and job metrics. | ✅ |
+| **Activity Tracking** | Automated transaction history with type labels. | ✅ |
+| **Cross-Platform** | Fully responsive glassmorphism UI. | ✅ |
 
 ---
 
-## 🔄 Implemented User Feedbacks
+## 🔄 How the Escrow Works
 
-| User Name | User Email | User Wallet Address | Feedback | Change Made | Commit ID |
-|-----------|------------|---------------------|----------|-------------|-----------|
-| Rohit Labase | rohitlabase@gmail.com | GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX | Add chat feature | Implemented real-time Firebase chat with job-based rooms and notifications in ChatPage.js | `40bb7fa` |
-| Revan Handlage | revanhlandage2006@gmail.com | GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF | Reducing load times | Implemented parallel fetch with Promise.all() in soroban.js to reduce NFT load time. | `a65f2db` |
-| Dipali Kalbhor | dipalikalbhor98@gmail.com | GCYO66SNVSGBBJB3LDGDIGNTW5Y7H4FEWF65MU4BBH7YSXDRYZWWMY6C | add Search box in job page | Added search input field and instant filtering logic in EscrowPage.js Find Jobs tab. | `3818585` |
-| Nirupam Karankale| ndkindia09@gmail.com | GCI3R7F3UZ3V6HY7L35ISGQE7GMW55U3LPG4YNPSLHSXCXBGNJERXSVH | Add wallet install links | Added mobile wallet detection and automatic store redirect prompts in WalletModal.js | `64fb77c` |
-| Dnyaneshwari Badhe | dnyaneshwaribadhe2323@gmail.com | GDYUC3ZIK2EVEYQOZLKBMEQWAE77UZ5OQHIX2EKKHHYIUJPQHKXHQUAS | Add more advanced features | Implemented fee sponsorship (gasless transactions) utility in feeBump.js for better UX. | `ff5ef67` |
-| Diksha Sawant | sawantdiksha83@gmail.com | GCVGVTPL3WIJ4WUVFRYJKFVMCZTKWJ6GRUP7Y2BCDXWKHOGZX72NPXSS | activity page very slow | Optimized ActivityPage.js with efficient real-time transaction tracking logic. | `7470cb1` |
-| Ingale Munja | inglemunja51@gmail.com | GDUXWQNSPNM5GUMP3KWXSNOY62GRKPRHUD6IKDJORCRET7CWBKQ3TVR4 | Albedo popup is not opening | Fixed network parameter from "TESTNET" to "testnet" to resolve Albedo connection compatibility. | `1c96f57` |
-| Nandini Jadhav | nandinijadhavv06@gmail.com | GCT3E7HUMKYVC2MXFURGRQJF5PMS4V6ZFZQORNW75L2TZIWFF2HM5CMH | Improve UI design slightly. | Redesigned WalletModal with premium glassmorphism UI, improved icon hierarchy, and mobile responsiveness. | `bc9cd15` |
-
-### 📸 Commit Proof (git show --stat)
-<img width="1737" height="801" alt="image" src="https://github.com/user-attachments/assets/1a6146e7-48f0-405d-8f86-2a060677f452" />
-<img width="1248" height="507" alt="image" src="https://github.com/user-attachments/assets/cf0780cb-4482-4987-bf9f-1080d90ad83f" />
-
-
-## Feedback Summary
- 
-| Feature | Feedback | Status |
-|---------|----------|--------|
-| UI/UX | Most users praised — user-friendly | Done - No change needed |
-| NFT Minting | Working well — easy for non-technical users | Done - Working well |
-| NFT Certificate | Unique idea appreciated | Done - No change needed |
-| Load Time | Reducing load times suggested | In Progress - Optimization done |
-| Wallet Connection | More wallet options requested | In Progress - Mobile wallet support added |
-| Instructions | Clearer docs requested | In Progress - README updated |
----
-## 👥 Testnet Users (5+ Real Users)
- 
-| No. | Wallet Address | Explorer | 
-|-----|---------------|---------|
-| 1 | `GDUXWQNSPNM5GUMP3KWXSNOY62GRKPRHUD6IKDJORCRET7CWBKQ3TVR4` | [View](https://stellar.expert/explorer/testnet/tx/902bb81d0cf155409a12de16cd78020965345c5c3cc793e51d4b6f31965db8bc) |
-| 2 | `GA2X7BNO3NIKEJWEN2USL53LSSD7JN4JQTIGR6NEIRO72VOGKEF6FQPF` | [View](https://stellar.expert/explorer/testnet/tx/cf51188505d35d13c31e17018b87145b48a6cac08976a73e9f912f86f1afedac) | 
-| 3 | `GD4ZFHMXWXFX47G4TIFLSJVG32WUMV7MVUD35DKVTAELXGAJEXUQWWKX` | [View](https://stellar.expert/explorer/testnet/tx/692475d7177a0c9856f82804ab23a1f416f50d731f025526975b3b60b5a5c178) | 
-| 4 | `GBZHZSGVKSROKQPUD3QHQWF42YDE3PPFUINEKW3NZ2NLOZXNLM7UVQW4` | [View](https://stellar.expert/explorer/testnet/tx/6a79ec475e1eca87d63ba5dc9ffbeb19e088b8e322ece609a5f448534a7cbe3d) | 
-| 5 | `GCYO66SNVSGBBJB3LDGDIGNTW5Y7H4FEWF65MU4BBH7YSXDRYZWWMY6C` | [View](https://stellar.expert/explorer/testnet/tx/09b5fdbb22d9b7ba5d08a0e2c900f0ff9f237e5fcb7f15446808d1fd878d5243) | 
-| 6 | `GA5MTCRXRKYBBDRWJT2CPAAXFG4BCQUDR6V6JYMGQWOR6ATB2JJJRRYW` | [View]() | 
- 
-
- ## 🔄 Iteration (Based on Feedback)
- 
-| Feedback | Change Made | Status |
-|----------|-------------|--------|
-| Albedo popup not opening | Fixed network param: `"TESTNET"` → `"testnet"` | ✅ Done |
-| "Escrow" name confusing | Renamed to "Jobs" in Sidebar | ✅ Done |
-| TX type not visible in Activity | Added NFT/Payment/Job labels with icons | ✅ Done |
-| Dashboard Jobs count = 0 | Fixed: fetches real count from Soroban contract | ✅ Done |
-| Add chat feature | Implemented Firebase real-time chat | ✅ Done |
-| Reducing load times | Parallel fetch with Promise.all() | ✅ Done |
-| NFT Marketplace price range | Min/Max XLM price filter added | ✅ Done |
-| Add Search box in job page | Instant keyword search implemented | ✅ Done |
-| Improve UI design slightly | Premium glassmorphism UI & mobile UX | ✅ Done |
-
-## 🔄 User Feedback Implementation
-
-### Selected Feedback Items:
-
-**1. "Add chat feature between client and freelancer"**
-- Implemented Firebase real-time chat in `src/pages/ChatPage.js`
-- Job-based chat rooms — no wallet address needed
-- Real-time notifications via Firebase Realtime Database
-- **Commit:** `40bb7fa` — User Feedback: Add chat feature between client and freelancer: Fixed ✅
-
-**2. "Reducing load times would improve experience"**
-- Implemented parallel fetch using `Promise.all()` in `src/utils/soroban.js`
-- NFTs and Jobs load simultaneously instead of sequentially
-- **Commit:** `a65f2db` — User Feedback: Reducing load times would improve experience: Fixed ✅
-
-**3. "Add wallet install links"**
-- **Commit:** 4fee409 fix: update wallet install links - Freighter and xBull correct URLs
-  
-
-
-## 🏗️ How the Escrow Works
-
-```
-CLIENT                              FREELANCER
-  │                                      │
-  │ 1. approve() XLM SAC                 │
-  │ 2. post_job() → XLM locked           │
-  │                                      │
-  │                    3. accept_job()   │
-  │                    4. submit_work()  │
-  │                                      │
-  │ 5. approve_job()                     │
-  │    → XLM released ✅                 │
-  │    → NFT Certificate minted ✅       │
-```
+1.  **Job Posting**: Client locks XLM in the smart contract.
+2.  **Job Acceptance**: Freelancer secures the job on-chain.
+3.  **Submission**: Freelancer submits work URL to the contract.
+4.  **Approval**: Client verifies work and releases payment instantly.
 
 ---
 
-## 🔐 Smart Contracts
-
-### NFT Contract
-- **ID:** `CBLKPYQ6TSJB5QVLEZW2XF4UJBJIUATTRDIUMODUIKC3RGBQ4XSGL5U5`
-- Functions: `mint_nft`, `get_nft`, `get_total`, `balance`, `get_owner`
-
-### Escrow Contract
-- **ID:** `CD4VIT3HJQKWAWU62PM2QPTWFMNMZKVU2RNRQR3KXFR5XQU6EUKT7MPK`
-- Functions: `post_job`, `accept_job`, `submit_work`, `approve_job`, `cancel_job`, `get_job`, `get_total`
-
-### Native XLM SAC
-- **Address:** `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
-
----
-
-## 🛠️ Tech Stack
+## 🏗️ Technical Architecture
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, Tailwind CSS, Framer Motion |
-| Blockchain | Stellar Testnet (Soroban) |
-| Smart Contracts | Rust + Soroban SDK |
-| Wallets | Freighter, Albedo, xBull |
-| Storage | IPFS via Pinata |
-| SDK | @stellar/stellar-sdk |
-| Backend | Node.js + Express |
-| CI/CD | GitHub Actions |
-| Hosting | Vercel |
-| Testing | Jest (39 tests) |
+| **Frontend** | React 18, Framer Motion, Lucide Icons |
+| **Blockchain** | Stellar Testnet (Soroban) |
+| **Contracts** | Rust + Soroban SDK |
+| **Backend** | Firebase Realtime Database (Notifications/Cache) |
+| **CI/CD** | GitHub Actions |
 
 ---
 
-## ⚙️ Setup & Run
+## 🛠️ Setup & Development
 
-### 1. Clone & Install
+### 1. Installation
 ```bash
 git clone https://github.com/pratikshakalbhor/FreelanceChain
 cd stellar-new
 npm install
 ```
 
-### 2. Environment Variables
+### 2. Environment Configuration
+Create a `.env` file in the root:
 ```env
-Transaction hash = 
-REACT_APP_CONTRACT_ID=CBFGZCD2HZK35OAP7MCX3JEEHKGQLUSEOG3SPPCU43PTWEIOGFKEEPVC
 REACT_APP_ESCROW_CONTRACT_ID=CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3
 REACT_APP_NETWORK=TESTNET
-PINATA_API_KEY=your_key
-PINATA_SECRET_KEY=your_secret
 ```
 
-### 3. Run
+### 3. Execution
 ```bash
-# Backend (IPFS proxy)
-cd backend && node server.js
-
-# Frontend
 npm start
 ```
 
-### 4. Tests
-```bash
-npm test
-# 39 tests passing 
-```
-
-## 🔗 Explorer Links
- 
-| Resource | Link |
-|----------|------|
-| NFT Transaction Hash| 9e4c99076dc055632629722c7423eb6212ee613e057af647487147f1bd369c5f |
-| NFT Explorer Link | https://stellar.expert/explorer/testnet/tx/9e4c99076dc055632629722c7423eb6212ee613e057af647487147f1bd369c5f |
-| 🔍 NFT Contract | [stellar.expert](https://stellar.expert/explorer/testnet/tx/5d443fa90009166cc963fcbbb6cf46457683777e28d45bcbd653a6ce9e772078) |
-| 🔍 Escrow Contract | [stellar.expert](https://stellar.expert/explorer/testnet/tx/b876a0c829087b1a3c3c881cbfde941f8253f596ee3a74396a7834c2c67756ad) |
-| 🔍 My Wallet | [stellar.expert](https://stellar.expert/explorer/testnet/tx/3bc8c25758cceaf7e3c28299c7c3d49b7233e0a222700823f1fb1d68b470d5da) |
-| 🌐 Stellar Expert | [stellar.expert/explorer/testnet](https://stellar.expert/explorer/testnet/tx/89966e106d2003338a9d4112732b086130c7a46eea63d3f0e5ead1180bedfc2b) | 
-
 ---
-
-## 📱 Mobile Responsive
-<img width="1043" height="850" alt="Screenshot 2026-03-21 150906" src="https://github.com/user-attachments/assets/5c17c08d-cfc0-4f6b-ba8a-504e585a44fd" />
 
 ## ⚙️ CI/CD Pipeline
-<img width="1482" height="592" alt="image" src="https://github.com/user-attachments/assets/bb306b8d-fed8-4fb8-93bb-8d22c4af2edc" />
+
+The project features a fully automated CI/CD pipeline via GitHub Actions that handles:
+- **Unit Testing**: Ensures component and utility stability.
+- **WASM Check**: Verifies the integrity of the Rust smart contract.
+- **Production Build**: Generates optimized assets.
+- **Continuous Deployment**: Auto-deploys to Vercel on every push to `main`.
 
 ---
 
-## 📸 Screenshots
+## 🔗 Project Links
 
-### Wallet Connection
-<img width="1919" height="902" alt="Screenshot 2026-03-16 091931" src="https://github.com/user-attachments/assets/05f23a97-3b60-482c-a587-9a3ca7782d72" />
-
-### Dashboard
-<img width="1917" height="896" alt="Screenshot 2026-03-21 151006" src="https://github.com/user-attachments/assets/2bec74a9-5a25-449f-8e79-e44e8558fade" />
-
-### Jobs (Escrow) — Post Job
-<img width="1890" height="902" alt="image" src="https://github.com/user-attachments/assets/0c56e93f-4317-4f38-93d7-b7eb64cd4a02" />
-
-### Jobs — In Progress
-<img width="1896" height="906" alt="image" src="https://github.com/user-attachments/assets/4aa739a1-047a-45f2-a3ae-3463d14029cf" />
-
-### Jobs - Find Job
-<img width="1888" height="903" alt="image" src="https://github.com/user-attachments/assets/7fa44e1c-2d1e-486b-9e38-d4cb440d92ee" />
-
-### Jobs - MyJob
-<img width="1897" height="911" alt="image" src="https://github.com/user-attachments/assets/6a0e3585-9a0d-4b38-a1bb-f6bc9c012429" />
-
-### FreelanceChain Chat
-<img width="1917" height="898" alt="image" src="https://github.com/user-attachments/assets/4a3b3d1c-833f-407d-b2e0-0e10946ef2a0" />
-
-### Payment
-<img width="1905" height="912" alt="image" src="https://github.com/user-attachments/assets/e8537bea-1a11-47ae-b3b4-75fc1a49ad04" />
-
-### NFT Minting
-<img width="1907" height="911" alt="image" src="https://github.com/user-attachments/assets/76fb673e-331b-48cc-84df-d66a14d7150f" />
-<img width="1907" height="898" alt="image" src="https://github.com/user-attachments/assets/c508fd99-63a6-4f1b-bffd-2caabdf290bf" />
-
-### NFT Gallery
-<img width="1893" height="910" alt="image" src="https://github.com/user-attachments/assets/c9ade496-2175-4996-8701-2d57e59d2a12" />
-
-### Marketplace
-<img width="1892" height="897" alt="image" src="https://github.com/user-attachments/assets/6ad34be2-b7c8-423e-b824-98471fa9c684" />
-
-### Activity Feed
-<img width="1897" height="906" alt="image" src="https://github.com/user-attachments/assets/d7d86844-0977-4092-aa51-d54aeee3f638" />
-
-### Profile Page
-<img width="1881" height="901" alt="image" src="https://github.com/user-attachments/assets/79559b09-d06a-4b0c-89f0-63479b8bc945" />
-
-### Monitoring page
-<img width="1896" height="902" alt="image" src="https://github.com/user-attachments/assets/7eeb3410-75bf-458b-9243-98b8e82c9e11" />
-
-
-### Test Output (3+ Tests Passing)
-<img width="1506" height="914" alt="Screenshot 2026-03-16 130131" src="https://github.com/user-attachments/assets/895b84c9-bac0-4179-ad0b-4fbdfd364d28" />
+- **Architecture Document**: [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Stellar Expert**: [Verify Contract on Testnet](https://stellar.expert/explorer/testnet/contract/CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3)
 
 ---
 
-## 🪙 Custom Token — SNFT
-
-| Property | Value |
-|----------|-------|
-| Name | Stellar NFT Token |
-| Symbol | SNFT |
-| Network | Stellar Testnet |
-| Reward per Mint | 10 SNFT |
-| Contract Type | Soroban |
-
----
-
-## 📁 Project Structure
-
-```
-stellar-new/
-├── .github/workflows/ci.yml       # CI/CD
-├── backend/server.js               # IPFS proxy
-├── contract/escrow_contract/
-│   └── src/lib.rs                  # Escrow Contract (Rust)
-├── src/
-│   ├── pages/
-│   │   ├── DashboardPage.js        # Overview + stats
-│   │   ├── EscrowPage.js           # Jobs (Escrow)
-│   │   ├── MintPage.js             # NFT minting
-│   │   ├── GalleryPage.js          # NFT gallery
-│   │   ├── MarketplacePage.js      # Buy/Sell NFTs
-│   │   ├── ActivityPage.js         # TX history
-│   │   └── PaymentPage.js          # XLM payments
-│   ├── components/
-│   │   ├── Sidebar.js              # Navigation
-│   │   └── ProfilePage.js          # Full profile
-│   ├── walletService.js            # Wallet connections
-│   └── constants.js                # Contract IDs
-└── docs/
-    ├── ARCHITECTURE.md             # Architecture document
-    └── User_Feedback_Documentation.docx
-```
-
----
-
-## 🔗 Useful Links
-
-- [Stellar Expert Explorer](https://stellar.expert/explorer/testnet)
-- [Friendbot — Fund Account](https://friendbot.stellar.org)
-- [Soroban Docs](https://soroban.stellar.org)
-- [Architecture Document](docs/ARCHITECTURE.md)
-- [User Feedback](docs/User_Feedback_Documentation.docx)
-
----
+*Built for the Stellar ecosystem. FreelanceChain is a secure, open-source solution for the future of work.*
