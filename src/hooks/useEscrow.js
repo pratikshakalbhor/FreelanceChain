@@ -5,7 +5,7 @@ import { signTransaction } from "../walletService";
 import {
   NETWORK, NETWORK_PASSPHRASE,
   ESCROW_CONTRACT_ID,
-  NATIVE_XLM_TOKEN, SOROBAN_SERVER,
+  SUPPORTED_TOKENS, SOROBAN_SERVER,
 } from "../constants";
 import { storeNotification } from "../utils/notificationService";
 import { recordActivity } from "../utils/activityService";
@@ -165,24 +165,28 @@ export const useEscrow = () => {
     if (walletAddress) loadJobs();
   }, [walletAddress, loadJobs]);
 
-  const handlePostJob = async (title, description, amount) => {
+  const handlePostJob = async (title, description, amount, tokenSymbol = "XLM", milestones = null) => {
     if (!title.trim()) throw new Error("Please enter a job title!");
     if (!description.trim()) throw new Error("Please enter a description!");
-    const xlm = parseFloat(amount);
-    if (!xlm || xlm <= 0) throw new Error("Please enter a valid XLM amount!");
     
-    const amountStroops = Math.round(xlm * 10_000_000);
+    const token = SUPPORTED_TOKENS.find(t => t.symbol === tokenSymbol) || SUPPORTED_TOKENS[0];
+    const TOKEN_CONTRACT = token.contract;
+
+    const val = parseFloat(amount);
+    if (!val || val <= 0) throw new Error(`Please enter a valid ${tokenSymbol} amount!`);
+    
+    const amountStroops = Math.round(val * 10_000_000); // Most Stellar tokens use 7 decimals
     const ledgerInfo = await SOROBAN_SERVER.getLatestLedger();
     const EXPIRY_LEDGER = ledgerInfo.sequence + 500;
     setLoading(true);
     
     try {
-      showStatus("Step 1 of 2: Approving XLM transfer...", "info");
+      showStatus(`Step 1 of 2: Approving ${tokenSymbol} transfer...`, "info");
       const approveAccount = await SOROBAN_SERVER.getAccount(walletAddress);
       const approveTx = new StellarSdk.TransactionBuilder(approveAccount, {
         fee: "1000000", networkPassphrase: NETWORK_PASSPHRASE,
       })
-        .addOperation(new StellarSdk.Contract(NATIVE_XLM_TOKEN).call(
+        .addOperation(new StellarSdk.Contract(TOKEN_CONTRACT).call(
           "approve",
           new StellarSdk.Address(walletAddress).toScVal(),
           new StellarSdk.Address(ESCROW_CONTRACT_ID).toScVal(),
@@ -192,7 +196,7 @@ export const useEscrow = () => {
         .setTimeout(300).build();
       await buildSignSubmit(approveTx, walletType, "approve", showStatus);
 
-      showStatus("Step 2 of 2: Posting job...", "info");
+      showStatus(`Step 2 of 2: Posting job in ${tokenSymbol}...`, "info");
       const postAccount = await SOROBAN_SERVER.getAccount(walletAddress);
       const postTx = new StellarSdk.TransactionBuilder(postAccount, {
         fee: "1000000", networkPassphrase: NETWORK_PASSPHRASE,
@@ -202,16 +206,17 @@ export const useEscrow = () => {
           new StellarSdk.Address(walletAddress).toScVal(),
           StellarSdk.nativeToScVal(title.trim(), { type: "string" }),
           StellarSdk.nativeToScVal(description.trim(), { type: "string" }),
-          StellarSdk.nativeToScVal(amountStroops, { type: "i128" })
+          StellarSdk.nativeToScVal(amountStroops, { type: "i128" }),
+          new StellarSdk.Address(TOKEN_CONTRACT).toScVal() // Pass token address
         ))
         .setTimeout(300).build();
       await buildSignSubmit(postTx, walletType, "post_job", showStatus);
 
-      showStatus("✅ Job posted successfully!", "success");
+      showStatus(`✅ Job posted successfully in ${tokenSymbol}!`, "success");
       await recordActivity(walletAddress, {
         type: "job_posted",
         title: "Job Posted",
-        description: `Posted "${title.trim()}" for ${xlm} XLM`,
+        description: `Posted "${title.trim()}" for ${val} ${tokenSymbol}`,
         color: "#6366f1"
       });
       await loadJobs();
@@ -292,7 +297,8 @@ export const useEscrow = () => {
       const job = jobs.find((j) => j.id === jobId);
       if (!job) throw new Error("Job not found.");
       const freelancer = String(job.freelancer);
-      const amountXLM = (Number(job.amount) / 10_000_000).toFixed(2);
+      const token = SUPPORTED_TOKENS.find(t => t.contract === String(job.token)) || SUPPORTED_TOKENS[0];
+      const amountVal = (Number(job.amount) / 10_000_000).toFixed(2);
 
       showStatus("⏳ Releasing payment...", "info");
       const account = await SOROBAN_SERVER.getAccount(walletAddress);
@@ -308,13 +314,13 @@ export const useEscrow = () => {
       await buildSignSubmit(tx, walletType, "approve_job", showStatus);
 
       await Promise.all([
-        storeNotification(freelancer, walletAddress, ` Payment received: ${amountXLM} XLM for "${job.title}"`, String(job.title)),
-        storeNotification(walletAddress, freelancer, ` Payment sent: ${amountXLM} XLM for "${job.title}"`, String(job.title)),
+        storeNotification(freelancer, walletAddress, ` Payment received: ${amountVal} ${token.symbol} for "${job.title}"`, String(job.title)),
+        storeNotification(walletAddress, freelancer, ` Payment sent: ${amountVal} ${token.symbol} for "${job.title}"`, String(job.title)),
       ]);
 
       showStatus(` Payment sent to freelancer!`, "success");
-      await recordActivity(walletAddress, { type: "payment_released", title: "Payment Released", description: `Released ${amountXLM} XLM for "${job.title}"`, color: "#34d399" });
-      await recordActivity(freelancer, { type: "payment_received", title: "Payment Received", description: `Received ${amountXLM} XLM for "${job.title}"`, color: "#34d399" });
+      await recordActivity(walletAddress, { type: "payment_released", title: "Payment Released", description: `Released ${amountVal} ${token.symbol} for "${job.title}"`, color: "#34d399" });
+      await recordActivity(freelancer, { type: "payment_received", title: "Payment Received", description: `Received ${amountVal} ${token.symbol} for "${job.title}"`, color: "#34d399" });
       await loadJobs();
     } catch (e) {
       showStatus(` ${e.message}`, "error");
