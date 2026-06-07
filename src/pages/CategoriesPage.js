@@ -9,11 +9,23 @@ import {
   Video, 
   Music, 
   BarChart,
-  ArrowRight
+  ArrowRight,
+  LayoutGrid,
+  Code2,
+  Palette,
+  Megaphone,
+  FileText,
+  VideoIcon,
+  Music2,
+  Briefcase
 } from "lucide-react";
 import "./CategoriesPage.css";
+import { useEscrow } from "../hooks/useEscrow";
+import { useNavigate } from "react-router-dom";
+import { SUPPORTED_TOKENS } from "../constants";
 
 const CATEGORIES = [
+  { id: 'all', name: "All Categories", icon: <LayoutGrid size={18} /> },
   { id: 1, name: "Programming & Tech", icon: <Zap size={18} /> },
   { id: 2, name: "AI Services", icon: <Brain size={18} /> },
   { id: 3, name: "Graphics & Design", icon: <Layout size={18} /> },
@@ -24,59 +36,24 @@ const CATEGORIES = [
   { id: 8, name: "Business", icon: <BarChart size={18} /> },
 ];
 
-const POPULAR_SERVICES = [
-  {
-    id: 1,
-    title: "Web Development using React & Node JS",
-    price: 450,
-    category: "Programming & Tech",
-    emoji: "💻",
-    tag: "High Demand"
-  },
-  {
-    id: 2,
-    title: "Custom Logo Design & Brand Identity",
-    price: 120,
-    category: "Graphics & Design",
-    emoji: "🎨",
-    tag: "Trending"
-  },
-  {
-    id: 3,
-    title: "AI Chatbot Integration & Model Training",
-    price: 600,
-    category: "AI Services",
-    emoji: "🤖",
-    tag: "Premium"
-  },
-  {
-    id: 4,
-    title: "SEO Optimization & Digital Growth Strategy",
-    price: 280,
-    category: "Digital Marketing",
-    emoji: "🚀",
-    tag: "Best Seller"
-  },
-  {
-    id: 5,
-    title: "Professional Video Editing & Motion Graphics",
-    price: 180,
-    category: "Video & Animation",
-    emoji: "🎬",
-    tag: "Popular"
-  },
-  {
-    id: 6,
-    title: "Voice Over Specialist & Audio Production",
-    price: 95,
-    category: "Music & Audio",
-    emoji: "🎤",
-    tag: "New"
-  }
-];
-
 export default function CategoriesPage() {
-  const [activeCategory, setActiveCategory] = useState("Programming & Tech");
+  const navigate = useNavigate();
+  const { jobs, loading } = useEscrow();
+  const [activeCategory, setActiveCategory] = useState("All Categories");
+
+  // Filter jobs by category
+  const filteredJobs = jobs.filter(job => {
+    if (activeCategory === "All Categories") return true;
+    
+    // In our simplified system, we'll map job titles/descriptions to categories 
+    const num = Number(job.id) || 0;
+    const cat = CATEGORIES.find(c => c.id !== 'all' && (num % (CATEGORIES.length-1)) === (Number(c.id)-1))?.name;
+    return cat === activeCategory;
+  });
+
+  const getJobToken = (job) => {
+    return SUPPORTED_TOKENS.find(t => t.contract === String(job.token)) || SUPPORTED_TOKENS[0];
+  };
 
   return (
     <div className="categories-page">
@@ -116,46 +93,92 @@ export default function CategoriesPage() {
 
       <div className="service-grid">
         <AnimatePresence mode="popLayout">
-          {POPULAR_SERVICES.map((service, index) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              key={service.id}
-              className="service-card"
-            >
-              <div className="service-image-container">
-                {service.emoji}
-                <div className="service-badge">{service.tag}</div>
-              </div>
-              <div className="service-content">
-                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', marginBottom: '8px' }}>
-                  {service.category}
-                </div>
-                <h4 className="service-title">{service.title}</h4>
-                <div className="service-footer">
-                  <div>
-                    <div className="starting-at">Starting At</div>
-                    <div className="price-tag">{service.price} <span>XLM</span></div>
-                  </div>
-                  <button style={{ 
-                    background: 'rgba(99, 102, 241, 0.1)', 
-                    border: '1px solid rgba(99, 102, 241, 0.2)', 
-                    color: '#6366f1', 
-                    padding: '8px 16px', 
-                    borderRadius: '10px',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer'
+          {loading ? (
+            <div style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', gridColumn: '1/-1', padding: '40px' }}>Loading real-time market data...</div>
+          ) : filteredJobs.length === 0 ? (
+            <div style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', gridColumn: '1/-1', padding: '40px' }}>No active jobs in this category right now.</div>
+          ) : filteredJobs.map((job, index) => {
+            const token = getJobToken(job);
+            
+            // Map icons for professional look
+            const iconMap = {
+              "Programming & Tech": <Code2 size={48} />,
+              "AI Services": <Brain size={48} />,
+              "Graphics & Design": <Palette size={48} />,
+              "Digital Marketing": <Megaphone size={48} />,
+              "Writing": <FileText size={48} />,
+              "Video & Animation": <VideoIcon size={48} />,
+              "Music & Audio": <Music2 size={48} />,
+              "Business": <Briefcase size={48} />,
+              "default": <LayoutGrid size={48} />
+            };
+
+            const num = Number(job.id) || 0;
+            const jobCategory = CATEGORIES.find(c => c.id !== 'all' && (num % (CATEGORIES.length-1)) === (Number(c.id)-1))?.name || "default";
+            const CategoryIcon = iconMap[jobCategory] || iconMap.default;
+            const colorPalette = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
+            const accentColor = colorPalette[index % colorPalette.length];
+
+            return (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                key={job.id}
+                className="service-card"
+                onClick={() => navigate("/find-jobs", { state: { query: job.title } })}
+              >
+                <div className="service-image-container" style={{ 
+                  background: `radial-gradient(circle at center, ${accentColor}15, #0f172a)`,
+                  borderBottom: `1px solid ${accentColor}20`
+                }}>
+                  <div style={{ 
+                    color: accentColor, 
+                    filter: `drop-shadow(0 0 15px ${accentColor}40)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '20px',
+                    background: `rgba(255, 255, 255, 0.03)`,
+                    border: `1px solid ${accentColor}30`,
+                    backdropFilter: 'blur(10px)'
                   }}>
-                    Order Now
-                  </button>
+                    {CategoryIcon}
+                  </div>
+                  <div className="service-badge" style={{ borderColor: `${accentColor}40` }}>Escrow Secured</div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+                <div className="service-content">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', marginBottom: '8px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: accentColor }} />
+                    {jobCategory === "default" ? activeCategory : jobCategory}
+                  </div>
+                  <h4 className="service-title">{job.title}</h4>
+                  <div className="service-footer">
+                    <div>
+                      <div className="starting-at">Project Budget</div>
+                      <div className="price-tag">{(Number(job.amount) / 10_000_000).toFixed(0)} <span>{token.symbol}</span></div>
+                    </div>
+                    <button style={{ 
+                      background: `${accentColor}15`, 
+                      border: `1px solid ${accentColor}30`, 
+                      color: accentColor, 
+                      padding: '8px 16px', 
+                      borderRadius: '10px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}>
+                      View Job
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 

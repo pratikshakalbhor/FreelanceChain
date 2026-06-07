@@ -35,7 +35,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
     { to: "/", icon: <LayoutDashboard size={18} />, label: "Dashboard" },
     { to: "/post-job", icon: <PlusCircle size={18} />, label: "Post Job", badge: "NEW" },
     { to: "/find-jobs", icon: <Search size={18} />, label: "Find Jobs" },
-    { to: "/categories", icon: <Compass size={18} />, label: "Explore" },
+    { to: "/categories", icon: <Compass size={18} />, label: "Explore Markets" },
     { to: "/my-jobs", icon: <Briefcase size={18} />, label: "My Jobs" },
     { to: "/payment", icon: <CreditCard size={18} />, label: "Payment" },
     { to: "/activity", icon: <History size={18} />, label: "Activity" },
@@ -110,7 +110,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
       </div>
 
       {/* Nav Links */}
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+      <div className="sidebar-scroll" style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
         {links.map((link) => (
           <NavLink
             key={link.to}
@@ -246,6 +246,25 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
       <style>{`
         @media (min-width: 768px) { .md\\:block { display: block !important; } .md\\:hidden { display: none !important; } }
         @media (max-width: 767px) { .hidden { display: none; } }
+
+        /* Professional Sidebar Scrollbar */
+        .sidebar-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+          background: ${isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.1)'};
+          border-radius: 10px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+          background: #6366f1;
+        }
+        .sidebar-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(99, 102, 241, 0.2) transparent;
+        }
       `}</style>
     </>
   );
