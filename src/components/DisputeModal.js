@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AlertCircle, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 import "./DisputeModal.css";
 
 const REASONS = [
@@ -28,15 +28,16 @@ export default function DisputeModal({ isOpen, onClose, jobId, jobTitle, walletA
         counterParty,
         reason,
         description: description.trim(),
-        status: "Open", // Open -> Under Review -> Resolved
+        status: "Open",
         createdAt: serverTimestamp(),
-        resolutionWindowEnd: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3-day window
+        resolutionWindowEnd: Timestamp.fromMillis(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3-day window
         votes: {
           initiator: null,
           counterParty: null,
           arbitrator: null
         }
       });
+      alert("✅ Dispute raised successfully! The escrow funds are now frozen.");
       onClose();
     } catch (e) {
       console.error("Dispute error:", e);

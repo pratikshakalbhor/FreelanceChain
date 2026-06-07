@@ -154,13 +154,13 @@ export default function DisputePage({ walletAddress }) {
 
                 <div className="vote-btns">
                   <button 
-                    className={`vote-btn ${selectedDispute.votes?.[selectedDispute.initi === walletAddress ? 'initiator' : 'counterParty'] === 'refund' ? 'active refund' : ''}`}
+                    className={`vote-btn ${selectedDispute.votes?.[selectedDispute.initiator === walletAddress ? 'initiator' : 'counterParty'] === 'refund' ? 'active refund' : ''}`}
                     onClick={() => handleVote(selectedDispute.id, 'refund')}
                   >
                     Refund Client
                   </button>
                   <button 
-                    className={`vote-btn ${selectedDispute.votes?.[selectedDispute.initi === walletAddress ? 'initiator' : 'counterParty'] === 'release' ? 'active release' : ''}`}
+                    className={`vote-btn ${selectedDispute.votes?.[selectedDispute.initiator === walletAddress ? 'initiator' : 'counterParty'] === 'release' ? 'active release' : ''}`}
                     onClick={() => handleVote(selectedDispute.id, 'release')}
                   >
                     Release Pay
