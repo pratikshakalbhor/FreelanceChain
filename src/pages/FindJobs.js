@@ -6,7 +6,8 @@ import {
   Clock, 
   Users, 
   Award,
-  Zap
+  Zap,
+  Sparkles
 } from "lucide-react";
 import SearchFilter from "../components/SearchFilter";
 
@@ -108,6 +109,23 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
 
     return result;
   }, [openJobs, filters]);
+
+  // AI Recommendation Logic
+  const recommendedJobs = useMemo(() => {
+    // Simulate user skills (normally these would come from wallet profile)
+    const userSkills = ["React", "Stellar", "UI/UX"];
+    
+    return openJobs
+      .map(job => ({
+        ...job,
+        _meta: JOB_METADATA.getMeta(job.id),
+        _xlm: Number(job.amount) / 10_000_000,
+        score: JOB_METADATA.getMeta(job.id).skills.filter(s => userSkills.includes(s)).length
+      }))
+      .filter(j => j.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }, [openJobs]);
 
   const JobCard = ({ job, index }) => {
     const isOwner = String(job.client) === walletAddress;
@@ -305,6 +323,44 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
             Post a Job
           </button>
         </div>
+
+        {/* AI Recommendations Section */}
+        {!filters.query && filters.category === "All Categories" && recommendedJobs.length > 0 && (
+          <div style={{ marginBottom: "32px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <Sparkles size={20} color="#fbbf24" fill="#fbbf24" style={{ filter: "drop-shadow(0 0 8px rgba(251,191,36,0.4))" }} />
+              <h3 style={{ color: "#fff", margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>AI Recommended Matches</h3>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+              {recommendedJobs.map((job, i) => (
+                <motion.div
+                  key={`rec-${job.id}`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  style={{
+                    background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(79,70,229,0.05))",
+                    border: "1px solid rgba(99,102,241,0.3)",
+                    borderRadius: "16px",
+                    padding: "20px",
+                    cursor: "pointer",
+                    position: "relative",
+                  }}
+                  onClick={() => setFilters(f => ({ ...f, query: job.title }))}
+                >
+                  <div style={{ position: "absolute", top: "12px", right: "12px", background: "#fbbf24", color: "#000", fontSize: "0.6rem", fontWeight: 900, padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>98% Match</div>
+                  <h4 style={{ color: "#fff", margin: "0 0 8px", fontSize: "0.95rem" }}>{job.title}</h4>
+                  <div style={{ color: "#34d399", fontWeight: 800, fontSize: "1rem", marginBottom: "8px" }}>{(Number(job.amount) / 10_000_000).toFixed(0)} XLM</div>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    {job._meta.skills.slice(0, 2).map(s => (
+                      <span key={s} style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "4px" }}>{s}</span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "100px 0" }}>
