@@ -4,7 +4,9 @@ import { useTheme } from "../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import RatingModal from "../components/RatingModal";
 import DisputeModal from "../components/DisputeModal";
-import { ShieldAlert } from "lucide-react";
+import CertificateModal from "../components/CertificateModal";
+import { ShieldAlert, FileUp, CheckCircle2, Award } from "lucide-react";
+import { SUPPORTED_TOKENS } from "../constants";
 
 const STATUS_COLORS = {
   Open: { bg: "rgba(59,130,246,0.15)", color: "#60a5fa", label: "Open" },
@@ -41,6 +43,17 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
   // Modal states
   const [ratingModal, setRatingModal] = useState({ isOpen: false, jobId: null, jobTitle: "", targetWallet: "", role: "client" });
   const [disputeModal, setDisputeModal] = useState({ isOpen: false, jobId: null, jobTitle: "", counterParty: "" });
+  const [certModal, setCertModal] = useState({ isOpen: false, job: null });
+  const [ipfsUploading, setIpfsUploading] = useState({});
+
+  const simulateIpfsUpload = async (jobId) => {
+    setIpfsUploading(p => ({ ...p, [jobId]: true }));
+    // Simulate IPFS upload delay
+    await new Promise(r => setTimeout(r, 2000));
+    const fakeCid = `qm${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+    setWorkUrls(p => ({ ...p, [jobId]: `https://ipfs.io/ipfs/${fakeCid}` }));
+    setIpfsUploading(p => ({ ...p, [jobId]: false }));
+  };
 
   const postedJobs = jobs.filter((j) => String(j.client) === walletAddress);
   const freelanceJobs = jobs.filter((j) => String(j.freelancer) === walletAddress && String(j.freelancer) !== String(j.client));
@@ -82,7 +95,8 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
   const PostedJobCard = ({ job, i }) => {
     const statusKey = getStatusKey(job.status);
     const statusInfo = STATUS_COLORS[statusKey] || STATUS_COLORS[0];
-    const xlm = (Number(job.amount) / 10_000_000).toFixed(2);
+    const token = SUPPORTED_TOKENS.find(t => t.contract === String(job.token)) || SUPPORTED_TOKENS[0];
+    const amountVal = (Number(job.amount) / 10_000_000).toFixed(2);
     const freelancer = String(job.freelancer);
     const hasFreelancer = freelancer && freelancer !== walletAddress && freelancer.length > 10;
     const isSubmitted = statusKey === 2 || statusKey === "Submitted";
@@ -92,7 +106,7 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
       <motion.div key={job.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} style={cardStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "10px" }}>
           <div style={{ flex: 1 }}><h3 style={{ color: isDark ? "#fff" : "#1a1a2e", fontWeight: 700, margin: "0 0 4px" }}>{job.title}</h3><p style={{ color: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)", fontSize: "0.85rem", lineHeight: 1.5, margin: 0 }}>{job.description}</p></div>
-          <div style={{ textAlign: "right" }}><span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", background: statusInfo.bg, color: statusInfo.color, fontSize: "0.78rem", fontWeight: 700, marginBottom: "6px" }}>{statusInfo.label}</span><div style={{ color: "#34d399", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{xlm} XLM</div></div>
+          <div style={{ textAlign: "right" }}><span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", background: statusInfo.bg, color: statusInfo.color, fontSize: "0.78rem", fontWeight: 700, marginBottom: "6px" }}>{statusInfo.label}</span><div style={{ color: "#34d399", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{amountVal} {token.symbol}</div></div>
         </div>
         <div style={{ fontSize: "0.72rem", color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.4)", fontFamily: "'JetBrains Mono', monospace", marginBottom: "12px" }}>Job #{job.id} • Posted by you {hasFreelancer && <span> • Freelancer: {shortenAddr(freelancer)}</span>}</div>
         {job.work_url && <div style={{ padding: "10px 14px", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.18)", borderRadius: "10px", marginBottom: "12px", fontSize: "0.82rem", color: "#a5b4fc" }}>📎 Work: <a href={String(job.work_url)} target="_blank" rel="noopener noreferrer" style={{ color: "#818cf8" }}>{String(job.work_url)}</a></div>}
@@ -100,6 +114,7 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
           {isSubmitted && actionBtn("linear-gradient(135deg, #059669, #047857)", "Release Pay", () => onApprove?.(job.id))}
           {(statusKey === 0 || statusKey === "Open") && actionBtn("linear-gradient(135deg, #dc2626, #b91c1c)", "Cancel Job", () => onCancel?.(job.id))}
           {(statusKey === 3 || statusKey === "Completed") && hasFreelancer && actionBtn("linear-gradient(135deg, #f59e0b, #d97706)", "⭐ Rate", () => setRatingModal({ isOpen: true, jobId: job.id, jobTitle: job.title, targetWallet: freelancer, role: "client" }))}
+          {(statusKey === 3 || statusKey === "Completed") && actionBtn("rgba(99, 102, 241, 0.15)", "Certificate", () => setCertModal({ isOpen: true, job }), <Award size={14} color="#a78bfa" />)}
           {hasFreelancer && (isInProgress || isSubmitted) && actionBtn("rgba(239, 68, 68, 0.15)", "Dispute", () => setDisputeModal({ isOpen: true, jobId: job.id, jobTitle: job.title, counterParty: freelancer }), <ShieldAlert size={14} color="#f87171" />)}
           {hasFreelancer && <button onClick={() => navigate("/chat", { state: { recipientAddress: freelancer } })} style={{ padding: "9px 18px", background: "linear-gradient(135deg, #7c3aed, #4f46e5)", border: "none", borderRadius: "10px", color: "#fff", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer" }}>💬 Chat</button>}
         </div>
@@ -110,7 +125,8 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
   const FreelanceJobCard = ({ job, i }) => {
     const statusKey = getStatusKey(job.status);
     const statusInfo = STATUS_COLORS[statusKey] || STATUS_COLORS[0];
-    const xlm = (Number(job.amount) / 10_000_000).toFixed(2);
+    const token = SUPPORTED_TOKENS.find(t => t.contract === String(job.token)) || SUPPORTED_TOKENS[0];
+    const amountVal = (Number(job.amount) / 10_000_000).toFixed(2);
     const isInProgress = statusKey === 1 || statusKey === "InProgress";
     const isSubmitted = statusKey === 2 || statusKey === "Submitted";
     const url = workUrls[job.id] || "";
@@ -119,17 +135,45 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
       <motion.div key={job.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} style={cardStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "10px" }}>
           <div style={{ flex: 1 }}><h3 style={{ color: isDark ? "#fff" : "#1a1a2e", fontWeight: 700, margin: "0 0 4px" }}>{job.title}</h3><p style={{ color: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)", fontSize: "0.85rem", lineHeight: 1.5, margin: 0 }}>{job.description}</p></div>
-          <div style={{ textAlign: "right" }}><span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", background: statusInfo.bg, color: statusInfo.color, fontSize: "0.78rem", fontWeight: 700, marginBottom: "6px" }}>{statusInfo.label}</span><div style={{ color: "#34d399", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{xlm} XLM</div></div>
+          <div style={{ textAlign: "right" }}><span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", background: statusInfo.bg, color: statusInfo.color, fontSize: "0.78rem", fontWeight: 700, marginBottom: "6px" }}>{statusInfo.label}</span><div style={{ color: "#34d399", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{amountVal} {token.symbol}</div></div>
         </div>
         <div style={{ fontSize: "0.72rem", color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.4)", fontFamily: "'JetBrains Mono', monospace", marginBottom: "12px" }}>Job #{job.id} • Client: {shortenAddr(String(job.client))}</div>
         {isInProgress && (
           <div style={{ marginBottom: "12px" }}>
-            <label style={{ color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)", fontSize: "0.82rem", display: "block", marginBottom: "6px", fontWeight: 600 }}>📎 Work URL</label>
-            <div style={{ display: "flex", gap: "8px" }}><input type="text" placeholder="https://..." value={url} onChange={(e) => setWorkUrls((p) => ({ ...p, [job.id]: e.target.value }))} style={{ flex: 1, padding: "9px 14px", borderRadius: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />{actionBtn("linear-gradient(135deg, #7c3aed, #4f46e5)", "Submit", () => url.trim() && onSubmitWork?.(job.id, url.trim()))}</div>
+            <label style={{ color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)", fontSize: "0.82rem", display: "block", marginBottom: "6px", fontWeight: 600 }}>📎 Work URL / IPFS Proof</label>
+            <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+              <input type="text" placeholder="https://..." value={url} onChange={(e) => setWorkUrls((p) => ({ ...p, [job.id]: e.target.value }))} style={{ flex: 1, padding: "9px 14px", borderRadius: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
+              {actionBtn("linear-gradient(135deg, #7c3aed, #4f46e5)", "Submit", () => url.trim() && onSubmitWork?.(job.id, url.trim()))}
+            </div>
+            <button 
+              onClick={() => simulateIpfsUpload(job.id)} 
+              disabled={ipfsUploading[job.id]}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", background: "rgba(167,139,250,0.1)", border: "1px dashed rgba(167,139,250,0.3)", borderRadius: "10px", color: "#a78bfa", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}
+            >
+              <FileUp size={16} />
+              {ipfsUploading[job.id] ? "Uploading to IPFS..." : "Upload Final Deliverables to IPFS"}
+            </button>
+          </div>
+        )}
+
+        {/* Milestone Tracker (if applicable) */}
+        {job.milestones && (
+          <div style={{ padding: "14px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", marginBottom: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "10px", textTransform: "uppercase" }}>Milestone Progress</div>
+            {job.milestones.map((m, idx) => (
+              <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px", opacity: idx < (job.currentMilestone || 0) ? 0.5 : 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.8rem", color: "#fff" }}>
+                  {idx < (job.currentMilestone || 0) ? <CheckCircle2 size={14} color="#34d399" /> : <div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.2)", borderRadius: "50%" }} />}
+                  {m.title}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "#34d399", fontWeight: 700 }}>{m.amount} {token.symbol}</div>
+              </div>
+            ))}
           </div>
         )}
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
           {(statusKey === 3 || statusKey === "Completed") && actionBtn("linear-gradient(135deg, #f59e0b, #d97706)", "⭐ Rate Client", () => setRatingModal({ isOpen: true, jobId: job.id, jobTitle: job.title, targetWallet: String(job.client), role: "freelancer" }))}
+          {(statusKey === 3 || statusKey === "Completed") && actionBtn("rgba(99, 102, 241, 0.15)", "Certificate", () => setCertModal({ isOpen: true, job }), <Award size={14} color="#a78bfa" />)}
           {(isInProgress || isSubmitted) && actionBtn("rgba(239, 68, 68, 0.15)", "Dispute", () => setDisputeModal({ isOpen: true, jobId: job.id, jobTitle: job.title, counterParty: String(job.client) }), <ShieldAlert size={14} color="#f87171" />)}
           <button onClick={() => navigate("/chat", { state: { recipientAddress: String(job.client) } })} style={{ padding: "9px 18px", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "10px", color: isDark ? "#a78bfa" : "#6d28d9", fontWeight: 600 }}>💬 Chat</button>
         </div>
@@ -146,6 +190,7 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
       {loading ? <div style={{ textAlign: "center", padding: "48px" }}>Loading jobs...</div> : subTab === "posted" ? (postedJobs.length === 0 ? <EmptyState icon="📋" title="No jobs" subtitle="Get started by posting a job." btnLabel="Post Job" onBtnClick={() => navigate("/escrow")} /> : postedJobs.map((j, i) => <PostedJobCard key={j.id} job={j} i={i} />)) : freelanceJobs.length === 0 ? <EmptyState icon="🤝" title="No jobs" subtitle="Find some jobs to apply!" btnLabel="Find Jobs" onBtnClick={() => onFindJobs?.()} /> : freelanceJobs.map((j, i) => <FreelanceJobCard key={j.id} job={j} i={i} />)}
       <RatingModal isOpen={ratingModal.isOpen} onClose={() => setRatingModal((p) => ({ ...p, isOpen: false }))} jobId={ratingModal.jobId} jobTitle={ratingModal.jobTitle} targetWallet={ratingModal.targetWallet} role={ratingModal.role} />
       <DisputeModal isOpen={disputeModal.isOpen} onClose={() => setDisputeModal((p) => ({ ...p, isOpen: false }))} jobId={disputeModal.jobId} jobTitle={disputeModal.jobTitle} walletAddress={walletAddress} counterParty={disputeModal.counterParty} />
+      <CertificateModal isOpen={certModal.isOpen} onClose={() => setCertModal({ isOpen: false, job: null })} job={certModal.job} />
     </div>
   );
 }
