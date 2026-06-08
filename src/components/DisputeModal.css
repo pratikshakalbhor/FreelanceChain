@@ -22,6 +22,36 @@
   max-width: 500px;
   padding: 32px;
   box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.15);
+  position: relative; /* Added for X button positioning */
+}
+
+/* Close Button Style */
+.dispute-close-x {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dispute-close-x:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dispute-close-x:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .dispute-modal-header {
@@ -52,8 +82,29 @@
 .dispute-reason-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 24px;
+}
+
+.dispute-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.dispute-textarea:focus {
+  border-color: #ef4444;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .reason-option {
@@ -80,24 +131,7 @@
   color: #fff;
 }
 
-.dispute-textarea {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  padding: 16px;
-  color: #fff;
-  font-size: 0.95rem;
-  resize: none;
-  outline: none;
-  margin-bottom: 24px;
-  box-sizing: border-box;
-}
 
-.dispute-textarea:focus {
-  border-color: #ef4444;
-  background: rgba(255, 255, 255, 0.05);
-}
 
 .dispute-modal-footer {
   display: flex;

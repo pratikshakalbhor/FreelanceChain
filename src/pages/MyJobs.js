@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import RatingModal from "../components/RatingModal";
 import DisputeModal from "../components/DisputeModal";
 import CertificateModal from "../components/CertificateModal";
-import { ShieldAlert, FileUp, CheckCircle2, Award } from "lucide-react";
+import ViewProposalsModal from "../components/ViewProposalsModal";
+import { ShieldAlert, FileUp, CheckCircle2, Award, Users } from "lucide-react";
 import { SUPPORTED_TOKENS } from "../constants";
 
 const STATUS_COLORS = {
@@ -34,7 +35,7 @@ const getStatusKey = (status) => {
   return 0;
 };
 
-export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork, onApprove, onCancel, onFindJobs }) {
+export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork, onApprove, onCancel, onFindJobs, onAccept }) {
   const { isDark } = useTheme();
   const navigate = useNavigate();
   const [subTab, setSubTab] = useState("posted");
@@ -43,7 +44,9 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
   // Modal states
   const [ratingModal, setRatingModal] = useState({ isOpen: false, jobId: null, jobTitle: "", targetWallet: "", role: "client" });
   const [disputeModal, setDisputeModal] = useState({ isOpen: false, jobId: null, jobTitle: "", counterParty: "" });
+  const [showDisputeSuccess, setShowDisputeSuccess] = useState(false);
   const [certModal, setCertModal] = useState({ isOpen: false, job: null });
+  const [proposalsModal, setProposalsModal] = useState({ isOpen: false, job: null });
   const [ipfsUploading, setIpfsUploading] = useState({});
 
   const simulateIpfsUpload = async (jobId) => {
@@ -113,6 +116,12 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
           {isSubmitted && actionBtn("linear-gradient(135deg, #059669, #047857)", "Release Pay", () => onApprove?.(job.id))}
           {(statusKey === 0 || statusKey === "Open") && actionBtn("linear-gradient(135deg, #dc2626, #b91c1c)", "Cancel Job", () => onCancel?.(job.id))}
+          {(statusKey === 0 || statusKey === "Open") && actionBtn(
+            "linear-gradient(135deg, #6366f1, #4f46e5)",
+            "View Proposals",
+            () => setProposalsModal({ isOpen: true, job }),
+            <Users size={14} color="#fff" />
+          )}
           {(statusKey === 3 || statusKey === "Completed") && hasFreelancer && actionBtn("linear-gradient(135deg, #f59e0b, #d97706)", "⭐ Rate", () => setRatingModal({ isOpen: true, jobId: job.id, jobTitle: job.title, targetWallet: freelancer, role: "client" }))}
           {(statusKey === 3 || statusKey === "Completed") && actionBtn("rgba(99, 102, 241, 0.15)", "Certificate", () => setCertModal({ isOpen: true, job }), <Award size={14} color="#a78bfa" />)}
           {hasFreelancer && (isInProgress || isSubmitted) && actionBtn("rgba(239, 68, 68, 0.15)", "Dispute", () => setDisputeModal({ isOpen: true, jobId: job.id, jobTitle: job.title, counterParty: freelancer }), <ShieldAlert size={14} color="#f87171" />)}
@@ -183,14 +192,65 @@ export default function MyJobs({ jobs = [], loading, walletAddress, onSubmitWork
 
   return (
     <div>
+      {showDisputeSuccess && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          exit={{ opacity: 0 }}
+          style={{ 
+            background: "rgba(16, 185, 129, 0.1)", 
+            border: "1px solid rgba(16, 185, 129, 0.3)", 
+            padding: "14px 20px", 
+            borderRadius: "12px", 
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            color: "#10b981",
+            fontWeight: 600
+          }}
+        >
+          <CheckCircle2 size={20} />
+          Dispute raised successfully! Escrow funds have been frozen.
+          <button 
+            onClick={() => setShowDisputeSuccess(false)} 
+            style={{ marginLeft: "auto", background: "none", border: "none", color: "#10b981", cursor: "pointer", fontSize: "1.2rem" }}
+          >
+            ×
+          </button>
+        </motion.div>
+      )}
+
       <div style={{ display: "flex", gap: "6px", background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", padding: "5px", borderRadius: "14px", marginBottom: "20px" }}>
         <button style={subTabStyle("posted")} onClick={() => setSubTab("posted")}>📋 Posted by Me <span style={{ marginLeft: "8px", opacity: 0.7 }}>{postedJobs.length}</span></button>
         <button style={subTabStyle("applied")} onClick={() => setSubTab("applied")}>🤝 Accepted Jobs <span style={{ marginLeft: "8px", opacity: 0.7 }}>{freelanceJobs.length}</span></button>
       </div>
       {loading ? <div style={{ textAlign: "center", padding: "48px" }}>Loading jobs...</div> : subTab === "posted" ? (postedJobs.length === 0 ? <EmptyState icon="📋" title="No jobs" subtitle="Get started by posting a job." btnLabel="Post Job" onBtnClick={() => navigate("/escrow")} /> : postedJobs.map((j, i) => <PostedJobCard key={j.id} job={j} i={i} />)) : freelanceJobs.length === 0 ? <EmptyState icon="🤝" title="No jobs" subtitle="Find some jobs to apply!" btnLabel="Find Jobs" onBtnClick={() => onFindJobs?.()} /> : freelanceJobs.map((j, i) => <FreelanceJobCard key={j.id} job={j} i={i} />)}
       <RatingModal isOpen={ratingModal.isOpen} onClose={() => setRatingModal((p) => ({ ...p, isOpen: false }))} jobId={ratingModal.jobId} jobTitle={ratingModal.jobTitle} targetWallet={ratingModal.targetWallet} role={ratingModal.role} />
-      <DisputeModal isOpen={disputeModal.isOpen} onClose={() => setDisputeModal((p) => ({ ...p, isOpen: false }))} jobId={disputeModal.jobId} jobTitle={disputeModal.jobTitle} walletAddress={walletAddress} counterParty={disputeModal.counterParty} />
+      <DisputeModal 
+        isOpen={disputeModal.isOpen} 
+        onClose={() => setDisputeModal((p) => ({ ...p, isOpen: false }))} 
+        jobId={disputeModal.jobId} 
+        jobTitle={disputeModal.jobTitle} 
+        walletAddress={walletAddress} 
+        counterParty={disputeModal.counterParty} 
+        onSuccess={() => {
+          setShowDisputeSuccess(true);
+          // Auto-hide after 5 seconds
+          setTimeout(() => setShowDisputeSuccess(false), 5000);
+        }}
+      />
       <CertificateModal isOpen={certModal.isOpen} onClose={() => setCertModal({ isOpen: false, job: null })} job={certModal.job} />
+      <ViewProposalsModal
+        isOpen={proposalsModal.isOpen}
+        onClose={() => setProposalsModal({ isOpen: false, job: null })}
+        job={proposalsModal.job}
+        walletAddress={walletAddress}
+        onHire={(jobId, freelancerAddress) => {
+          onAccept?.(jobId, freelancerAddress);
+          setProposalsModal({ isOpen: false, job: null });
+        }}
+      />
     </div>
   );
 }
