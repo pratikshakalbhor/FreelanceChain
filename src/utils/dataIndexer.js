@@ -8,7 +8,7 @@
 
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { ref, set, get } from "firebase/database";
-import { db } from "../firebase";
+import { rtdb } from "../firebase";
 import { ESCROW_CONTRACT_ID, NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
@@ -71,7 +71,7 @@ export const indexJobs = async (walletAddress) => {
     const jobs = (await Promise.all(jobPromises)).filter(Boolean);
 
     // Save to Firebase index
-    const jobIndexRef = ref(db, `${INDEX_KEY}/jobs`);
+    const jobIndexRef = ref(rtdb, `${INDEX_KEY}/jobs`);
     const jobMap = {};
     jobs.forEach(job => { jobMap[`job_${job.id}`] = job; });
     await set(jobIndexRef, {
@@ -109,7 +109,7 @@ export const indexTransactions = async (walletAddress) => {
       indexedAt: Date.now(),
     }));
 
-    const txIndexRef = ref(db, `${INDEX_KEY}/transactions/${walletAddress.slice(0, 8)}`);
+    const txIndexRef = ref(rtdb, `${INDEX_KEY}/transactions/${walletAddress.slice(0, 8)}`);
     await set(txIndexRef, {
       data: txs,
       lastIndexed: Date.now(),
@@ -127,7 +127,7 @@ export const indexTransactions = async (walletAddress) => {
 
 export const readIndexedJobs = async () => {
   try {
-    const snap = await get(ref(db, `${INDEX_KEY}/jobs`));
+    const snap = await get(ref(rtdb, `${INDEX_KEY}/jobs`));
     if (!snap.exists()) return null;
     const data = snap.val();
     return {
@@ -152,7 +152,7 @@ export const runFullIndex = async (walletAddress) => {
 // ── Check if index is stale (older than 5 mins) ───────────────────────────
 export const isIndexStale = async () => {
   try {
-    const snap = await get(ref(db, `${INDEX_KEY}/jobs/lastIndexed`));
+    const snap = await get(ref(rtdb, `${INDEX_KEY}/jobs/lastIndexed`));
     if (!snap.exists()) return true;
     const lastIndexed = snap.val();
     const fiveMinutes = 5 * 60 * 1000;

@@ -1,5 +1,5 @@
 import { ref, push, onValue, query, orderByChild, limitToLast } from "firebase/database";
-import { db } from "../firebase";
+import { rtdb } from "../firebase";
 
 /**
  * Supported types: 
@@ -12,7 +12,7 @@ export const recordActivity = async (walletAddress, activity) => {
   if (!walletAddress) return;
   
   try {
-    const activityRef = ref(db, `activities/${walletAddress}`);
+    const activityRef = ref(rtdb, `activities/${walletAddress}`);
     await push(activityRef, {
       ...activity,
       timestamp: Date.now(),
@@ -25,7 +25,7 @@ export const recordActivity = async (walletAddress, activity) => {
 export const listenToActivities = (walletAddress, callback) => {
   if (!walletAddress) return () => {};
   
-  const activityRef = ref(db, `activities/${walletAddress}`);
+  const activityRef = ref(rtdb, `activities/${walletAddress}`);
   const activityQuery = query(activityRef, orderByChild("timestamp"), limitToLast(50));
   
   return onValue(activityQuery, (snapshot) => {

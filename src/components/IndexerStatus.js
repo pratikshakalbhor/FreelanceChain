@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from "react";
 import { ref, onValue } from "firebase/database";
-import { db } from "../firebase";
+import { rtdb } from "../firebase";
 import { runFullIndex, isIndexStale } from "../utils/dataIndexer";
 import { useTheme } from "../context/ThemeContext";
 
@@ -20,7 +20,7 @@ export default function IndexerStatus({ walletAddress }) {
 
   useEffect(() => {
     // Listen to index metadata
-    const nftRef = ref(db, "indexed_data/nfts");
+    const nftRef = ref(rtdb, "indexed_data/nfts");
     const unsubNft = onValue(nftRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val();
@@ -29,7 +29,7 @@ export default function IndexerStatus({ walletAddress }) {
       }
     });
 
-    const jobRef = ref(db, "indexed_data/jobs");
+    const jobRef = ref(rtdb, "indexed_data/jobs");
     const unsubJob = onValue(jobRef, (snap) => {
       if (snap.exists()) {
         setJobCount(snap.val().total || 0);
