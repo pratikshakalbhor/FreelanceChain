@@ -80,7 +80,9 @@ export default function ViewProposalsModal({
 
   const pending = proposals.filter((p) => p.status === "pending");
   const accepted = proposals.filter((p) => p.status === "accepted");
-  const rejected = proposals.filter((p) => p.status === "rejected");
+  
+  const rejected = proposals.filter(p => p.status === 'rejected');
+
 
   const StatusBadge = ({ status }) => {
     const map = {
