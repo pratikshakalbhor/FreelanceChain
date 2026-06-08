@@ -1,15 +1,18 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Clock, 
   Users, 
   Award,
   Zap,
-  Sparkles
+  Sparkles,
+  ChevronLeft,
+  Send
 } from "lucide-react";
 import SearchFilter from "../components/SearchFilter";
+import ProposalModal from "../components/ProposalModal";
 
 const shortenAddr = (addr) => {
   if (!addr || typeof addr !== "string") return "";
@@ -44,26 +47,66 @@ const JOB_METADATA = {
 export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, onPostJob }) {
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const [proposalModal, setProposalModal] = useState({ isOpen: false, job: null });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read URL params
+  const initialCategory = searchParams.get('category') || "All Categories";
+  const initialQuery = searchParams.get('search') || "";
+  const initialBudget = Number(searchParams.get('budget')) || 5000;
+  const initialExp = searchParams.get('exp') || "";
+  const initialType = searchParams.get('type') || "";
 
   // Filter state
   const [filters, setFilters] = useState({
-    query: "",
-    category: "All Categories",
-    maxBudget: 1000,
-    experienceLevel: "",
-    jobType: "",
+    query: initialQuery,
+    category: initialCategory,
+    maxBudget: initialBudget,
+    experienceLevel: initialExp,
+    jobType: initialType,
     sortBy: "latest"
   });
 
+  // Update filters when URL params change
+  useEffect(() => {
+    const search = searchParams.get('search') || "";
+    const category = searchParams.get('category') || "All Categories";
+    const budget = Number(searchParams.get('budget')) || 5000;
+    const exp = searchParams.get('exp') || "";
+    const type = searchParams.get('type') || "";
+
+    setFilters(prev => ({
+      ...prev,
+      query: search,
+      category: category,
+      maxBudget: budget,
+      experienceLevel: exp,
+      jobType: type
+    }));
+
+    if (search) {
+      document.title = `Search: ${search} | Find Jobs`;
+    } else if (category !== "All Categories") {
+      document.title = `${category} | Find Jobs`;
+    } else {
+      document.title = `Find Jobs | FreelanceChain`;
+    }
+  }, [searchParams]);
+
+  // Update URL when filters change
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    const params = {};
+    if (newFilters.query) params.search = newFilters.query;
+    if (newFilters.category !== "All Categories") params.category = newFilters.category;
+    if (newFilters.maxBudget !== 5000) params.budget = newFilters.maxBudget;
+    if (newFilters.experienceLevel) params.exp = newFilters.experienceLevel;
+    if (newFilters.jobType) params.type = newFilters.jobType;
+    setSearchParams(params);
+  };
+
   const onReset = () => {
-    setFilters({
-      query: "",
-      category: "All Categories",
-      maxBudget: 1000,
-      experienceLevel: "",
-      jobType: "",
-      sortBy: "latest"
-    });
+    setSearchParams({});
   };
 
   // Only open jobs
@@ -245,7 +288,7 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <button
-                  onClick={() => onAccept?.(job.id)}
+                  onClick={() => setProposalModal({ isOpen: true, job })}
                   style={{ 
                     width: "100%", 
                     padding: "12px", 
@@ -255,10 +298,12 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
                     color: "#fff", 
                     fontWeight: 700, 
                     cursor: "pointer",
-                    boxShadow: "0 10px 20px rgba(99, 102, 241, 0.2)"
+                    boxShadow: "0 10px 20px rgba(99, 102, 241, 0.2)",
+                    display: "flex", alignItems: "center",
+                    justifyContent: "center", gap: "8px"
                   }}
                 >
-                  Apply Now
+                  <Send size={15} /> Submit Proposal
                 </button>
                 <button
                   onClick={() => navigate("/chat", { state: { recipientAddress: String(job.client) } })}
@@ -273,7 +318,7 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
                     cursor: "pointer"
                   }}
                 >
-                  Send Message
+                  Message Client
                 </button>
               </div>
             )}
@@ -289,123 +334,154 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: "32px", alignItems: "start" }}>
-      {/* Sidebar Filters */}
-      <SearchFilter 
-        filters={filters} 
-        setFilters={setFilters} 
-        onReset={onReset} 
-      />
+    <>
+      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
-      {/* Main Content */}
-      <div style={{ width: "100%" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-          <div>
-            <h2 style={{ color: isDark ? "#fff" : "#1a1a2e", fontSize: "1.75rem", fontWeight: 800, margin: 0 }}>
-              Available Opportunities
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.95rem", marginTop: "4px" }}>
-              Showing {filteredJobs.length} active jobs based on your filters
-            </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: "32px", alignItems: "start" }}>
+        {/* Sidebar Filters */}
+        <SearchFilter 
+          filters={filters} 
+          setFilters={handleFilterChange} 
+          onReset={onReset} 
+        />
+
+        {/* Main Content */}
+        <div style={{ width: "100%" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button 
+                onClick={() => navigate(-1)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '10px',
+                  padding: '8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <div>
+                <h2 style={{ color: isDark ? "#fff" : "#1a1a2e", fontSize: "1.75rem", fontWeight: 800, margin: 0 }}>
+                  Available Opportunities
+                </h2>
+                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.95rem", marginTop: "4px" }}>
+                  Showing {filteredJobs.length} active jobs based on your filters
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={onPostJob}
+              style={{ 
+                padding: "12px 24px", 
+                background: "rgba(99,102,241,0.15)", 
+                border: "1px solid rgba(99,102,241,0.3)", 
+                borderRadius: "12px", 
+                color: "#a78bfa", 
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              Post a Job
+            </button>
           </div>
-          <button 
-            onClick={onPostJob}
-            style={{ 
-              padding: "12px 24px", 
-              background: "rgba(99,102,241,0.15)", 
-              border: "1px solid rgba(99,102,241,0.3)", 
-              borderRadius: "12px", 
-              color: "#a78bfa", 
-              fontWeight: 700,
-              cursor: "pointer"
-            }}
-          >
-            Post a Job
-          </button>
+
+          {/* AI Recommendations Section */}
+          {!filters.query && filters.category === "All Categories" && recommendedJobs.length > 0 && (
+            <div style={{ marginBottom: "32px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                <Sparkles size={20} color="#fbbf24" fill="#fbbf24" style={{ filter: "drop-shadow(0 0 8px rgba(251,191,36,0.4))" }} />
+                <h3 style={{ color: "#fff", margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>AI Recommended Matches</h3>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+                {recommendedJobs.map((job, i) => (
+                  <motion.div
+                    key={`rec-${job.id}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    style={{
+                      background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(79,70,229,0.05))",
+                      border: "1px solid rgba(99,102,241,0.3)",
+                      borderRadius: "16px",
+                      padding: "20px",
+                      cursor: "pointer",
+                      position: "relative",
+                    }}
+                    onClick={() => handleFilterChange(f => ({ ...f, query: job.title }))}
+                  >
+                    <div style={{ position: "absolute", top: "12px", right: "12px", background: "#fbbf24", color: "#000", fontSize: "0.6rem", fontWeight: 900, padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>98% Match</div>
+                    <h4 style={{ color: "#fff", margin: "0 0 8px", fontSize: "0.95rem" }}>{job.title}</h4>
+                    <div style={{ color: "#34d399", fontWeight: 800, fontSize: "1rem", marginBottom: "8px" }}>{(Number(job.amount) / 10_000_000).toFixed(0)} XLM</div>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      {job._meta.skills.slice(0, 2).map(s => (
+                        <span key={s} style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "4px" }}>{s}</span>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "100px 0" }}>
+               <div className="spinner-large" />
+               <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "16px" }}>Consulting the blockchain...</p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: "center", padding: "80px 40px", background: "rgba(255,255,255,0.02)", borderRadius: "20px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+              <div style={{ fontSize: "3rem", marginBottom: "20px" }}>🕵️‍♂️</div>
+              <h3 style={{ color: "#fff", margin: "0 0 10px" }}>No matching jobs found</h3>
+              <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>Try broadening your search criteria or resetting filters.</p>
+              <button onClick={onReset} style={{ background: "#6366f1", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "10px", fontWeight: 700, cursor: "pointer" }}>
+                Reset All Filters
+              </button>
+            </motion.div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <AnimatePresence>
+                {filteredJobs.map((job, i) => (
+                  <JobCard key={job.id} job={job} index={i} />
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
 
-        {/* AI Recommendations Section */}
-        {!filters.query && filters.category === "All Categories" && recommendedJobs.length > 0 && (
-          <div style={{ marginBottom: "32px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-              <Sparkles size={20} color="#fbbf24" fill="#fbbf24" style={{ filter: "drop-shadow(0 0 8px rgba(251,191,36,0.4))" }} />
-              <h3 style={{ color: "#fff", margin: 0, fontSize: "1.1rem", fontWeight: 700 }}>AI Recommended Matches</h3>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
-              {recommendedJobs.map((job, i) => (
-                <motion.div
-                  key={`rec-${job.id}`}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  style={{
-                    background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(79,70,229,0.05))",
-                    border: "1px solid rgba(99,102,241,0.3)",
-                    borderRadius: "16px",
-                    padding: "20px",
-                    cursor: "pointer",
-                    position: "relative",
-                  }}
-                  onClick={() => setFilters(f => ({ ...f, query: job.title }))}
-                >
-                  <div style={{ position: "absolute", top: "12px", right: "12px", background: "#fbbf24", color: "#000", fontSize: "0.6rem", fontWeight: 900, padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>98% Match</div>
-                  <h4 style={{ color: "#fff", margin: "0 0 8px", fontSize: "0.95rem" }}>{job.title}</h4>
-                  <div style={{ color: "#34d399", fontWeight: 800, fontSize: "1rem", marginBottom: "8px" }}>{(Number(job.amount) / 10_000_000).toFixed(0)} XLM</div>
-                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                    {job._meta.skills.slice(0, 2).map(s => (
-                      <span key={s} style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "4px" }}>{s}</span>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "100px 0" }}>
-             <div className="spinner-large" />
-             <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "16px" }}>Consulting the blockchain...</p>
-          </div>
-        ) : filteredJobs.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: "center", padding: "80px 40px", background: "rgba(255,255,255,0.02)", borderRadius: "20px", border: "1px dashed rgba(255,255,255,0.1)" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "20px" }}>🕵️‍♂️</div>
-            <h3 style={{ color: "#fff", margin: "0 0 10px" }}>No matching jobs found</h3>
-            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>Try broadening your search criteria or resetting filters.</p>
-            <button onClick={onReset} style={{ background: "#6366f1", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "10px", fontWeight: 700, cursor: "pointer" }}>
-              Reset All Filters
-            </button>
-          </motion.div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <AnimatePresence>
-              {filteredJobs.map((job, i) => (
-                <JobCard key={job.id} job={job} index={i} />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-      </div>
-
-      <style>{`
-        .spinner-large {
-          width: 48px;
-          height: 48px;
-          border: 4px solid rgba(99,102,241,0.1);
-          border-top: 4px solid #6366f1;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        @media (max-width: 992px) {
-          div[style*="grid-template-columns: 300px 1fr"] {
-            grid-template-columns: 1fr !important;
+        <style>{`
+          .spinner-large {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(99,102,241,0.1);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
           }
-        }
-      `}</style>
+          @keyframes spin { to { transform: rotate(360deg); } }
+          
+          @media (max-width: 992px) {
+            div[style*="grid-template-columns: 300px 1fr"] {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
+      </div>
     </div>
+
+    <ProposalModal
+      isOpen={proposalModal.isOpen}
+      onClose={() => setProposalModal({ isOpen: false, job: null })}
+      job={proposalModal.job}
+      walletAddress={walletAddress}
+    />
+  </>
   );
 }
 

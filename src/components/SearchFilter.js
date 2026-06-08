@@ -66,15 +66,15 @@ export default function SearchFilter({
           <input
             type="range"
             min="10"
-            max="1000"
-            step="10"
+            max="5000"
+            step="50"
             className="budget-slider"
             value={filters.maxBudget}
             onChange={(e) => handleChange("maxBudget", parseInt(e.target.value))}
           />
           <div className="budget-range-labels">
             <span>10 XLM</span>
-            <span>1000 XLM</span>
+            <span>5000 XLM</span>
           </div>
         </div>
       </div>
