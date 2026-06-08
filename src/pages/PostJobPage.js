@@ -4,6 +4,7 @@ import { useEscrow } from "../hooks/useEscrow";
 import { useTheme } from "../context/ThemeContext";
 import { SUPPORTED_TOKENS } from "../constants";
 
+
 export default function PostJobPage({ walletAddress, onJobPosted }) {
   const { isDark } = useTheme();
   const { loading, handlePostJob, status, statusType } = useEscrow();
@@ -49,6 +50,7 @@ export default function PostJobPage({ walletAddress, onJobPosted }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+
       <div style={{ textAlign: "center", marginBottom: "32px" }}>
         <h1 style={{ fontSize: "2.5rem", fontWeight: 800, marginBottom: "8px", background: "linear-gradient(135deg, #fff, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Post a New Job</h1>
         <p style={{ color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)" }}>Create a job and lock XLM in secure escrow until completion</p>

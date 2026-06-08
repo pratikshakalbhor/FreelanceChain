@@ -19,6 +19,7 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 import { ReviewsList, useUserReviews } from "./ReviewCard";
 
 
+
 export const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
@@ -196,6 +197,7 @@ const ProfilePage = ({ account }) => {
       initial="hidden"
       animate="visible"
     >
+
       
       {/* Avatar Section */}
       <div style={{ textAlign: "center", marginBottom: "32px" }}>
