@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../WalletContext';
 import { ref, onValue } from 'firebase/database';
-import { db } from '../firebase';
+import { rtdb } from '../firebase';
 import './navBar.css';
 
 const Gem = ({ className }) => (
@@ -34,7 +34,7 @@ const NavBar = () => {
   // Unread messages count
   useEffect(() => {
     if (!walletAddress) return;
-    const chatsRef = ref(db, 'chats');
+    const chatsRef = ref(rtdb, 'chats');
     const unsubscribe = onValue(chatsRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) return;

@@ -24,7 +24,7 @@ import { errorHandler } from "./utils/errorHandler";
 import ChatPage from "./pages/ChatPage";
 import NotificationPanel from "./components/NotificationPanel";
 import EscrowPage from "./pages/EscrowPage";
-import DisputePage from "./pages/DisputePage";
+import ResolutionCenter from "./pages/ResolutionCenter";
 import CategoriesPage from "./pages/CategoriesPage";
 
 import { useTheme } from "./context/ThemeContext";
@@ -465,11 +465,11 @@ function App() {
                 element={<Navigate to="/" replace />}
               />
               <Route
-                path="/disputes"
+                path="/resolution-center"
                 element={
                   walletAddress ? (
                     <div className="pages-container">
-                      <DisputePage walletAddress={walletAddress} />
+                      <ResolutionCenter walletAddress={walletAddress} />
                     </div>
                   ) : <Navigate to="/login" replace />
                 }

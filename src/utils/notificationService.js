@@ -1,10 +1,10 @@
 import { ref, push, onValue, update } from "firebase/database";
-import { db } from "../firebase";
+import { rtdb } from "../firebase";
 
 
 export const storeNotification = async (toAddress, fromAddress, message, jobTitle, jobId) => {
   try {
-    const notifRef = ref(db, `notifications/${toAddress}`);
+    const notifRef = ref(rtdb, `notifications/${toAddress}`);
     await push(notifRef, {
       from: fromAddress,
       fromShort: `${fromAddress.slice(0, 6)}...${fromAddress.slice(-4)}`,
@@ -21,7 +21,7 @@ export const storeNotification = async (toAddress, fromAddress, message, jobTitl
 
 
 export const getNotifications = (walletAddress, callback) => {
-  const notifRef = ref(db, `notifications/${walletAddress}`);
+  const notifRef = ref(rtdb, `notifications/${walletAddress}`);
   return onValue(notifRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -40,7 +40,7 @@ export const getNotifications = (walletAddress, callback) => {
 
 export const markAsRead = async (walletAddress, notifId) => {
   try {
-    const notifRef = ref(db, `notifications/${walletAddress}/${notifId}`);
+    const notifRef = ref(rtdb, `notifications/${walletAddress}/${notifId}`);
     await update(notifRef, { read: true });
   } catch (error) {
     console.error("Mark read error:", error);
@@ -56,7 +56,7 @@ export const markAllAsRead = async (walletAddress, notifications) => {
         updates[`notifications/${walletAddress}/${notif.id}/read`] = true;
       }
     });
-    await update(ref(db), updates);
+    await update(ref(rtdb), updates);
   } catch (error) {
     console.error("Mark all read error:", error);
   }

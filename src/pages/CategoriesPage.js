@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Zap, 
@@ -17,12 +17,14 @@ import {
   FileText,
   VideoIcon,
   Music2,
-  Briefcase
+  Briefcase,
+  ChevronLeft
 } from "lucide-react";
 import "./CategoriesPage.css";
 import { useEscrow } from "../hooks/useEscrow";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { SUPPORTED_TOKENS } from "../constants";
+
 
 const CATEGORIES = [
   { id: 'all', name: "All Categories", icon: <LayoutGrid size={18} /> },
@@ -38,8 +40,26 @@ const CATEGORIES = [
 
 export default function CategoriesPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { jobs, loading } = useEscrow();
-  const [activeCategory, setActiveCategory] = useState("All Categories");
+  
+  const categoryParam = searchParams.get('category') || "All Categories";
+  const [activeCategory, setActiveCategory] = useState(categoryParam);
+
+  // Sync state with URL
+  useEffect(() => {
+    setActiveCategory(categoryParam);
+    document.title = `${categoryParam} | Explore Markets`;
+  }, [categoryParam]);
+
+  const handleCategoryChange = (catName) => {
+    setActiveCategory(catName);
+    if (catName === "All Categories") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category: catName });
+    }
+  };
 
   // Filter jobs by category
   const filteredJobs = jobs.filter(job => {
@@ -57,17 +77,30 @@ export default function CategoriesPage() {
 
   return (
     <div className="categories-page">
-      {/* Header Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="services-section-header"
-      >
-        <h2>Explore Markets</h2>
-        <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '8px' }}>
-          Find the best talent for your project across various specializations.
-        </p>
-      </motion.div>
+
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+        <button 
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '10px',
+            padding: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div>
+          <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Explore Markets</h1>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>Browse services by professional category</p>
+        </div>
+      </div>
 
       {/* Horizontal Scroll Categories */}
       <div className="categories-tabs">
@@ -75,7 +108,7 @@ export default function CategoriesPage() {
           <button
             key={cat.id}
             className={`category-tab ${activeCategory === cat.name ? 'active' : ''}`}
-            onClick={() => setActiveCategory(cat.name)}
+            onClick={() => handleCategoryChange(cat.name)}
           >
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {cat.icon} {cat.name}
@@ -128,7 +161,7 @@ export default function CategoriesPage() {
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 key={job.id}
                 className="service-card"
-                onClick={() => navigate("/find-jobs", { state: { query: job.title } })}
+                onClick={() => navigate(`/find-jobs?category=${encodeURIComponent(jobCategory === "default" ? activeCategory : jobCategory)}`)}
               >
                 <div className="service-image-container" style={{ 
                   background: `radial-gradient(circle at center, ${accentColor}15, #0f172a)`,

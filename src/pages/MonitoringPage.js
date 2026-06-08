@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ref, onValue } from "firebase/database";
-import { db } from "../firebase";
+import { rtdb } from "../firebase";
 import { useTheme } from "../context/ThemeContext";
 import { containerVariants, itemVariants } from "../components/ProfilePage";
 import * as StellarSdk from "@stellar/stellar-sdk";
@@ -90,14 +90,14 @@ export default function MonitoringPage({ walletAddress }) {
     setFirebaseStatus("healthy");
 
     // Chats
-    const chatRef = ref(db, "chats");
+    const chatRef = ref(rtdb, "chats");
     const unsubChat = onValue(chatRef, (snap) => {
       const data = snap.val() || {};
       setTotalChats(Object.keys(data).length);
     });
 
     // Notifications
-    const notifRef = ref(db, "notifications");
+    const notifRef = ref(rtdb, "notifications");
     const unsubNotif = onValue(notifRef, (snap) => {
       const data = snap.val() || {};
       let count = 0;

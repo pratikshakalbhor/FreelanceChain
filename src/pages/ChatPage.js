@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ref, push, onValue, serverTimestamp } from "firebase/database";
-import { db } from "../firebase";
+import { rtdb } from "../firebase";
 import { useWallet } from "../WalletContext";
 import { storeNotification } from "../utils/notificationService";
 import "./ChatPage.css";
@@ -62,7 +62,7 @@ const ChatPage = () => {
   useEffect(() => {
     if (!chatId) return;
 
-    const messagesRef = ref(db, `chats/${chatId}/messages`);
+    const messagesRef = ref(rtdb, `chats/${chatId}/messages`);
     const unsubscribe = onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -110,7 +110,7 @@ const ChatPage = () => {
     if (!newMessage.trim()) return;
 
     try {
-      const messagesRef = ref(db, `chats/${chatId}/messages`);
+      const messagesRef = ref(rtdb, `chats/${chatId}/messages`);
       const senderShort = walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : "User";
 
       await push(messagesRef, {

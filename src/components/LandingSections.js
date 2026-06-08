@@ -10,6 +10,7 @@ import {
   Briefcase,
   ChevronRight
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./LandingSections.css";
 
 // Import images (assuming they were copied to assets)
@@ -70,11 +71,18 @@ const POPULAR_SERVICES = [
 ];
 
 export function CategoriesRow() {
+  const navigate = useNavigate();
+
   return (
     <div className="categories-section">
       <div className="categories-scroll-wrapper">
         {CATEGORIES.map((cat, i) => (
-          <div key={i} className="category-pill">
+          <div 
+            key={i} 
+            className="category-pill"
+            onClick={() => navigate(`/categories?category=${encodeURIComponent(cat.name)}`)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="category-icon" style={{ color: cat.color }}>
               {cat.icon}
             </div>
@@ -87,27 +95,36 @@ export function CategoriesRow() {
 }
 
 export function PopularServices() {
+  const navigate = useNavigate();
+
   return (
     <div className="popular-services-section">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
         <h2 className="popular-title">Popular services</h2>
-        <button style={{ 
-          background: 'transparent', 
-          border: 'none', 
-          color: '#a78bfa', 
-          fontWeight: 600, 
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          marginBottom: '28px'
-        }}>
+        <button 
+          onClick={() => navigate('/categories')}
+          style={{ 
+            background: 'transparent', 
+            border: 'none', 
+            color: '#a78bfa', 
+            fontWeight: 600, 
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            marginBottom: '28px'
+          }}>
           Show all <ChevronRight size={16} />
         </button>
       </div>
       <div className="services-grid">
         {POPULAR_SERVICES.map((service, i) => (
-          <div key={i} className="service-card">
+          <div 
+            key={i} 
+            className="service-card"
+            onClick={() => navigate(`/find-jobs?category=${encodeURIComponent(service.category)}`)}
+            style={{ cursor: 'pointer' }}
+          >
             <div 
               className="service-banner" 
               style={{ backgroundImage: `url(${service.image})` }}

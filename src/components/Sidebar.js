@@ -39,7 +39,7 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
     { to: "/my-jobs", icon: <Briefcase size={18} />, label: "My Jobs" },
     { to: "/payment", icon: <CreditCard size={18} />, label: "Payment" },
     { to: "/activity", icon: <History size={18} />, label: "Activity" },
-    { to: "/disputes", icon: <Scale size={18} />, label: "Resolution Center" },
+    { to: "/resolution-center", icon: <Scale size={18} />, label: "Resolution Center" },
     { to: "/monitoring", icon: <ShieldCheck size={20} />, label: "Monitoring" },
     { to: "/profile", icon: <User size={18} />, label: "Profile" },
   ];

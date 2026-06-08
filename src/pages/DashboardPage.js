@@ -147,8 +147,13 @@ export default function DashboardPage({ walletAddress, balance }) {
 
   const actions = [
     { icon: <Briefcase size={24} />, label: "Post a Job", to: "/escrow" },
+    { icon: <Search size={24} />, label: "Find Jobs", to: "/find-jobs" },
     { icon: <Send size={24} />, label: "Send Payment", to: "/payment" },
   ];
+
+  useEffect(() => {
+    document.title = "Dashboard | FreelanceChain";
+  }, []);
 
   const formatDate = (d) => {
     try {
@@ -159,6 +164,13 @@ export default function DashboardPage({ walletAddress, balance }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       style={{ maxWidth: "1200px", margin: "0 auto", padding: "8px" }}>
+
+
+
+      <div style={{ padding: "0 10px", marginBottom: "32px" }}>
+        <h1 style={{ color: isDark ? "#fff" : "#1a1a2e", fontSize: "1.2rem", fontWeight: 700 }}>Dashboard</h1>
+        <p style={{ color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: "0.85rem" }}>Welcome back to FreelanceChain</p>
+      </div>
 
       {/* Discovery Header & Search Bar */}
       <div style={{ marginBottom: "48px" }}>
@@ -175,45 +187,54 @@ export default function DashboardPage({ walletAddress, balance }) {
 
         {/* Global Search Bar (Fiverr Style) */}
         <div style={{ position: "relative", maxWidth: "850px", margin: "0 auto" }}>
-          <input
-            type="text"
-            placeholder="What blockchain service are you looking for?"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ 
-              width: "100%", 
-              padding: "20px 24px 20px 64px", 
-              borderRadius: "18px", 
-              background: isDark ? "rgba(255,255,255,0.06)" : "#fff", 
-              border: isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e2e8f0", 
-              color: isDark ? "#fff" : "#1a1a2e",
-              fontSize: "1.1rem",
-              boxShadow: isDark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.05)",
-              outline: "none",
-              transition: "all 0.3s ease"
-            }}
-            onFocus={(e) => e.target.style.borderColor = "rgba(99,102,241,0.5)"}
-            onBlur={(e) => e.target.style.borderColor = isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0"}
-          />
-          <Search size={24} style={{ position: "absolute", left: "24px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.3)" }} />
-          <button style={{ 
-            position: "absolute", 
-            right: "14px", 
-            top: "50%", 
-            transform: "translateY(-50%)", 
-            background: "rgba(99,102,241,0.15)", 
-            padding: "10px", 
-            borderRadius: "12px", 
-            border: "1px solid rgba(99,102,241,0.3)",
-            color: "#a78bfa",
-            cursor: "pointer",
-            transition: "all 0.2s ease"
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.25)"}
-          onMouseLeave={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.15)"}
-          >
-            <SlidersHorizontal size={20} />
-          </button>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (searchQuery.trim()) {
+              navigate(`/find-jobs?search=${encodeURIComponent(searchQuery.trim())}`);
+            }
+          }}>
+            <input
+              type="text"
+              placeholder="What blockchain service are you looking for?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ 
+                width: "100%", 
+                padding: "20px 24px 20px 64px", 
+                borderRadius: "18px", 
+                background: isDark ? "rgba(255,255,255,0.06)" : "#fff", 
+                border: isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e2e8f0", 
+                color: isDark ? "#fff" : "#1a1a2e",
+                fontSize: "1.1rem",
+                boxShadow: isDark ? "0 20px 50px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.05)",
+                outline: "none",
+                transition: "all 0.3s ease"
+              }}
+              onFocus={(e) => e.target.style.borderColor = "rgba(99,102,241,0.5)"}
+              onBlur={(e) => e.target.style.borderColor = isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0"}
+            />
+            <Search size={24} style={{ position: "absolute", left: "24px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.3)" }} />
+            <button 
+              type="submit"
+              style={{ 
+                position: "absolute", 
+                right: "14px", 
+                top: "50%", 
+                transform: "translateY(-50%)", 
+                background: "rgba(99,102,241,0.15)", 
+                padding: "10px", 
+                borderRadius: "12px", 
+                border: "1px solid rgba(99,102,241,0.3)",
+                color: "#a78bfa",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.25)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "rgba(99,102,241,0.15)"}
+            >
+              <SlidersHorizontal size={20} />
+            </button>
+          </form>
         </div>
       </div>
 
