@@ -113,7 +113,7 @@ export default function PostJobPage({ walletAddress, onJobPosted }) {
                   style={{ ...inputStyle, cursor: "pointer" }}
                 >
                   {SUPPORTED_TOKENS.map(t => (
-                    <option key={t.symbol} value={t.symbol}>
+                    <option key={t.symbol} value={t.symbol} style={{ background: "#1a1a2e", color: "#fff" }}>
                       {t.icon} {t.symbol} - {t.name}
                     </option>
                   ))}

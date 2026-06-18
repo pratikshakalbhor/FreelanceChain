@@ -12,9 +12,21 @@ import {
   Send,
   Brain,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import SearchFilter from "../components/SearchFilter";
 import ProposalModal from "../components/ProposalModal";
+import { db } from "../firebase";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import {
   fetchUserSkills,
   getMatchBadgeStyle,
@@ -76,6 +88,42 @@ function MatchBadge({ matchPct }) {
       <Brain size={11} />
       {style.label}
     </div>
+  );
+}
+
+/* ─── Toast Component ────────────────────────────────────────── */
+function Toast({ message, type = "success", onClear }) {
+  useEffect(() => {
+    const timer = setTimeout(onClear, 3000);
+    return () => clearTimeout(timer);
+  }, [onClear]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      style={{
+        position: "fixed",
+        bottom: "32px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: type === "success" ? "#10b981" : "#ef4444",
+        color: "#fff",
+        padding: "12px 24px",
+        borderRadius: "12px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+        zIndex: 2000,
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        fontWeight: 700,
+        fontSize: "0.9rem",
+      }}
+    >
+      {type === "success" ? <CheckCircle2 size={18} /> : <Zap size={18} />}
+      {message}
+    </motion.div>
   );
 }
 
@@ -413,6 +461,72 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
       .catch(() => setHasProfile(false))
       .finally(() => setSkillsLoading(false));
   }, [walletAddress]);
+
+  /* ── One-Click Apply State ── */
+  const [appliedJobIds, setAppliedJobIds] = useState(new Set());
+  const [applyingId, setApplyingId] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  /* ── Fetch user applied jobs ── */
+  useEffect(() => {
+    if (!walletAddress) return;
+    const fetchApplied = async () => {
+      try {
+        const q = query(
+          collection(db, "proposals"),
+          where("freelancerAddress", "==", walletAddress)
+        );
+        const snap = await getDocs(q);
+        const ids = new Set(snap.docs.map((d) => d.data().jobId));
+        setAppliedJobIds(ids);
+      } catch (e) {
+        console.warn("Failed to fetch applied jobs:", e);
+      }
+    };
+    fetchApplied();
+  }, [walletAddress]);
+
+  /* ── Quick Apply Function ── */
+  const handleQuickApply = useCallback(async (job) => {
+    if (!walletAddress) {
+      setToast({ message: "Please connect your wallet first", type: "error" });
+      return;
+    }
+    if (appliedJobIds.has(String(job.id))) return;
+
+    setApplyingId(job.id);
+    try {
+      // Get profile info (bio/skills)
+      const userRef = doc(db, "users", walletAddress);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.exists() ? userSnap.data() : {};
+
+      const bio = userData.bio || "I am interested in this job and have the required skills.";
+      const skills = userData.skills || [];
+
+      // Submit proposal
+      await addDoc(collection(db, "proposals"), {
+        jobId: String(job.id),
+        jobTitle: job.title,
+        clientAddress: String(job.client),
+        freelancerAddress: walletAddress,
+        coverLetter: `[Quick Apply] ${bio} \n\nSkills: ${skills.join(", ")}`,
+        bidAmount: job._xlm || 0,
+        originalBudget: job._xlm || 0,
+        deliveryDays: 7, // Default
+        status: "pending",
+        createdAt: serverTimestamp(),
+      });
+
+      setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
+      setToast({ message: `Applied to ${job.title}! ✓`, type: "success" });
+    } catch (e) {
+      console.error("Quick apply error:", e);
+      setToast({ message: "Failed to apply. Try again.", type: "error" });
+    } finally {
+      setApplyingId(null);
+    }
+  }, [walletAddress, appliedJobIds]);
 
   /* ── URL param reading ── */
   const initialCategory = searchParams.get("category") || "All Categories";
@@ -753,26 +867,77 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <button
-                    onClick={() => setProposalModal({ isOpen: true, job })}
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                      border: "none",
-                      borderRadius: "12px",
-                      color: "#fff",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      boxShadow: "0 10px 20px rgba(99,102,241,0.2)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <Send size={15} /> Submit Proposal
-                  </button>
+                  {appliedJobIds.has(String(job.id)) ? (
+                    <div
+                      style={{
+                        padding: "12px",
+                        background: "rgba(52, 211, 153, 0.1)",
+                        border: "1px solid rgba(52, 211, 153, 0.2)",
+                        borderRadius: "12px",
+                        color: "#34d399",
+                        fontSize: "0.85rem",
+                        fontWeight: 700,
+                        textAlign: "center",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <CheckCircle2 size={16} /> Applied
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleQuickApply(job)}
+                        disabled={applyingId === job.id}
+                        style={{
+                          width: "100%",
+                          padding: "12px",
+                          background: "rgba(16, 185, 129, 0.1)",
+                          border: "1px solid rgba(16, 185, 129, 0.3)",
+                          borderRadius: "12px",
+                          color: "#34d399",
+                          fontWeight: 700,
+                          cursor: applyingId === job.id ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => { if (applyingId !== job.id) e.currentTarget.style.background = "rgba(16, 185, 129, 0.2)"; }}
+                        onMouseLeave={(e) => { if (applyingId !== job.id) e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)"; }}
+                      >
+                        {applyingId === job.id ? (
+                          <Loader2 size={16} className="spin" />
+                        ) : (
+                          <Zap size={16} />
+                        )}
+                        Quick Apply
+                      </button>
+                      <button
+                        onClick={() => setProposalModal({ isOpen: true, job })}
+                        style={{
+                          width: "100%",
+                          padding: "12px",
+                          background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                          border: "none",
+                          borderRadius: "12px",
+                          color: "#fff",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          boxShadow: "0 10px 20px rgba(99, 102, 241, 0.2)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Send size={15} /> Custom Proposal
+                      </button>
+                    </>
+                  )}
                   <button
                     onClick={() => navigate("/chat", { state: { recipientAddress: String(job.client) } })}
                     style={{
@@ -802,7 +967,7 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
         </motion.div>
       );
     },
-    [isDark, walletAddress, navigate]
+    [isDark, walletAddress, navigate, appliedJobIds, applyingId, handleQuickApply]
   );
 
   /* ─── Render ── */
@@ -982,6 +1147,7 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
               margin: 0 auto;
             }
             @keyframes spin { to { transform: rotate(360deg); } }
+            .spin { animation: spin 1s linear infinite; }
             @media (max-width: 992px) {
               div[style*="grid-template-columns: 300px 1fr"] {
                 grid-template-columns: 1fr !important;
@@ -990,6 +1156,16 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
           `}</style>
         </div>
       </div>
+
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClear={() => setToast(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <ProposalModal
         isOpen={proposalModal.isOpen}

@@ -91,8 +91,24 @@ export default function DisputeModal({
       return;
     }
 
+    // Check if browser is offline
+    if (!navigator.onLine) {
+      setError("You appear to be offline. Please check your internet connection and try again.");
+      return;
+    }
+
     setLoading(true);
     setError("");
+
+    // Helper: wrap a promise with a timeout
+    const withTimeout = (promise, ms) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Request timed out. Firebase may be unreachable — check your internet connection.")), ms)
+        ),
+      ]);
+    };
 
     try {
       // 1. Save dispute document to Firebase
@@ -117,7 +133,10 @@ export default function DisputeModal({
         },
       };
 
-      const docRef = await addDoc(collection(db, "disputes"), disputePayload);
+      const docRef = await withTimeout(
+        addDoc(collection(db, "disputes"), disputePayload),
+        15000
+      );
       console.log("Dispute doc saved with ID:", docRef.id);
 
       // 2. Update the job document with dispute status
@@ -125,10 +144,13 @@ export default function DisputeModal({
         try {
           console.log("Updating job doc status...");
           const jobRef = doc(db, "jobs", String(jobId));
-          await updateDoc(jobRef, {
-            disputeStatus: "open",
-            escrowFrozen: true,
-          });
+          await withTimeout(
+            updateDoc(jobRef, {
+              disputeStatus: "open",
+              escrowFrozen: true,
+            }),
+            10000
+          );
           console.log("Job doc updated successfully.");
         } catch (jobUpdateErr) {
           console.warn("Could not update job doc (might be on-chain only):", jobUpdateErr.message);
@@ -145,7 +167,6 @@ export default function DisputeModal({
         if (onSuccess) {
           onSuccess();
         } else {
-          // If no onSuccess callback, just make sure we are on MyJobs
           navigate("/my-jobs");
         }
       }, 2500);
@@ -154,6 +175,8 @@ export default function DisputeModal({
       setError(
         e?.code === "permission-denied"
           ? "Permission denied. Firebase rules might be blocking this."
+          : e?.message?.includes("timed out")
+          ? "Request timed out. Firebase may be unreachable — please check your internet and try again."
           : `Error: ${e.message || "Failed to raise dispute."}`
       );
     } finally {
