@@ -50,7 +50,7 @@ A decentralized application (dApp) built on the **Stellar blockchain** that prov
 │  ┌────────────────────────────────────────────────────────┐   │
 │  │                  Escrow Contract                       │   │
 │  │                                                        │   │
-│  │  CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6..   │   │
+│  │  CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3  │   │
 │  │                                                        │   │
 │  │  Functions:                                            │   │
 │  │  • post_job()                                          │   │
@@ -117,10 +117,9 @@ stellar-new/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                    # CI/CD Pipeline (FreelanceChain)
-├── contract/
-│   └── escrow_contract/
-│       └── src/
-│           └── lib.rs                # Escrow Soroban Contract (Rust)
+├── escrow_contract/
+│   └── src/
+│       └── lib.rs                # Escrow Soroban Contract (Rust)
 ├── src/
 │   ├── components/
 │   │   ├── Sidebar.js                # Navigation
