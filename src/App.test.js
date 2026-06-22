@@ -34,6 +34,26 @@ jest.mock('lucide-react', () => {
 });
 
 jest.mock('./components/Background', () => () => <div data-testid="background-mock" />);
+jest.mock('./firebase', () => ({
+  auth: { onAuthStateChanged: jest.fn() },
+  db: {},
+  rtdb: {},
+  storage: {}
+}));
+jest.mock('./utils/dataIndexer', () => ({
+  runFullIndex: jest.fn().mockResolvedValue({}),
+  isIndexStale: jest.fn().mockResolvedValue(false),
+  readIndexedJobs: jest.fn().mockResolvedValue({ jobs: [], total: 0 }),
+}));
+jest.mock('./utils/performanceMonitor', () => ({
+  perfMonitor: {
+    trackApiCall: jest.fn(),
+    trackError: jest.fn(),
+    startRenderTimer: jest.fn(),
+    endRenderTimer: jest.fn(),
+    getSummary: jest.fn().mockReturnValue({}),
+  },
+}));
 
 test('renders FreelanceChain brand name', () => {
   render(
