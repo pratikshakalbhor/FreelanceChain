@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Menu } from "lucide-react";
@@ -8,26 +8,66 @@ import Sidebar from "./components/Sidebar";
 import { HORIZON_URL } from "./constants";
 import Background from "./components/Background";
 import logo from "./assets/logo.png";
-
-import PaymentPage from "./pages/PaymentPage";
-import ActivityPage from "./pages/ActivityPage";
-import PostJobPage from "./pages/PostJobPage";
-import FindJobsPage from "./pages/FindJobsPage";
-import MyJobsPage from "./pages/MyJobsPage";
-import DashboardPage from "./pages/DashboardPage";
-import MonitoringPage from "./pages/MonitoringPage";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { useWallet } from "./WalletContext";
 import WalletModal from "./WalletModal";
-import ProfilePage from "./components/ProfilePage";
 import { runFullIndex, isIndexStale } from "./utils/dataIndexer";
 import { errorHandler } from "./utils/errorHandler";
-import ChatPage from "./pages/ChatPage";
 import NotificationPanel from "./components/NotificationPanel";
-import EscrowPage from "./pages/EscrowPage";
-import ResolutionCenter from "./pages/ResolutionCenter";
-import CategoriesPage from "./pages/CategoriesPage";
-
 import { useTheme } from "./context/ThemeContext";
+
+// ── Lazy-loaded pages (code splitting for scalability) ────────────────────
+const PaymentPage = lazy(() => import("./pages/PaymentPage"));
+const ActivityPage = lazy(() => import("./pages/ActivityPage"));
+const PostJobPage = lazy(() => import("./pages/PostJobPage"));
+const FindJobsPage = lazy(() => import("./pages/FindJobsPage"));
+const MyJobsPage = lazy(() => import("./pages/MyJobsPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const MonitoringPage = lazy(() => import("./pages/MonitoringPage"));
+const ProfilePage = lazy(() => import("./components/ProfilePage"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const EscrowPage = lazy(() => import("./pages/EscrowPage"));
+const ResolutionCenter = lazy(() => import("./pages/ResolutionCenter"));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
+
+// ── Loading Fallback ──────────────────────────────────────────────────────
+const PageLoader = () => (
+  <div style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "400px",
+    gap: "16px",
+  }}>
+    <div style={{
+      width: "40px",
+      height: "40px",
+      border: "3px solid rgba(99,102,241,0.15)",
+      borderTopColor: "#7c3aed",
+      borderRadius: "50%",
+      animation: "spin 0.8s linear infinite",
+    }} />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <span style={{
+      fontFamily: "'Inter', sans-serif",
+      fontSize: "0.85rem",
+      color: "rgba(255,255,255,0.4)",
+    }}>Loading...</span>
+  </div>
+);
+
+// ── Protected Route Wrapper with ErrorBoundary + Suspense ─────────────────
+const ProtectedRoute = ({ walletAddress, children, pageName }) => {
+  if (!walletAddress) return <Navigate to="/login" replace />;
+  return (
+    <ErrorBoundary title={`Error in ${pageName || 'this page'}`}>
+      <Suspense fallback={<PageLoader />}>
+        <div className="pages-container">{children}</div>
+      </Suspense>
+    </ErrorBoundary>
+  );
+};
 
 function App() {
   const navigate = useNavigate();
@@ -349,115 +389,95 @@ function App() {
               <Route
                 path="/"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <DashboardPage
-                        walletAddress={walletAddress}
-                        balance={balance}
-                        jobs={[]}
-                      />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Dashboard">
+                    <DashboardPage
+                      walletAddress={walletAddress}
+                      balance={balance}
+                      jobs={[]}
+                    />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/payment"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <PaymentPage
-                        walletAddress={walletAddress}
-                        balance={balance}
-                        setBalance={setBalance}
-                        server={server}
-                      />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Payment">
+                    <PaymentPage
+                      walletAddress={walletAddress}
+                      balance={balance}
+                      setBalance={setBalance}
+                      server={server}
+                    />
+                  </ProtectedRoute>
                 }
               />
 
               <Route
                 path="/profile"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <ProfilePage account={accountDetails} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Profile">
+                    <ProfilePage account={accountDetails} />
+                  </ProtectedRoute>
                 }
               />
 
               <Route
                 path="/activity"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <ActivityPage walletAddress={walletAddress} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Activity">
+                    <ActivityPage walletAddress={walletAddress} />
+                  </ProtectedRoute>
                 }
               />
               <Route path="/monitoring" element={
-                walletAddress ? (
-                  <div className="pages-container">
-                    <MonitoringPage walletAddress={walletAddress} />
-                  </div>
-                ) : <Navigate to="/login" replace />
+                <ProtectedRoute walletAddress={walletAddress} pageName="Monitoring">
+                  <MonitoringPage walletAddress={walletAddress} />
+                </ProtectedRoute>
               } />
               <Route
                 path="/chat"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <ChatPage />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Chat">
+                    <ChatPage />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/post-job"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <PostJobPage
-                        walletAddress={walletAddress}
-                        onJobPosted={() => setJobsPosted(jobsPosted + 1)}
-                      />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Post Job">
+                    <PostJobPage
+                      walletAddress={walletAddress}
+                      onJobPosted={() => setJobsPosted(jobsPosted + 1)}
+                    />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/find-jobs"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <FindJobsPage walletAddress={walletAddress} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Find Jobs">
+                    <FindJobsPage walletAddress={walletAddress} />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/my-jobs"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <MyJobsPage walletAddress={walletAddress} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="My Jobs">
+                    <MyJobsPage walletAddress={walletAddress} />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/escrow"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <EscrowPage 
-                        walletAddress={walletAddress} 
-                        onJobPosted={() => setJobsPosted(jobsPosted + 1)}
-                      />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Escrow">
+                    <EscrowPage 
+                      walletAddress={walletAddress} 
+                      onJobPosted={() => setJobsPosted(jobsPosted + 1)}
+                    />
+                  </ProtectedRoute>
                 }
               />
               <Route
@@ -467,19 +487,21 @@ function App() {
               <Route
                 path="/resolution-center"
                 element={
-                  walletAddress ? (
-                    <div className="pages-container">
-                      <ResolutionCenter walletAddress={walletAddress} />
-                    </div>
-                  ) : <Navigate to="/login" replace />
+                  <ProtectedRoute walletAddress={walletAddress} pageName="Resolution Center">
+                    <ResolutionCenter walletAddress={walletAddress} />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/categories"
                 element={
-                  <div className="pages-container">
-                    <CategoriesPage />
-                  </div>
+                  <ErrorBoundary title="Error in Categories">
+                    <Suspense fallback={<PageLoader />}>
+                      <div className="pages-container">
+                        <CategoriesPage />
+                      </div>
+                    </Suspense>
+                  </ErrorBoundary>
                 }
               />
             </Routes>
