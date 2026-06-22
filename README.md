@@ -169,19 +169,56 @@ stellar-new/
 *   **Ecosystem Contribution:** [Technical Blog: Building Secure Escrows on Soroban](https://medium.com/placeholder)
 
 ## 📸 Screenshots
+---
+## 📱 Mobile Responsive
+<img width="767" height="842" alt="image" src="https://github.com/user-attachments/assets/3ac89857-d873-4224-a92d-d5b7485ad37f" />
+
+## ⚙️ CI/CD Pipeline
+<img width="1482" height="592" alt="image" src="https://github.com/user-attachments/assets/bb306b8d-fed8-4fb8-93bb-8d22c4af2edc" />
+
+---
+
+### Test Output (3+ Tests Passing)
+<img width="1506" height="914" alt="Screenshot 2026-03-16 130131" src="https://github.com/user-attachments/assets/895b84c9-bac0-4179-ad0b-4fbdfd364d28" />
+
+
 ### Platform Experience (Jobs & Escrow)
-| Feature | Screenshot |
-|---------|------------|
-| **Wallet Connection** | ![Wallet Connection](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/wallet_connect.png) |
-| **Dashboard** | ![Dashboard](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/dashboard.png) |
-| **Post Job (Escrow)** | ![Post Job](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/post_job.png) |
-| **Jobs In Progress** | ![In Progress](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/jobs_progress.png) |
-| **Find Jobs** | ![Find Jobs](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/find_jobs.png) |
-| **My Jobs** | ![My Jobs](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/my_jobs.png) |
-| **Real-Time Chat** | ![Chat](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/chat.png) |
-| **XLM Payments** | ![Payments](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/payments.png) |
-| **Activity Feed** | ![Activity](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/activity.png) |
-| **Monitoring Page** | ![Monitoring](https://raw.githubusercontent.com/pratikshakalbhor/FreelanceChain/main/docs/screenshots/monitoring.png) |
+
+ **Wallet Connection** 
+ <img width="1917" height="901" alt="image" src="https://github.com/user-attachments/assets/32373b87-305d-467d-b11f-c3fe3997dc86" />
+
+
+ **Dashboard** 
+<img width="1901" height="892" alt="image" src="https://github.com/user-attachments/assets/b642bfed-5603-4463-a4d3-f2303f990f9c" />
+
+ **Post Job (Escrow)**
+<img width="1895" height="906" alt="image" src="https://github.com/user-attachments/assets/6eadd4f4-0e3f-4309-a839-fe32be364e80" />
+
+ **Find Jobs** 
+<img width="1902" height="907" alt="image" src="https://github.com/user-attachments/assets/e9d36cc0-d4bc-408e-9e22-50877d0e0cdb" />
+
+**Explore Markets**
+<img width="1902" height="900" alt="image" src="https://github.com/user-attachments/assets/e4190064-5e8c-4660-9846-3d8225db0427" />
+
+
+ **My Jobs** 
+<img width="1907" height="902" alt="image" src="https://github.com/user-attachments/assets/c3eccb68-09d5-4502-90a5-71ed8ba99580" />
+
+ **Real-Time Chat** 
+<img width="1912" height="902" alt="image" src="https://github.com/user-attachments/assets/40248121-b818-4361-af08-63aeba1f3afe" />
+
+
+ **XLM Payments** 
+<img width="1897" height="906" alt="image" src="https://github.com/user-attachments/assets/330dfb90-42fb-4cc4-92df-f7334ad474bb" />
+
+ **Activity Feed** 
+<img width="1902" height="907" alt="image" src="https://github.com/user-attachments/assets/ceba01e9-5932-4113-868d-63648699af8c" />
+
+**Resolution Center**
+<img width="1882" height="897" alt="image" src="https://github.com/user-attachments/assets/d94553eb-61be-445e-9338-c21cc9a7460c" />
+
+ **Monitoring Page**
+<img width="1902" height="902" alt="image" src="https://github.com/user-attachments/assets/cb31a565-49b6-4aeb-81a5-f62a92d671b0" />
 
 ---
 
