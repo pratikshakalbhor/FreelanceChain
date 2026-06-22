@@ -7,7 +7,7 @@ import { SUPPORTED_TOKENS } from "../constants";
 
 export default function PostJobPage({ walletAddress, onJobPosted }) {
   const { isDark } = useTheme();
-  const { loading, handlePostJob, status, statusType } = useEscrow();
+  const { loading, handlePostJob, status, statusType, handleCreateTrustline } = useEscrow();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -61,9 +61,22 @@ export default function PostJobPage({ walletAddress, onJobPosted }) {
           padding: "12px 16px", borderRadius: "12px", marginBottom: "20px",
           background: statusType === "error" ? "rgba(239,68,68,0.1)" : statusType === "success" ? "rgba(16,185,129,0.1)" : "rgba(99,102,241,0.1)",
           color: statusType === "error" ? "#f87171" : statusType === "success" ? "#34d399" : "#a5b4fc",
-          border: `1px solid ${statusType === "error" ? "rgba(239,68,68,0.2)" : statusType === "success" ? "rgba(16,185,129,0.2)" : "rgba(99,102,241,0.2)"}`
+          border: `1px solid ${statusType === "error" ? "rgba(239,68,68,0.2)" : statusType === "success" ? "rgba(16,185,129,0.2)" : "rgba(99,102,241,0.2)"}`,
+          display: "flex", justifyContent: "space-between", alignItems: "center"
         }}>
-          {status}
+          <span>{status}</span>
+          {status.includes("trustline") && (
+            <button 
+              onClick={() => handleCreateTrustline(tokenSymbol)}
+              style={{
+                background: "#7c3aed", color: "#fff", border: "none", 
+                padding: "6px 12px", borderRadius: "8px", fontSize: "0.8rem", 
+                fontWeight: 600, cursor: "pointer"
+              }}
+            >
+              Fix Now
+            </button>
+          )}
         </div>
       )}
 

@@ -5,7 +5,6 @@ import {
   Wallet,
   Briefcase,
   CheckCircle,
-  Send,
   Star,
   Clock,
   ArrowUpRight,
@@ -14,7 +13,6 @@ import {
   FileText,
   CreditCard,
   ChevronRight,
-  TrendingUp,
 } from "lucide-react";
 import { db } from "../firebase";
 import {
@@ -51,17 +49,21 @@ export default function DashboardPage({ walletAddress, balance }) {
     if (!walletAddress) return;
 
     const fetchDashboardData = async () => {
+      // 1. Fetch Proposals (Pending Applications)
       try {
-        // 1. Fetch Proposals (Pending Applications)
         const propQuery = query(
           collection(db, "proposals"),
           where("freelancerAddress", "==", walletAddress),
           where("status", "==", "pending")
         );
         const propSnap = await getDocs(propQuery);
-        const pendingCount = propSnap.size;
+        setStats(prev => ({ ...prev, pendingProposals: propSnap.size }));
+      } catch (e) {
+        console.warn("Failed to fetch proposals count:", e);
+      }
 
-        // 2. Fetch Jobs (Active & Completed as Freelancer)
+      // 2. Fetch Jobs (Active & Completed as Freelancer)
+      try {
         const jobsQuery = query(
           collection(db, "jobs"),
           where("freelancer", "==", walletAddress)
@@ -84,8 +86,19 @@ export default function DashboardPage({ walletAddress, balance }) {
           }
         });
 
-        // 3. Fetch Recent Activities (Mocking for now, or fetch from 'activities' coll)
-        // Let's assume an 'activities' collection exists for rich feed
+        setStats(prev => ({ 
+          ...prev, 
+          totalEarnings: earnings || prev.totalEarnings,
+          activeJobs: active || prev.activeJobs,
+          completedJobs: completed || prev.completedJobs
+        }));
+        if (jobList.length > 0) setActiveJobsList(jobList);
+      } catch (e) {
+        console.warn("Failed to fetch jobs data:", e);
+      }
+
+      // 3. Fetch Recent Activities
+      try {
         const actQuery = query(
           collection(db, "activities"),
           where("userAddress", "==", walletAddress),
@@ -93,31 +106,13 @@ export default function DashboardPage({ walletAddress, balance }) {
           limit(5)
         );
         const actSnap = await getDocs(actQuery);
-        const fetchedActs = actSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-        // Fallback mock activities if collection is empty
-        const mockActs = fetchedActs.length > 0 ? fetchedActs : [
-          { type: "apply", title: "Applied to React Developer", time: "2h ago", icon: <Send size={14} /> },
-          { type: "payment", title: "Received 500 XLM for Logo Design", time: "5h ago", icon: <CreditCard size={14} /> },
-          { type: "hire", title: "Hired for Smart Contract Audit", time: "1d ago", icon: <Briefcase size={14} /> },
-          { type: "review", title: "Received 5-star review from Client", time: "2d ago", icon: <Star size={14} /> },
-        ];
-
-        setStats({
-          totalEarnings: earnings || 3450, // Mock fallback for demo
-          activeJobs: active || 2,
-          completedJobs: completed || 12,
-          avgRating: 4.9,
-          pendingProposals: pendingCount || 4,
-        });
-        setActiveJobsList(jobList.length > 0 ? jobList : [
-          { id: "1", title: "Stellar DApp UI", status: "In Progress", amount: 1500000000 },
-          { id: "2", title: "Backend API Fix", status: "Open", amount: 800000000 },
-        ]);
-        setActivities(mockActs);
-
-      } catch (err) {
-        console.error("Dashboard data fetch error:", err);
+        if (!actSnap.empty) {
+          const fetchedActs = actSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          setActivities(fetchedActs);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch activities (likely missing index):", e);
+        // Keep mocks if fetch fails
       }
     };
 
@@ -140,25 +135,61 @@ export default function DashboardPage({ walletAddress, balance }) {
 
   const WeeklyEarningsChart = () => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const values = [40, 70, 45, 90, 65, 30, 55]; // Mock percentage heights
+    const values = [420, 780, 520, 1100, 890, 460, 680]; // Mock XLM values
+    const max = Math.max(...values);
+    
     return (
       <div className="quick-actions-card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <h3 style={{ color: "#fff", margin: 0, fontSize: "1.1rem" }}>Earnings Chart (7 Days)</h3>
-          <TrendingUp size={18} color="#34d399" />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+          <div>
+            <h3 style={{ color: "#fff", margin: 0, fontSize: "1.1rem" }}>Weekly Revenue</h3>
+            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", margin: "4px 0 0" }}>Earnings from the last 7 sessions</p>
+          </div>
+          <div style={{ background: "rgba(52, 211, 153, 0.1)", color: "#34d399", padding: "4px 10px", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 700 }}>
+            +12.5% ↑
+          </div>
         </div>
-        <div className="chart-placeholder" style={{ border: "none", alignItems: "flex-end", gap: "12px", padding: "0 20px 10px" }}>
-          {values.map((v, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: "8px" }}>
-               <motion.div 
-                 initial={{ height: 0 }} 
-                 animate={{ height: `${v}%` }} 
-                 className="mini-bar" 
-                 style={{ width: "100%", maxWidth: "30px" }}
-               />
-               <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>{days[i]}</span>
-            </div>
-          ))}
+        
+        <div className="chart-placeholder" style={{ 
+          border: "none", 
+          alignItems: "flex-end", 
+          gap: "14px", 
+          padding: "0 10px 10px",
+          height: "180px",
+          background: "transparent"
+        }}>
+          {values.map((v, i) => {
+            const heightPct = (v / max) * 100;
+            return (
+              <div key={i} style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                alignItems: "center", 
+                flex: 1, 
+                gap: "10px",
+                height: "100%",
+                justifyContent: "flex-end"
+              }}>
+                <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center" }}>
+                  <motion.div 
+                    initial={{ height: 0 }} 
+                    animate={{ height: `${heightPct}%` }} 
+                    transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+                    whileHover={{ scaleX: 1.1, filter: "brightness(1.2)" }}
+                    className="mini-bar" 
+                    title={`${v} XLM`}
+                    style={{ 
+                      width: "100%", 
+                      maxWidth: "28px", 
+                      cursor: "pointer",
+                      position: "relative"
+                    }}
+                  />
+                </div>
+                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>{days[i]}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
