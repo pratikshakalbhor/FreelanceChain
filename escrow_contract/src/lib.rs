@@ -4,12 +4,14 @@ use soroban_sdk::{
     Address, Env, String, Symbol,
 };
 
+mod test;
+
 const JOB_COUNT: Symbol = symbol_short!("JCOUNT");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 #[contracttype]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum JobStatus {
     Open,
     InProgress,
@@ -19,7 +21,7 @@ pub enum JobStatus {
 }
 
 #[contracttype]
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Job {
     pub id: u32,
     pub client: Address,
