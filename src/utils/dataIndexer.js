@@ -1,18 +1,20 @@
 /**
- * FreelanceChain Data Indexer
+ * FreelanceChain Data Indexer (Scalable)
  * src/utils/dataIndexer.js
  * 
  * Indexes Stellar blockchain data into Firebase for fast queries.
- * Runs on-demand and auto-indexes every 5 minutes.
+ * Now uses RequestQueue for rate-limited, deduplication-aware batch jobs.
  */
 
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { ref, set, get } from "firebase/database";
 import { rtdb } from "../firebase";
 import { ESCROW_CONTRACT_ID, NETWORK_PASSPHRASE, SOROBAN_SERVER } from "../constants";
+import { sorobanQueue, PRIORITY } from "./requestQueue";
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 const INDEX_KEY = "indexed_data";
+const BATCH_SIZE = 5; // Index in batches to avoid rate limiting
 
 const sanitizeBigInt = (data) => {
   return JSON.parse(JSON.stringify(data, (key, value) =>
@@ -20,6 +22,49 @@ const sanitizeBigInt = (data) => {
   ));
 };
 
+/**
+ * Fetch jobs in batches (prevents overwhelming Soroban RPC).
+ * Uses sorobanQueue for rate limiting and deduplication.
+ */
+const fetchJobsBatched = async (walletAddress, total) => {
+  const jobs = [];
+  const dummyAccount = new StellarSdk.Account(walletAddress, "0");
+
+  for (let batchStart = 1; batchStart <= total; batchStart += BATCH_SIZE) {
+    const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, total);
+    const batchPromises = [];
+
+    for (let id = batchStart; id <= batchEnd; id++) {
+      batchPromises.push(
+        sorobanQueue.enqueue(async () => {
+          const jobTx = new StellarSdk.TransactionBuilder(dummyAccount, {
+            fee: "100", networkPassphrase: NETWORK_PASSPHRASE,
+          })
+            .addOperation(StellarSdk.Operation.invokeContractFunction({
+              contract: ESCROW_CONTRACT_ID,
+              function: "get_job",
+              args: [StellarSdk.nativeToScVal(id, { type: "u32" })],
+            }))
+            .setTimeout(30).build();
+
+          const sim = await SOROBAN_SERVER.simulateTransaction(jobTx);
+          if (sim?.result?.retval) {
+            const rawJob = StellarSdk.scValToNative(sim.result.retval);
+            const job = sanitizeBigInt(rawJob);
+            return { ...job, id, indexedAt: Date.now() };
+          }
+          return null;
+        }, { key: `index_job:${id}`, priority: PRIORITY.LOW })
+          .catch(() => null)
+      );
+    }
+
+    const batchResults = await Promise.all(batchPromises);
+    jobs.push(...batchResults.filter(Boolean));
+  }
+
+  return jobs;
+};
 
 
 // ── Index all Jobs from escrow contract → Firebase ────────────────────────
@@ -38,37 +83,15 @@ export const indexJobs = async (walletAddress) => {
       }))
       .setTimeout(30).build();
 
-    const totalSim = await SOROBAN_SERVER.simulateTransaction(totalTx);
+    const totalSim = await sorobanQueue.enqueue(
+      () => SOROBAN_SERVER.simulateTransaction(totalTx),
+      { key: "index_get_total", priority: PRIORITY.LOW }
+    );
     if (!totalSim?.result?.retval) return;
     const total = Number(StellarSdk.scValToNative(totalSim.result.retval));
 
-    // Fetch all jobs in parallel
-    const jobPromises = Array.from({ length: total }, (_, i) => {
-      const id = i + 1;
-      return (async () => {
-        try {
-          const jobTx = new StellarSdk.TransactionBuilder(dummy, {
-            fee: "100", networkPassphrase: NETWORK_PASSPHRASE,
-          })
-            .addOperation(StellarSdk.Operation.invokeContractFunction({
-              contract: ESCROW_CONTRACT_ID,
-              function: "get_job",
-              args: [StellarSdk.nativeToScVal(id, { type: "u32" })],
-            }))
-            .setTimeout(30).build();
-
-          const sim = await SOROBAN_SERVER.simulateTransaction(jobTx);
-          if (sim?.result?.retval) {
-            const rawJob = StellarSdk.scValToNative(sim.result.retval);
-            const job = sanitizeBigInt(rawJob);
-            return { ...job, id, indexedAt: Date.now() };
-          }
-          return null;
-        } catch { return null; }
-      })();
-    });
-
-    const jobs = (await Promise.all(jobPromises)).filter(Boolean);
+    // Fetch all jobs in rate-limited batches
+    const jobs = await fetchJobsBatched(walletAddress, total);
 
     // Save to Firebase index
     const jobIndexRef = ref(rtdb, `${INDEX_KEY}/jobs`);
@@ -80,7 +103,7 @@ export const indexJobs = async (walletAddress) => {
       lastIndexed: Date.now(),
     });
 
-    console.log(`[Indexer] Indexed ${jobs.length} Jobs`);
+    console.log(`[Indexer] Indexed ${jobs.length} Jobs (batched, rate-limited)`);
     return jobs;
   } catch (e) {
     console.error("[Indexer] Job indexing error:", e);
@@ -140,7 +163,7 @@ export const readIndexedJobs = async () => {
 
 // ── Full index run ────────────────────────────────────────────────────────
 export const runFullIndex = async (walletAddress) => {
-  console.log("[Indexer] Starting full index...");
+  console.log("[Indexer] Starting full index (scalable batch mode)...");
   const [jobs, txs] = await Promise.all([
     indexJobs(walletAddress),
     indexTransactions(walletAddress),
