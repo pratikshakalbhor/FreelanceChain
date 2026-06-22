@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Star, ShieldCheck } from "lucide-react";
-import { getFirestore, collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import app from "../firebase";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { db } from "../firebase";
 import { motion } from "framer-motion";
 import "./ReviewCard.css";
-
-const db = getFirestore(app);
 
 /**
  * ReviewCard — Displays a single review with stars, comment, date, and wallet address.

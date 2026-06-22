@@ -74,11 +74,53 @@ class CacheManager {
     // L2: sessionStorage (try, may fail if quota exceeded)
     try {
       sessionStorage.setItem(`cache_${key}`, JSON.stringify(entry));
-    } catch {
-      // sessionStorage full — degrade gracefully
-      console.warn('[CacheManager] sessionStorage quota exceeded, L2 cache skipped');
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        // sessionStorage full — perform emergency eviction
+        console.warn('[CacheManager] sessionStorage quota exceeded. Evicting old entries...');
+        this._emergencyEvictL2();
+        try {
+          // Try one more time after eviction
+          sessionStorage.setItem(`cache_${key}`, JSON.stringify(entry));
+        } catch {
+          console.warn('[CacheManager] L2 cache still full after eviction, skipping.');
+        }
+      } else {
+        console.warn('[CacheManager] sessionStorage write failed:', e.message);
+      }
     }
   }
+
+  /** Emergency eviction for L2 (sessionStorage) */
+  _emergencyEvictL2() {
+    try {
+      const keys = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith('cache_')) {
+          const raw = sessionStorage.getItem(k);
+          try {
+            const parsed = JSON.parse(raw);
+            keys.push({ key: k, createdAt: parsed.createdAt || 0 });
+          } catch {
+            keys.push({ key: k, createdAt: 0 });
+          }
+        }
+      }
+
+      // Sort by age (oldest first) and remove 50%
+      keys.sort((a, b) => a.createdAt - b.createdAt);
+      const toRemove = keys.slice(0, Math.ceil(keys.length / 2));
+      
+      for (const item of toRemove) {
+        sessionStorage.removeItem(item.key);
+      }
+      console.log(`[CacheManager] Evicted ${toRemove.length} items from L2`);
+    } catch (err) {
+      console.error('[CacheManager] Emergency L2 eviction failed:', err);
+    }
+  }
+
 
   /**
    * Invalidate a specific key or all keys matching a pattern.

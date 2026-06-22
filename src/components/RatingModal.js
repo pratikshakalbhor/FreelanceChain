@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Star } from "lucide-react";
-import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "firebase/firestore";
-import app from "../firebase";
+import { collection, addDoc, query, where, getDocs, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase";
 import { useWallet } from "../WalletContext";
 import "./RatingModal.css";
-
-const db = getFirestore(app);
 
 const STAR_LABELS = ["", "Poor", "Fair", "Good", "Very Good", "Excellent"];
 const MAX_REVIEW_LENGTH = 500;
