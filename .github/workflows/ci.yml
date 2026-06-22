@@ -107,14 +107,14 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            contract/token/contracts/hello-world/target
+            escrow_contract/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
       - name: Check Rust Contract
         run: |
-          cd contract/token/contracts/hello-world
+          cd escrow_contract
           cargo check --target wasm32-unknown-unknown
 
 
