@@ -1087,12 +1087,10 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
             )}
 
             {/* Job List */}
-            {loading ? (
+            {loading && filteredJobs.length === 0 ? (
               <div style={{ textAlign: "center", padding: "100px 0" }}>
                 <div className="spinner-large" />
-                <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "16px" }}>
-                  Consulting the blockchain…
-                </p>
+                <p style={{ marginTop: "20px", color: "rgba(255,255,255,0.4)" }}>Scanning Stellar Testnet for jobs...</p>
               </div>
             ) : filteredJobs.length === 0 ? (
               <motion.div
@@ -1128,11 +1126,40 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
               </motion.div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column" }}>
+                <div style={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  alignItems: "center", 
+                  marginBottom: "16px",
+                  padding: "0 8px"
+                }}>
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
+                    Showing <span style={{ color: "#fff", fontWeight: 700 }}>{filteredJobs.length}</span> of <span style={{ color: "#fff", fontWeight: 700 }}>{jobs.length}</span> total open jobs
+                  </span>
+                </div>
+
                 <AnimatePresence>
                   {filteredJobs.map((job, i) => (
                     <JobCard key={job.id} job={job} index={i} />
                   ))}
                 </AnimatePresence>
+
+                {loading && filteredJobs.length > 0 && (
+                  <div style={{ 
+                    textAlign: "center", 
+                    padding: "24px", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    gap: "12px",
+                    background: "rgba(255,255,255,0.02)",
+                    borderRadius: "16px",
+                    marginTop: "16px"
+                  }}>
+                    <div style={{ width: "18px", height: "18px", border: "2px solid rgba(167,139,250,0.2)", borderTopColor: "#a78bfa", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                    <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>Loading more jobs from blockchain...</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
