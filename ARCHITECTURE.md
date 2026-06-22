@@ -50,7 +50,7 @@ A decentralized application (dApp) built on the **Stellar blockchain** that prov
 │  ┌────────────────────────────────────────────────────────┐   │
 │  │                  Escrow Contract                       │   │
 │  │                                                        │   │
-│  │  CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3  │   │
+│  │  CBICXP5IP3WCB5H2YEJEGZ4RUKJFHRAO2N7AOLHIL4NLRCZ7W7IQLIC4  │   │
 │  │                                                        │   │
 │  │  Functions:                                            │   │
 │  │  • post_job()                                          │   │
@@ -145,7 +145,7 @@ stellar-new/
 ## 🔐 Smart Contracts
 
 ### Escrow Contract
-- **Contract ID:** `CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3`
+- **Contract ID:** `CBICXP5IP3WCB5H2YEJEGZ4RUKJFHRAO2N7AOLHIL4NLRCZ7W7IQLIC4`
 - **Language:** Rust (Soroban SDK)
 - **Network:** Stellar Testnet
 
@@ -189,7 +189,7 @@ GitHub Push (Main/Develop)
 ## 📊 Environment Variables
 
 ```env
-REACT_APP_ESCROW_CONTRACT_ID=CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3
+REACT_APP_ESCROW_CONTRACT_ID=CBICXP5IP3WCB5H2YEJEGZ4RUKJFHRAO2N7AOLHIL4NLRCZ7W7IQLIC4
 REACT_APP_NETWORK=TESTNET
 ```
 

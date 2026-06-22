@@ -38,7 +38,7 @@ FreelanceChain implements Stellar Fee Bump Transactions (CAP-0015) to eliminate 
 
 ## 🦀 Rust Soroban Contract Architecture
 Deployed to the Stellar Testnet:
-**Contract ID:** `CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3`
+**Contract ID:** `CBICXP5IP3WCB5H2YEJEGZ4RUKJFHRAO2N7AOLHIL4NLRCZ7W7IQLIC4`
 
 ### Contract Functions (DB Endpoints)
 | Function | Storage | Description |
