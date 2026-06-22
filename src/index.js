@@ -6,6 +6,8 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { WalletProvider } from './WalletContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ScalabilityProvider } from './context/ScalabilityContext';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Prevent irrelevant MetaMask errors from crashing the React app during development
 window.addEventListener('unhandledrejection', (event) => {
@@ -19,12 +21,17 @@ root.render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ThemeProvider>
-        <WalletProvider>
-          <App />
-        </WalletProvider>
+        <ScalabilityProvider>
+          <WalletProvider>
+            <App />
+          </WalletProvider>
+        </ScalabilityProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Enable PWA / Offline Caching
+serviceWorkerRegistration.register();
 
 reportWebVitals();
