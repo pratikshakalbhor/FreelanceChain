@@ -19,6 +19,7 @@ export async function fetchUserSkills(walletAddress) {
   if (!walletAddress) return [];
   try {
     const ref = doc(db, "users", walletAddress);
+    // getDoc will now use the persistent cache we enabled in firebase.js if offline
     const snap = await getDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
@@ -26,7 +27,11 @@ export async function fetchUserSkills(walletAddress) {
       return skills.map((s) => String(s).toLowerCase().trim());
     }
   } catch (err) {
-    console.warn("[AI Match] Failed to load user skills:", err);
+    if (err.code === "unavailable" || err.message.includes("offline")) {
+      console.log("[AI Match] Client is offline, matching based on local cache or returning empty.");
+    } else {
+      console.warn("[AI Match] Failed to load user skills:", err);
+    }
   }
   return [];
 }

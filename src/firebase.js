@@ -2,7 +2,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -16,6 +16,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const rtdb = getDatabase(app);
-export const db = getFirestore(app);
+
+// Enable persistent local cache for Firestore
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
 export const firestore = db; // Keep for compatibility
 export default app;
