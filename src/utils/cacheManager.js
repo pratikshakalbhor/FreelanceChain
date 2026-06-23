@@ -73,7 +73,10 @@ class CacheManager {
 
     // L2: sessionStorage (try, may fail if quota exceeded)
     try {
-      sessionStorage.setItem(`cache_${key}`, JSON.stringify(entry));
+      const safeData = JSON.stringify(entry, (key, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+      );
+      sessionStorage.setItem(`cache_${key}`, safeData);
     } catch (e) {
       if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
         // sessionStorage full — perform emergency eviction

@@ -7,7 +7,7 @@ import {
 import { db } from "../firebase";
 import {
   collection, query, where, onSnapshot,
-  doc, updateDoc
+  doc, updateDoc, addDoc
 } from "firebase/firestore";
 
 const shortenAddr = (addr) => {
@@ -64,6 +64,26 @@ export default function ViewProposalsModal({
           updateDoc(doc(db, "proposals", p.id), { status: "rejected" })
         )
       );
+
+      // 3. Update the main job document for both parties
+      await updateDoc(doc(db, "jobs", String(job.id)), {
+        acceptedFreelancer: proposal.freelancerAddress,
+        status: "InProgress",
+        hiredAt: new Date()
+      });
+
+      // 4. Send notification to the freelancer
+      try {
+        await addDoc(collection(db, "notifications"), {
+          userId: proposal.freelancerAddress,
+          type: "application_accepted",
+          title: "🎉 Application Accepted!",
+          message: `Your application for "${job.title}" was accepted!`,
+          jobId: String(job.id),
+          timestamp: new Date(),
+          read: false
+        });
+      } catch (err) { console.warn("Notif failed:", err); }
 
       // Trigger onHire callback (parent calls blockchain accept)
       onHire?.(job.id, proposal.freelancerAddress, proposal);

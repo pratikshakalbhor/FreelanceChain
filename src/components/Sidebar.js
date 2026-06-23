@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useWallet } from '../WalletContext';
 import {
   LayoutDashboard,
   CreditCard,
@@ -19,24 +20,61 @@ import {
   Compass
 } from "lucide-react";
 import logo from "../assets/logo.png";
+import { db } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 
 
 const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
   const { isDark, toggleTheme } = useTheme();
+  const { userRole, setUserRole } = useWallet();
+  const [appliedCount, setAppliedCount] = useState(0);
+
+  useEffect(() => {
+    if (!walletAddress) return;
+    const fetchCount = async () => {
+      try {
+        const q = query(
+          collection(db, "jobs"),
+          where("applicants", "array-contains", walletAddress)
+        );
+        const snap = await getDocs(q);
+        setAppliedCount(snap.size);
+      } catch (e) {
+        console.warn("Failed to fetch sidebar count:", e);
+      }
+    };
+    fetchCount();
+  }, [walletAddress]);
 
   const shortenAddress = (addr) => {
     if (!addr || typeof addr !== 'string') return '';
     return `${addr.slice(0, 5)}...${addr.slice(-5)}`;
   };
 
-  // ── Navigation links — Chat removed ──
+  // ── Navigation links — Dynamic based on role ──
   const links = [
     { to: "/", icon: <LayoutDashboard size={18} />, label: "Dashboard" },
-    { to: "/post-job", icon: <PlusCircle size={18} />, label: "Post Job", badge: "NEW" },
-    { to: "/find-jobs", icon: <Search size={18} />, label: "Find Jobs" },
+    { 
+      to: "/post-job", 
+      icon: <PlusCircle size={18} />, 
+      label: "Post Job", 
+      badge: "NEW",
+      hidden: userRole === "freelancer" 
+    },
+    { 
+      to: "/find-jobs", 
+      icon: <Search size={18} />, 
+      label: "Find Jobs",
+      hidden: userRole === "client"
+    },
     { to: "/categories", icon: <Compass size={18} />, label: "Explore Markets" },
-    { to: "/my-jobs", icon: <Briefcase size={18} />, label: "My Jobs" },
+    { 
+      to: "/my-jobs", 
+      icon: <Briefcase size={18} />, 
+      label: "My Jobs", 
+      badge: appliedCount > 0 ? appliedCount.toString() : null 
+    },
     { to: "/payment", icon: <CreditCard size={18} />, label: "Payment" },
     { to: "/activity", icon: <History size={18} />, label: "Activity" },
     { to: "/resolution-center", icon: <Scale size={18} />, label: "Resolution Center" },
@@ -96,7 +134,6 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
         display: "flex",
         alignItems: "center",
         gap: "12px",
-        marginBottom: "8px",
         borderBottom: `1px solid ${themeStyles.borderColor}`,
       }}>
         <img src={logo} alt="FreelanceChain Logo" style={{ width: "40px", height: "40px", borderRadius: "12px", objectFit: "cover" }} />
@@ -109,9 +146,38 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
         }}>FreelanceChain</span>
       </div>
 
+      {/* Role Toggle */}
+      <div style={{ padding: "16px 20px" }}>
+        <div style={{ 
+          background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", 
+          padding: "4px", borderRadius: "10px", display: "flex", gap: "2px" 
+        }}>
+          <button 
+            onClick={() => setUserRole("client")}
+            style={{ 
+              flex: 1, padding: "8px", borderRadius: "8px", border: "none", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer",
+              background: userRole === "client" ? "linear-gradient(135deg, #7c3aed, #4f46e5)" : "transparent",
+              color: userRole === "client" ? "#fff" : "rgba(255,255,255,0.4)",
+              transition: "all 0.2s"
+            }}>
+            Client
+          </button>
+          <button 
+            onClick={() => setUserRole("freelancer")}
+            style={{ 
+              flex: 1, padding: "8px", borderRadius: "8px", border: "none", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer",
+              background: userRole === "freelancer" ? "linear-gradient(135deg, #7c3aed, #4f46e5)" : "transparent",
+              color: userRole === "freelancer" ? "#fff" : "rgba(255,255,255,0.4)",
+              transition: "all 0.2s"
+            }}>
+            Freelancer
+          </button>
+        </div>
+      </div>
+
       {/* Nav Links */}
       <div className="sidebar-scroll" style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-        {links.map((link) => (
+        {links.filter(l => !l.hidden).map((link) => (
           <NavLink
             key={link.to}
             to={link.to}

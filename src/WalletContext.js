@@ -9,12 +9,16 @@ export const WalletProvider = ({ children }) => {
   const [connectedWallets, setConnectedWallets] = useState([]);
   const [walletAddress, setWalletAddress] = useState('');
   const [walletType, setWalletType] = useState('');
+  const [userRole, setUserRole] = useState('client'); // 'client' or 'freelancer'
   const [isModalOpen, setModalOpen] = useState(false);
 
   // Restore session — sessionStorage only (clears on tab/browser close)
   useEffect(() => {
     const savedWalletsStr = sessionStorage.getItem('connectedWallets');
     const savedActiveAddress = sessionStorage.getItem('walletAddress');
+    const savedRole = sessionStorage.getItem('userRole');
+
+    if (savedRole) setUserRole(savedRole);
 
     if (savedWalletsStr) {
       try {
@@ -44,7 +48,12 @@ export const WalletProvider = ({ children }) => {
 
   // Persist to sessionStorage only
   useEffect(() => {
-    sessionStorage.setItem('connectedWallets', JSON.stringify(connectedWallets));
+    const safePayload = JSON.stringify(connectedWallets, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    );
+    sessionStorage.setItem('connectedWallets', safePayload);
+    sessionStorage.setItem('userRole', userRole);
+
     if (walletAddress) {
       sessionStorage.setItem('walletAddress', walletAddress);
       sessionStorage.setItem('walletType', walletType);
@@ -52,7 +61,7 @@ export const WalletProvider = ({ children }) => {
       sessionStorage.removeItem('walletAddress');
       sessionStorage.removeItem('walletType');
     }
-  }, [connectedWallets, walletAddress, walletType]);
+  }, [connectedWallets, walletAddress, walletType, userRole]);
 
   const handleConnect = async (type) => {
     try {
@@ -128,7 +137,7 @@ export const WalletProvider = ({ children }) => {
 
   return (
     <WalletContext.Provider value={{
-      walletAddress, walletType, connectedWallets,
+      walletAddress, walletType, connectedWallets, userRole, setUserRole,
       connectWallet: handleConnect, disconnectWallet, switchWallet,
       isModalOpen, setModalOpen,
       setWalletAddress, setWalletType, setConnectedWallets

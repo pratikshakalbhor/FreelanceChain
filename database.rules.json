@@ -1,0 +1,31 @@
+{
+  "rules": {
+    "activities": {
+      "$uid": {
+        ".indexOn": ["timestamp"]
+      }
+    },
+    "notifications": {
+      "$uid": {
+        ".indexOn": ["timestamp"]
+      }
+    },
+    "chats": {
+      "$chatId": {
+        "messages": {
+          ".indexOn": ["timestamp"]
+        }
+      }
+    },
+    "indexed_data": {
+      "jobs": {
+        ".indexOn": ["lastIndexed"]
+      },
+      "transactions": {
+        "$uid": {
+          ".indexOn": ["lastIndexed"]
+        }
+      }
+    }
+  }
+}

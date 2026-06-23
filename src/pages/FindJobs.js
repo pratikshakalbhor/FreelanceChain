@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useWallet } from "../WalletContext";
 import {
   Clock,
   Users,
@@ -20,12 +21,14 @@ import { db } from "../firebase";
 import {
   collection,
   addDoc,
+  setDoc,
   serverTimestamp,
   query,
   where,
   getDocs,
   doc,
   getDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import {
   fetchUserSkills,
@@ -98,6 +101,16 @@ function Toast({ message, type = "success", onClear }) {
     return () => clearTimeout(timer);
   }, [onClear]);
 
+  const getStyle = () => {
+    switch (type) {
+      case "success": return { bg: "#10b981", icon: <CheckCircle2 size={18} /> };
+      case "info": return { bg: "#6366f1", icon: <Sparkles size={18} /> };
+      default: return { bg: "#ef4444", icon: <Zap size={18} /> };
+    }
+  };
+
+  const styleConfig = getStyle();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -108,7 +121,7 @@ function Toast({ message, type = "success", onClear }) {
         bottom: "32px",
         left: "50%",
         transform: "translateX(-50%)",
-        background: type === "success" ? "#10b981" : "#ef4444",
+        background: styleConfig.bg,
         color: "#fff",
         padding: "12px 24px",
         borderRadius: "12px",
@@ -121,7 +134,7 @@ function Toast({ message, type = "success", onClear }) {
         fontSize: "0.9rem",
       }}
     >
-      {type === "success" ? <CheckCircle2 size={18} /> : <Zap size={18} />}
+      {styleConfig.icon}
       {message}
     </motion.div>
   );
@@ -435,11 +448,15 @@ function AIRecommendedSection({ jobs, userSkills, onOpenModal }) {
 }
 
 /* ─── Main Component ─────────────────────────────────────────── */
-export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, onPostJob }) {
+export default function FindJobs({ jobs = [], loading, walletAddress: propWallet, onAccept, onPostJob }) {
   const { isDark } = useTheme();
+  const { walletAddress: contextWallet, userRole } = useWallet();
+  const walletAddress = propWallet || contextWallet;
+  
   const navigate = useNavigate();
   const [proposalModal, setProposalModal] = useState({ isOpen: false, job: null });
   const [searchParams, setSearchParams] = useSearchParams();
+
 
   /* ── AI Matching State ── */
   const [userSkills, setUserSkills] = useState([]);
@@ -486,7 +503,6 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
     fetchApplied();
   }, [walletAddress]);
 
-  /* ── Quick Apply Function ── */
   const handleQuickApply = useCallback(async (job) => {
     if (!walletAddress) {
       setToast({ message: "Please connect your wallet first", type: "error" });
@@ -496,16 +512,34 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
 
     setApplyingId(job.id);
     try {
-      // Get profile info (bio/skills)
-      const userRef = doc(db, "users", walletAddress);
-      const userSnap = await getDoc(userRef);
-      const userData = userSnap.exists() ? userSnap.data() : {};
+      let userData = {};
+      let isOffline = false;
+
+      try {
+        // Get profile info (bio/skills)
+        const userRef = doc(db, "users", walletAddress);
+        const userSnap = await getDoc(userRef);
+        userData = userSnap.exists() ? userSnap.data() : {};
+      } catch (error) {
+        // Offline / unavailable — handled silently; persistence layer caches data automatically.
+        if (error.code === 'unavailable' || !navigator.onLine) {
+          isOffline = true;
+          // Fallback to local data
+          userData = {
+            walletAddress: walletAddress,
+            skills: [],
+            bio: 'FreelanceChain User'
+          };
+        } else {
+          throw error; // Re-throw unexpected errors
+        }
+      }
 
       const bio = userData.bio || "I am interested in this job and have the required skills.";
       const skills = userData.skills || [];
 
       // Submit proposal
-      await addDoc(collection(db, "proposals"), {
+      const proposalData = {
         jobId: String(job.id),
         jobTitle: job.title,
         clientAddress: String(job.client),
@@ -513,13 +547,48 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
         coverLetter: `[Quick Apply] ${bio} \n\nSkills: ${skills.join(", ")}`,
         bidAmount: job._xlm || 0,
         originalBudget: job._xlm || 0,
-        deliveryDays: 7, // Default
+        deliveryDays: 7, 
         status: "pending",
         createdAt: serverTimestamp(),
-      });
+      };
 
-      setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
-      setToast({ message: `Applied to ${job.title}! ✓`, type: "success" });
+      try {
+        // 1. Submit the detailed proposal
+        await addDoc(collection(db, "proposals"), proposalData);
+
+        // 2. Update the main job document with the applicant list (for easy querying)
+        const jobRef = doc(db, "jobs", String(job.id));
+        await setDoc(jobRef, {
+          title: job.title,
+          amount: job._xlm || 0,
+          token: String(job.token || ""),
+          client: String(job.client),
+          applicants: arrayUnion(walletAddress),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+        
+        setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
+        if (isOffline) {
+          setToast({ message: "⚠️ Applied offline — will sync when connection is restored", type: "info" });
+        } else {
+          setToast({ 
+            message: (
+              <span>
+                ✅ Applied! Check <a href="/my-jobs" style={{ color: "#fff", textDecoration: "underline", fontWeight: 700 }}>My Jobs → Applied Tab</a>
+              </span>
+            ), 
+            type: "success" 
+          });
+        }
+      } catch (error) {
+        if (error.code === 'unavailable' || !navigator.onLine) {
+          // Firebase will queue this if persistence is enabled, but we show local success
+          setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
+          setToast({ message: "Applied locally — will sync when online", type: "info" });
+        } else {
+          throw error;
+        }
+      }
     } catch (e) {
       console.error("Quick apply error:", e);
       setToast({ message: "Failed to apply. Try again.", type: "error" });
@@ -971,6 +1040,23 @@ export default function FindJobs({ jobs = [], loading, walletAddress, onAccept, 
   );
 
   /* ─── Render ── */
+  if (userRole === "client") {
+    return (
+      <div style={{ padding: "100px 20px", textAlign: "center", color: isDark ? "#fff" : "#1a1a2e" }}>
+        <div style={{ fontSize: "4rem", marginBottom: "20px" }}>🔍</div>
+        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Freelancer Mode Required</h2>
+        <p style={{ opacity: 0.6, marginBottom: "32px", maxWidth: "400px", margin: "0 auto 32px" }}>
+          You are currently in Client mode. Switch to Freelancer mode in the sidebar to browse and apply for jobs.
+        </p>
+        <button 
+          onClick={() => navigate("/")}
+          style={{ padding: "12px 24px", background: "linear-gradient(135deg, #7c3aed, #4f46e5)", border: "none", borderRadius: "12px", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+          Go to Dashboard
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>

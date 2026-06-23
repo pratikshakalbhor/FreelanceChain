@@ -1,6 +1,11 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
-import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import {
+  initializeFirestore,
+  getFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 // Ensure Project ID is never an empty segment
 const PID = (process.env.REACT_APP_FIREBASE_PROJECT_ID || "").trim() || "freelancechain-5dfb1";
@@ -15,41 +20,33 @@ const firebaseConfig = {
   databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
 };
 
-// Debug check for missing configuration
-if (!process.env.REACT_APP_FIREBASE_PROJECT_ID) {
-  console.warn(`[Firebase] REACT_APP_FIREBASE_PROJECT_ID missing. Using Fallback: ${PID}`);
-} else {
-  console.log(`[Firebase] Initialized with Project ID: ${PID}`);
-}
-
 // Validate required config
 const required = ["apiKey", "projectId", "appId"];
 required.forEach(key => {
   if (!firebaseConfig[key]) {
-    console.error(`[Firebase] Critical error: ${key} is missing from config!`);
+    console.warn(`[Firebase] Missing config for ${key}. Check .env`);
   }
 });
 
-const app = initializeApp(firebaseConfig);
+// Singleton initialization (HMR safe)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Direct single-instance exports for both databases
-export const rtdb = getDatabase(app);
+// Realtime Database
+const rtdb = getDatabase(app);
 
-let firestoreInstance;
+// Firestore — use new persistent cache API (replaces deprecated enableIndexedDbPersistence)
+// Falls back to memory cache if already initialized (HMR / multi-tab safe)
+let db;
 try {
-  firestoreInstance = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
   });
-} catch (e) {
-  firestoreInstance = getFirestore(app);
+} catch {
+  // Already initialized (e.g. HMR hot reload) — reuse existing instance
+  db = getFirestore(app);
 }
 
-export const db = firestoreInstance;
-export const firestore = db;
-export default app;
-
-
-
-
-
-
+// Named exports
+export { app as default, rtdb, db, db as firestore };
