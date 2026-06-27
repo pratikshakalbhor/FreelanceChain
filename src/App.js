@@ -12,7 +12,6 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { useWallet } from "./WalletContext";
 import WalletModal from "./WalletModal";
 import { runFullIndex, isIndexStale } from "./utils/dataIndexer";
-import { errorHandler } from "./utils/errorHandler";
 import NotificationPanel from "./components/NotificationPanel";
 import { useTheme } from "./context/ThemeContext";
 
@@ -93,46 +92,44 @@ function App() {
     []
   );
 
-  function showError(message, field) {
-    alert(message);
-  }
 
+
+  // ── Parallel Initialization ──────────────────────────────────────────────
   useEffect(() => {
-    if (walletAddress) {
-      // Auto-index if stale
-      isIndexStale().then(stale => {
-        if (stale) runFullIndex(walletAddress);
-      });
-    }
-  }, [walletAddress]);
+    if (!walletAddress) return;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (walletAddress) {
-        try {
-          const account = await server.loadAccount(walletAddress);
+    const init = async () => {
+      try {
+        // Run Horizon load and indexing check in parallel
+        await Promise.all([
+          // 1. Load Stellar Account
+          server.loadAccount(walletAddress).then(account => {
+            setAccountDetails(account);
+            const xlmBalance = account.balances.find(b => b.asset_type === "native");
+            setBalance(parseFloat(xlmBalance?.balance || "0").toFixed(2));
+          }),
 
-          setAccountDetails(account);
-          const xlmBalance = account.balances.find(
-            (b) => b.asset_type === "native"
-          );
-          setBalance(parseFloat(xlmBalance.balance).toFixed(2));
+          // 2. Indexer check (Background)
+          isIndexStale().then(stale => {
+            if (stale) {
+              console.log("[App] Index stale, running background refresh...");
+              runFullIndex(walletAddress).catch(() => {});
+            }
+          }),
 
-        } catch (e) {
-          setAccountDetails(null);
-          const errorMessage = errorHandler(e);
-
-          showError(
-            `Error loading account (${walletAddress}): ${errorMessage}.`,
-            "accountError"
-          );
-
-          console.error("Account error:", e);
-          setBalance("N/A");
-        }
+          // 3. Prefetch critical pages (Reduces "loading..." time)
+          import("./pages/DashboardPage").catch(() => {}),
+          import("./pages/FindJobsPage").catch(() => {}),
+          import("./pages/MyJobsPage").catch(() => {}),
+        ]);
+      } catch (e) {
+        setAccountDetails(null);
+        setBalance("N/A");
+        console.error("Boot error:", e);
       }
     };
-    fetchData();
+
+    init();
   }, [walletAddress, server]);
 
   return (

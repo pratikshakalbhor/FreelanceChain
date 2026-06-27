@@ -484,6 +484,9 @@ export default function FindJobs({ jobs = [], loading, walletAddress: propWallet
   const [applyingId, setApplyingId] = useState(null);
   const [toast, setToast] = useState(null);
 
+  /* ── Cache user profile to avoid re-fetching on every Quick Apply ── */
+  const userDataCache = React.useRef(null);
+
   /* ── Fetch user applied jobs ── */
   useEffect(() => {
     if (!walletAddress) return;
@@ -511,90 +514,88 @@ export default function FindJobs({ jobs = [], loading, walletAddress: propWallet
     if (appliedJobIds.has(String(job.id))) return;
 
     setApplyingId(job.id);
-    try {
-      let userData = {};
-      let isOffline = false;
 
+    // ── Step 1: Resolve user profile (cached after first fetch) ──────────
+    let userData = userDataCache.current;
+    let isOffline = false;
+
+    if (!userData) {
       try {
-        // Get profile info (bio/skills)
         const userRef = doc(db, "users", walletAddress);
         const userSnap = await getDoc(userRef);
         userData = userSnap.exists() ? userSnap.data() : {};
+        userDataCache.current = userData; // cache for next Quick Apply
       } catch (error) {
-        // Offline / unavailable — handled silently; persistence layer caches data automatically.
         if (error.code === 'unavailable' || !navigator.onLine) {
           isOffline = true;
-          // Fallback to local data
-          userData = {
-            walletAddress: walletAddress,
-            skills: [],
-            bio: 'FreelanceChain User'
-          };
+          userData = { walletAddress, skills: [], bio: 'FreelanceChain User' };
+          userDataCache.current = userData;
         } else {
-          throw error; // Re-throw unexpected errors
+          setApplyingId(null);
+          setToast({ message: "Failed to apply. Try again.", type: "error" });
+          return;
         }
       }
-
-      const bio = userData.bio || "I am interested in this job and have the required skills.";
-      const skills = userData.skills || [];
-
-      // Submit proposal
-      const proposalData = {
-        jobId: String(job.id),
-        jobTitle: job.title,
-        clientAddress: String(job.client),
-        freelancerAddress: walletAddress,
-        coverLetter: `[Quick Apply] ${bio} \n\nSkills: ${skills.join(", ")}`,
-        bidAmount: job._xlm || 0,
-        originalBudget: job._xlm || 0,
-        deliveryDays: 7, 
-        status: "pending",
-        createdAt: serverTimestamp(),
-      };
-
-      try {
-        // 1. Submit the detailed proposal
-        await addDoc(collection(db, "proposals"), proposalData);
-
-        // 2. Update the main job document with the applicant list (for easy querying)
-        const jobRef = doc(db, "jobs", String(job.id));
-        await setDoc(jobRef, {
-          title: job.title,
-          amount: job._xlm || 0,
-          token: String(job.token || ""),
-          client: String(job.client),
-          applicants: arrayUnion(walletAddress),
-          updatedAt: serverTimestamp(),
-        }, { merge: true });
-        
-        setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
-        if (isOffline) {
-          setToast({ message: "⚠️ Applied offline — will sync when connection is restored", type: "info" });
-        } else {
-          setToast({ 
-            message: (
-              <span>
-                ✅ Applied! Check <a href="/my-jobs" style={{ color: "#fff", textDecoration: "underline", fontWeight: 700 }}>My Jobs → Applied Tab</a>
-              </span>
-            ), 
-            type: "success" 
-          });
-        }
-      } catch (error) {
-        if (error.code === 'unavailable' || !navigator.onLine) {
-          // Firebase will queue this if persistence is enabled, but we show local success
-          setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
-          setToast({ message: "Applied locally — will sync when online", type: "info" });
-        } else {
-          throw error;
-        }
-      }
-    } catch (e) {
-      console.error("Quick apply error:", e);
-      setToast({ message: "Failed to apply. Try again.", type: "error" });
-    } finally {
-      setApplyingId(null);
     }
+
+    const bio = userData.bio || "I am interested in this job and have the required skills.";
+    const skills = userData.skills || [];
+
+    const proposalData = {
+      jobId: String(job.id),
+      jobTitle: job.title,
+      clientAddress: String(job.client),
+      freelancerAddress: walletAddress,
+      coverLetter: `[Quick Apply] ${bio} \n\nSkills: ${skills.join(", ")}`,
+      bidAmount: job._xlm || 0,
+      originalBudget: job._xlm || 0,
+      deliveryDays: 7,
+      status: "pending",
+      createdAt: serverTimestamp(),
+    };
+
+    // ── Step 2: Optimistic UI — respond instantly before network ─────────
+    setAppliedJobIds((prev) => new Set([...prev, String(job.id)]));
+    setApplyingId(null);
+    if (isOffline) {
+      setToast({ message: "⚠️ Applied offline — will sync when connection is restored", type: "info" });
+    } else {
+      setToast({
+        message: (
+          <span>
+            ✅ Applied! Check <a href="/my-jobs" style={{ color: "#fff", textDecoration: "underline", fontWeight: 700 }}>My Jobs → Applied Tab</a>
+          </span>
+        ),
+        type: "success",
+      });
+    }
+
+    // ── Step 3: Fire both writes in parallel (no longer blocking UI) ─────
+    const jobRef = doc(db, "jobs", String(job.id));
+    Promise.all([
+      addDoc(collection(db, "proposals"), proposalData),
+      setDoc(jobRef, {
+        title: job.title,
+        amount: job._xlm || 0,
+        token: String(job.token || ""),
+        client: String(job.client),
+        applicants: arrayUnion(walletAddress),
+        updatedAt: serverTimestamp(),
+      }, { merge: true }),
+    ]).catch((error) => {
+      if (error.code === 'unavailable' || !navigator.onLine) {
+        // Firebase offline persistence will retry automatically — safe to ignore
+      } else {
+        console.error("Quick apply write error:", error);
+        // Revert optimistic update on unexpected failure
+        setAppliedJobIds((prev) => {
+          const next = new Set(prev);
+          next.delete(String(job.id));
+          return next;
+        });
+        setToast({ message: "Apply failed — please try again.", type: "error" });
+      }
+    });
   }, [walletAddress, appliedJobIds]);
 
   /* ── URL param reading ── */

@@ -157,35 +157,22 @@ export const useEscrow = () => {
     if (!walletAddress) return;
     const startTime = performance.now();
 
-    // 1. Check cache first (instant)
+    // 1. Immediate Cache check (synchronous memory cache)
     if (!silent && page === null) {
       const cachedJobs = cacheManager.get(JOBS_CACHE_KEY);
       if (cachedJobs && cachedJobs.length > 0) {
         setJobs(cachedJobs);
-        // Continue to refresh in background
-      }
-    }
-
-    // Also try Firebase cache
-    if (!silent && page === null) {
-      try {
-        const cached = await readIndexedJobs();
-        if (cached && cached.jobs.length > 0) {
-          setJobs(cached.jobs);
-          setTotalJobs(cached.total);
-          cacheManager.set(JOBS_CACHE_KEY, cached.jobs, JOBS_CACHE_TTL);
-        }
-      } catch (e) {
-        console.warn("[useEscrow] Cache read failed:", e);
+        // We continue to refresh from Source of Truth (Soroban)
       }
     }
 
     if (!silent) setLoading(true);
 
     try {
+      // 2. Parallelize: Firebase Cache read + Soroban Total check ──────────
+      // This jumpstarts the network logic while potentially getting 
+      // a stale but fast UI from Firebase.
       const dummyAccount = new StellarSdk.Account(walletAddress, "0");
-      
-      // Get Total (with dedup — same key reuses inflight promise)
       const totalTx = new StellarSdk.TransactionBuilder(dummyAccount, {
         fee: "100", networkPassphrase: NETWORK_PASSPHRASE,
       })
@@ -193,14 +180,23 @@ export const useEscrow = () => {
           contract: ESCROW_CONTRACT_ID, function: "get_total", args: [],
         }))
         .setTimeout(30).build();
-      
-      const totalSim = await sorobanQueue.enqueue(
-        () => SOROBAN_SERVER.simulateTransaction(totalTx),
-        { key: "get_total", priority: PRIORITY.NORMAL }
-      );
+
+      const [firebaseCache, totalSim] = await Promise.all([
+        page === null ? readIndexedJobs().catch(() => null) : Promise.resolve(null),
+        sorobanQueue.enqueue(
+          () => SOROBAN_SERVER.simulateTransaction(totalTx),
+          { key: "get_total", priority: PRIORITY.HIGH } // HIGH priority for total
+        )
+      ]);
+
+      // If we got Firebase cache and no memory cache was present, show it now
+      if (firebaseCache && firebaseCache.jobs?.length > 0 && page === null) {
+        setJobs(prev => prev.length === 0 ? firebaseCache.jobs : prev);
+        setTotalJobs(firebaseCache.total);
+      }
 
       if (!totalSim?.result?.retval) { 
-        if (!silent) setJobs([]); 
+        if (!silent && jobs.length === 0) setJobs([]); 
         return; 
       }
       
@@ -211,31 +207,25 @@ export const useEscrow = () => {
         return; 
       }
 
-      // 2. Paginated fetch — load in batches of JOBS_PAGE_SIZE
+      // 3. Paginated fetch — fire in parallel via the queue ───────────────
       const startId = page !== null 
         ? (page * JOBS_PAGE_SIZE) + 1 
         : 1;
       const endId = page !== null 
         ? Math.min(startId + JOBS_PAGE_SIZE - 1, total) 
-        : total; // First load gets all (or use total for full refresh)
+        : Math.min(JOBS_PAGE_SIZE, total); // Default batch size
 
       const idsToFetch = [];
       for (let i = startId; i <= endId; i++) {
         idsToFetch.push(i);
       }
 
-      // Fetch in parallel with rate limiting via the queue
-      const jobPromises = idsToFetch.map(id => 
-        fetchJobById(id, walletAddress).catch(e => {
-          console.error("Job load error", id, e);
-          return null;
-        })
-      );
-
-      const newJobs = (await Promise.all(jobPromises)).filter(Boolean);
+      // Fetch batch in parallel with rate limiting
+      const newJobs = (await Promise.all(
+        idsToFetch.map(id => fetchJobById(id, walletAddress).catch(() => null))
+      )).filter(Boolean);
 
       if (page !== null && page > 0) {
-        // Append to existing jobs
         setJobs(prev => {
           const existingIds = new Set(prev.map(j => j.id));
           const unique = newJobs.filter(j => !existingIds.has(j.id));
@@ -248,21 +238,17 @@ export const useEscrow = () => {
       setLoadedCount(endId);
       setHasMore(endId < total);
 
-      // 3. Update cache
+      // 4. Final Updates ──────────────────────────────────────────────────
       cacheManager.set(JOBS_CACHE_KEY, page !== null && page > 0 
         ? [...jobs, ...newJobs] 
         : newJobs, JOBS_CACHE_TTL);
 
-      // 4. Update Firebase index silently
-      indexJobs(walletAddress).catch(err => console.error("[useEscrow] Index update failed", err));
-
-      // Track performance
-      perfMonitor.trackApiCall("loadJobs", performance.now() - startTime, true);
+      indexJobs(walletAddress).catch(() => {});
+      perfMonitor.trackApiCall("loadJobs_optimized", performance.now() - startTime, true);
 
     } catch (e) {
       console.error("loadJobs error:", e);
       perfMonitor.trackApiCall("loadJobs", performance.now() - startTime, false);
-      perfMonitor.trackError(e.message, "loadJobs");
     } finally {
       if (!silent) setLoading(false);
     }

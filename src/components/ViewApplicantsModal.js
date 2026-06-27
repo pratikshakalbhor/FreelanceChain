@@ -35,24 +35,29 @@ export default function ViewApplicantsModal({
 
     const unsub = onSnapshot(q, async (snap) => {
       const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      
-      // Fetch profiles for applicants to get skills/rating
-      const newProfiles = {};
-      for (const p of data) {
-        if (!freelancerProfiles[p.freelancerAddress]) {
-          try {
-            const uSnap = await getDoc(doc(db, "users", p.freelancerAddress));
-            if (uSnap.exists()) {
-              newProfiles[p.freelancerAddress] = uSnap.data();
-            }
-          } catch (e) { console.warn("Profile fetch error:", e); }
+
+      // Batch-fetch profiles in parallel; allSettled silences offline errors
+      const uncachedAddresses = data
+        .map((p) => p.freelancerAddress)
+        .filter((addr, idx, arr) => arr.indexOf(addr) === idx)
+        .filter((addr) => addr && !freelancerProfiles[addr]);
+
+      if (uncachedAddresses.length > 0) {
+        const results = await Promise.allSettled(
+          uncachedAddresses.map((addr) => getDoc(doc(db, "users", addr)))
+        );
+        const newProfiles = {};
+        results.forEach((result, i) => {
+          if (result.status === "fulfilled" && result.value.exists()) {
+            newProfiles[uncachedAddresses[i]] = result.value.data();
+          }
+          // rejected silently ignored - offline is expected
+        });
+        if (Object.keys(newProfiles).length > 0) {
+          setFreelancerProfiles((prev) => ({ ...prev, ...newProfiles }));
         }
       }
-      if (Object.keys(newProfiles).length > 0) {
-        setFreelancerProfiles(prev => ({ ...prev, ...newProfiles }));
-      }
 
-      // Sort: pending first, accepted, rejected last
       data.sort((a, b) => {
         const order = { pending: 0, accepted: 1, rejected: 2 };
         return (order[a.status] ?? 3) - (order[b.status] ?? 3);
@@ -69,65 +74,57 @@ export default function ViewApplicantsModal({
     if (!window.confirm(`Hire ${shortenAddr(proposal.freelancerAddress)} for ${proposal.bidAmount} XLM?`)) return;
     setHiringId(proposal.id);
     try {
-      // 1. Accept this proposal
-      await updateDoc(doc(db, "proposals", proposal.id), {
-        status: "accepted",
-        acceptedAt: serverTimestamp()
-      });
-
-      // 2. Reject all other pending proposals for this job
       const others = proposals.filter(
         (p) => p.id !== proposal.id && p.status === "pending"
       );
-      await Promise.all(
-        others.map((p) =>
-          updateDoc(doc(db, "proposals", p.id), { 
+
+      // All writes fire in parallel - was 5 sequential awaits causing 2286ms delay
+      await Promise.all([
+        updateDoc(doc(db, "proposals", proposal.id), {
+          status: "accepted",
+          acceptedAt: serverTimestamp(),
+        }),
+        ...others.map((p) =>
+          updateDoc(doc(db, "proposals", p.id), {
             status: "rejected",
-            rejectedAt: serverTimestamp() 
+            rejectedAt: serverTimestamp(),
           })
-        )
-      );
-
-      // 3. Update the main job document
-      await updateDoc(doc(db, "jobs", String(job.id)), {
-        acceptedFreelancer: proposal.freelancerAddress,
-        status: "InProgress",
-        hiredAt: serverTimestamp()
-      });
-
-      // 4. Send notification to the hired freelancer
-      await addDoc(collection(db, "notifications"), {
-        toWallet: proposal.freelancerAddress,
-        userId: proposal.freelancerAddress, // for compatibility
-        message: "Your application was accepted! ✅",
-        title: "🎉 Application Accepted!",
-        jobId: String(job.id),
-        jobTitle: job.title,
-        type: "application_accepted",
-        read: false,
-        timestamp: serverTimestamp(),
-        createdAt: new Date()
-      });
-
-      // 5. Send notifications to rejected freelancers
-      await Promise.all(others.map(p => 
+        ),
+        updateDoc(doc(db, "jobs", String(job.id)), {
+          acceptedFreelancer: proposal.freelancerAddress,
+          status: "InProgress",
+          hiredAt: serverTimestamp(),
+        }),
         addDoc(collection(db, "notifications"), {
-          toWallet: p.freelancerAddress,
-          userId: p.freelancerAddress,
-          message: `Application for "${job.title}" was rejected. ❌`,
-          title: "Application Status Update",
+          toWallet: proposal.freelancerAddress,
+          userId: proposal.freelancerAddress,
+          message: "Your application was accepted! \u2705",
+          title: "\uD83C\uDF89 Application Accepted!",
           jobId: String(job.id),
           jobTitle: job.title,
-          type: "application_rejected",
+          type: "application_accepted",
           read: false,
           timestamp: serverTimestamp(),
-          createdAt: new Date()
-        })
-      ));
+          createdAt: new Date(),
+        }),
+        ...others.map((p) =>
+          addDoc(collection(db, "notifications"), {
+            toWallet: p.freelancerAddress,
+            userId: p.freelancerAddress,
+            message: `Application for "${job.title}" was rejected. \u274C`,
+            title: "Application Status Update",
+            jobId: String(job.id),
+            jobTitle: job.title,
+            type: "application_rejected",
+            read: false,
+            timestamp: serverTimestamp(),
+            createdAt: new Date(),
+          })
+        ),
+      ]);
 
-      // Trigger cleanup callback
       onHire?.(job.id, proposal.freelancerAddress, proposal);
-      alert("🎉 Freelancer hired! Job started!");
+      alert("\uD83C\uDF89 Freelancer hired! Job started!");
       onClose();
     } catch (e) {
       console.error("Hire error:", e);
@@ -139,9 +136,9 @@ export default function ViewApplicantsModal({
 
   const handleReject = async (proposal) => {
     try {
-      await updateDoc(doc(db, "proposals", proposal.id), { 
+      await updateDoc(doc(db, "proposals", proposal.id), {
         status: "rejected",
-        rejectedAt: serverTimestamp() 
+        rejectedAt: serverTimestamp(),
       });
       alert("Application rejected");
     } catch (e) {
@@ -151,12 +148,10 @@ export default function ViewApplicantsModal({
 
   if (!isOpen || !job) return null;
 
-
   const ProposalCard = ({ proposal, i }) => {
     const isExpanded = expandedId === proposal.id;
     const isHiring = hiringId === proposal.id;
     const profile = freelancerProfiles[proposal.freelancerAddress] || {};
-
     const createdDate = proposal.createdAt?.toDate
       ? proposal.createdAt.toDate().toLocaleString()
       : "Recently";
@@ -167,23 +162,18 @@ export default function ViewApplicantsModal({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.05 }}
         style={{
-          background: proposal.status === "accepted"
-            ? "rgba(16,185,129,0.06)"
-            : "rgba(255,255,255,0.03)",
-          border: proposal.status === "accepted"
-            ? "1px solid rgba(16,185,129,0.25)"
-            : "1px solid rgba(255,255,255,0.07)",
+          background: proposal.status === "accepted" ? "rgba(16,185,129,0.06)" : "rgba(255,255,255,0.03)",
+          border: proposal.status === "accepted" ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(255,255,255,0.07)",
           borderRadius: "16px",
           padding: "16px 20px",
           marginBottom: "10px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-          {/* Avatar + Address */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
             <div style={{
               width: "40px", height: "40px", borderRadius: "50%",
-              background: `linear-gradient(135deg, #6366f1, #a855f7)`,
+              background: "linear-gradient(135deg, #6366f1, #a855f7)",
               display: "flex", alignItems: "center", justifyContent: "center",
               color: "#fff", fontWeight: 800, fontSize: "0.85rem",
             }}>
@@ -198,18 +188,13 @@ export default function ViewApplicantsModal({
                   </span>
                 )}
               </div>
-              <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem" }}>
-                {createdDate}
-              </div>
+              <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem" }}>{createdDate}</div>
             </div>
           </div>
-
-          {/* Bid */}
           <div style={{ textAlign: "right" }}>
             <div style={{ color: "#34d399", fontWeight: 800, fontSize: "1rem" }}>{proposal.bidAmount} XLM</div>
             <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.7rem", textTransform: "uppercase" }}>{proposal.status}</div>
           </div>
-
           <button onClick={() => setExpandedId(isExpanded ? null : proposal.id)} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>
             {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -219,37 +204,34 @@ export default function ViewApplicantsModal({
           {isExpanded && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
               <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                {/* Proposal Msg */}
                 <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontWeight: 600, marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
                   <MessageSquare size={12} /> PROPOSAL MESSAGE
                 </div>
                 <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", background: "rgba(255,255,255,0.02)", padding: "12px", borderRadius: "10px", margin: "0 0 16px" }}>
                   {proposal.coverLetter || "No message provided."}
                 </p>
-
-                {/* Skills */}
                 {profile.skills && profile.skills.length > 0 && (
                   <div style={{ marginBottom: "16px" }}>
                     <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontWeight: 600, marginBottom: "8px" }}>SKILLS</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                      {profile.skills.map(s => <span key={s} style={{ background: "rgba(99,102,241,0.1)", color: "#a5b4fc", fontSize: "0.7rem", padding: "3px 8px", borderRadius: "4px" }}>{s}</span>)}
+                      {profile.skills.map((s) => (
+                        <span key={s} style={{ background: "rgba(99,102,241,0.1)", color: "#a5b4fc", fontSize: "0.7rem", padding: "3px 8px", borderRadius: "4px" }}>{s}</span>
+                      ))}
                     </div>
                   </div>
                 )}
-
-                {/* Actions */}
                 {proposal.status === "pending" && String(job.client) === walletAddress && (
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <button 
-                      onClick={() => handleHire(proposal)} 
+                    <button
+                      onClick={() => handleHire(proposal)}
                       disabled={isHiring}
-                      style={{ flex: 1, padding: "10px", background: "linear-gradient(135deg, #10b981, #059669)", border: "none", borderRadius: "8px", color: "#fff", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                      style={{ flex: 1, padding: "10px", background: "linear-gradient(135deg, #10b981, #059669)", border: "none", borderRadius: "8px", color: "#fff", fontWeight: 700, cursor: isHiring ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
                     >
                       <CheckCircle size={16} /> {isHiring ? "Hiring..." : "Accept & Hire"}
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleReject(proposal)}
-                      style={{ padding: "10px 16px", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "8px", color: "#f87171", fontWeight: 700, cursor: "pointer" }}
+                      style={{ padding: "10px 16px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", color: "#f87171", fontWeight: 700, cursor: "pointer" }}
                     >
                       <XCircle size={16} />
                     </button>
@@ -265,24 +247,29 @@ export default function ViewApplicantsModal({
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(8,13,26,0.9)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, padding: "20px" }}>
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", width: "100%", maxWidth: "550px", padding: "24px", maxHeight: "80vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", width: "100%", maxWidth: "550px", padding: "24px", maxHeight: "80vh", overflow: "hidden", display: "flex", flexDirection: "column" }}
+      >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>
             <h2 style={{ color: "#fff", fontSize: "1.25rem", margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
               <Users size={20} color="#6366f1" /> Applicants
             </h2>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", margin: "4px 0 0" }}>{job.title} • {proposals.length} total</p>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", margin: "4px 0 0" }}>{job.title} \u2022 {proposals.length} total</p>
           </div>
-          <button onClick={onClose} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer" }}><X size={24} /></button>
+          <button onClick={onClose} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>
+            <X size={24} />
+          </button>
         </div>
-
         <div style={{ overflowY: "auto", flex: 1, paddingRight: "4px" }}>
           {loading ? (
-             <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>Loading candidates...</div>
+            <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>Loading candidates...</div>
           ) : proposals.length === 0 ? (
-             <div style={{ textAlign: "center", padding: "60px 20px", color: "rgba(255,255,255,0.3)" }}>No applicants yet.</div>
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "rgba(255,255,255,0.3)" }}>No applicants yet.</div>
           ) : (
-             proposals.map((p, i) => <ProposalCard key={p.id} proposal={p} i={i} />)
+            proposals.map((p, i) => <ProposalCard key={p.id} proposal={p} i={i} />)
           )}
         </div>
       </motion.div>

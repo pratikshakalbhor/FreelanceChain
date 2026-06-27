@@ -32,6 +32,11 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
 
   useEffect(() => {
     if (!walletAddress) return;
+    
+    // Check session cache first to avoid redundant Firebase lookups during navigation
+    const cached = sessionStorage.getItem(`sidebar_count_${walletAddress}`);
+    if (cached) setAppliedCount(parseInt(cached));
+
     const fetchCount = async () => {
       try {
         const q = query(
@@ -40,8 +45,9 @@ const Sidebar = ({ walletAddress, onDisconnect, isOpen, setIsOpen }) => {
         );
         const snap = await getDocs(q);
         setAppliedCount(snap.size);
+        sessionStorage.setItem(`sidebar_count_${walletAddress}`, snap.size.toString());
       } catch (e) {
-        console.warn("Failed to fetch sidebar count:", e);
+        console.warn("Sidebar count fail:", e);
       }
     };
     fetchCount();

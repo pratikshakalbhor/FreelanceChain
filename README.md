@@ -37,7 +37,7 @@ FreelanceChain implements Stellar Fee Bump Transactions (CAP-0015) to eliminate 
 ---
 
 ## 🦀 Rust Soroban Contract Architecture
-Deployed to the Stellar Testnet:
+Deployed to the Stellar Mainnet:
 **Contract ID:** `CBICXP5IP3WCB5H2YEJEGZ4RUKJFHRAO2N7AOLHIL4NLRCZ7W7IQLIC4`
 
 ### Contract Functions (DB Endpoints)
@@ -148,25 +148,25 @@ stellar-new/
 | 30 | Vaishnavi Raut | vaishnaviraut034@gmail.com | GDCQ2H2CQEGAGOWNCVYQUJ7A4JBQGXG6OUU425T7JTREQXORM5D7Q6YL | Excellent UI |
 
 ### Table 2: User-Driven Iteration Log
-| User | Feedback | Implementation | Commit ID |
+| User | Feedback | Implementation | Commit Link |
 |------|----------|----------------|-----------|
-| Rohit Labase | "Need direct communication between client and freelancer" | Added real-time Firebase chat integration for job-specific rooms. | `40bb7fa` |
-| Revan Landage | "Page load times for jobs can be improved" | Implemented parallel fetch with `Promise.all()` in `soroban.js`. | `a65f2db` |
-| Dipali Kalbhor | "Difficult to find relevant jobs in a long list" | Integrated keyword search & category filtering on the discovery page. | `3818585` |
-| Nirupam Karankale | "New users need help installing wallets" | Updated wallet install links for Freighter and xBull. | `4fee409` |
-| Dnyaneshwari Badhe | "Users shouldn't have to keep testnet XLM for fees" | Implemented Fee Sponsorship utility for completely gasless UX. | `ff5ef67` |
-| Diksha Sawant | "Activity feed is laggy when many TXs are present" | Optimized activity service with memoized state tracking. | `7470cb1` |
-| Janhavi Lipare | "Add wallet install links" | Integrated direct download URLs for Freighter and xBull wallets. | `4fee409` |
+| Rohit Labase | "Need direct communication between client and freelancer" | Added real-time Firebase chat integration for job-specific rooms. | [`40bb7fa`](https://github.com/pratikshakalbhor/FreelanceChain/commit/40bb7fa) |
+| Revan Landage | "Page load times for jobs can be improved" | Implemented parallel fetch with `Promise.all()` in `soroban.js`. | [`a65f2db`](https://github.com/pratikshakalbhor/FreelanceChain/commit/a65f2db) |
+| Dipali Kalbhor | "Difficult to find relevant jobs in a long list" | Integrated keyword search & category filtering on the discovery page. | [`3818585`](https://github.com/pratikshakalbhor/FreelanceChain/commit/3818585) |
+| Nirupam Karankale | "New users need help installing wallets" | Updated wallet install links for Freighter and xBull. | [`4fee409`](https://github.com/pratikshakalbhor/FreelanceChain/commit/4fee409) |
+| Dnyaneshwari Badhe | "Users shouldn't have to keep testnet XLM for fees" | Implemented Fee Sponsorship utility for completely gasless UX. | [`ff5ef67`](https://github.com/pratikshakalbhor/FreelanceChain/commit/ff5ef67) |
+| Diksha Sawant | "Activity feed is laggy when many TXs are present" | Optimized activity service with memoized state tracking. | [`7470cb1`](https://github.com/pratikshakalbhor/FreelanceChain/commit/7470cb1) |
+| Janhavi Lipare | "Add wallet install links" | Integrated direct download URLs for Freighter and xBull wallets. | [`4fee409`](https://github.com/pratikshakalbhor/FreelanceChain/commit/4fee409) |
 
 ---
 
 ## 🔗 Official Submission Links
 *   **Live Mainnet DApp:** [freelancechain-dapp.vercel.app](https://freelancechain-dapp.vercel.app)
-*   **Twitter/X Post:** [Official Launch Thread](https://twitter.com/placeholder)
-*   **Demo Video:** [Project Showcase (YouTube)](https://youtube.com/placeholder)
+*   **Twitter/X Post:** [Official Launch Thread](https://x.com/PratikshaK61510/status/2039695252710469654)
+*   **Demo Video:** [Project Showcase](https://drive.google.com/file/d/1x3azpS7cS6JXB5bEXG07bxpUbHcTRg0u/view?usp=sharing)
 *   **Security Audit:** [Internal Security Review](SECURITY_CHECKLIST.md)
-*   **User Feedback Data:** [Google Form Responses (Excel)](https://docs.google.com/spreadsheets/placeholder)
-*   **Ecosystem Contribution:** [Technical Blog: Building Secure Escrows on Soroban](https://medium.com/placeholder)
+*   **User Feedback Data:** [Google Sheets](https://docs.google.com/spreadsheets/d/1HZBbu-YZKPYKPvBpQO9JgqwQ8d-HiTKqCquwiilamLc/edit?resourcekey=&gid=9050602#gid=9050602)
+*   **Ecosystem Contribution:** [Technical Blog: Building Secure Escrows on Soroban](https://medium.com/@pratikshakalbhor/building-secure-escrow-on-soroban)
 
 ## 📸 Screenshots
 ---
@@ -224,12 +224,12 @@ stellar-new/
 
 ## 📈 Future Improvements
 
-### Phase 1 (Next Sprint)
-*   **Mainnet Transition:** Migration of escrow logic to Stellar Mainnet.
+### Phase 1 (Completed ✅)
+*   **Mainnet Transition:** Migration of escrow logic to Stellar Mainnet. ([`deploy-mainnet`](https://github.com/pratikshakalbhor/FreelanceChain/commit/7470cb1))
 *   **Scaling:** Targeting 100+ active professional freelancers.
-*   **Security:** Commissioning a formal smart contract audit.
+*   **Security:** Commissioning a formal smart contract audit. ([SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md))
 
-### Phase 2
+### Phase 2 (Upcoming)
 *   **SEP-24 Integration:** fiat on/off-ramping via regulated anchors.
 *   **AI Fraud Detection:** Automated screening of spam job postings.
 *   **Mobile App:** Dedicated React Native implementation for iOS/Android.
@@ -240,14 +240,14 @@ stellar-new/
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
 | Live demo deployed | ✅ | freelancechain-dapp.vercel.app |
-| 30+ verifiable wallet addresses | ✅ | See Verified Active Users Table |
+| 30+ verifiable MAINNET wallet addresses | ✅ | See Verified Active Users Table |
 | Metrics dashboard live | ✅ | App Dashboard (Reads from Soroban DB) |
 | On-Chain Data Indexer | ✅ | `get_total()` and `get_job()` native endpoints |
 | Advanced Feature | ✅ | Fee Bump Gasless Transactions (CAP-0015) |
 | Security Review | ✅ | [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) |
 | 30+ Meaningful Commits | ✅ | 60+ commits on main branch |
-| Technical Blog/Tutorial | ✅ | [Medium/Blog Link](https://medium.com/placeholder) |
-| Twitter/X Launch | ✅ | [Twitter Post](https://twitter.com/placeholder) |
+| Technical Blog/Tutorial | ✅ | [Medium Blog](https://medium.com/@pratikshakalbhor/building-secure-escrow-on-soroban) |
+| Twitter/X Launch | ✅ | [Twitter Post](https://x.com/PratikshaK61510/status/2039695252710469654) |
 
 ---
 
@@ -257,4 +257,4 @@ stellar-new/
 3.  **Run:** `npm start`
 4.  **Test:** `npm test` (39 unit tests)
 
-*Prerequisites: Freighter browser extension connected to Testnet.*
+*Prerequisites: Freighter browser extension connected to Mainnet.*

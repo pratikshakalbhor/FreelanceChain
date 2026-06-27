@@ -130,16 +130,51 @@ export default function MyJobs({ jobs = [], loading: initialLoading, walletAddre
     };
     fetchMetadata();
   }, [walletAddress, userRole]);
-  const simulateIpfsUpload = async (jobId) => {
-    setIpfsUploading(p => ({ ...p, [jobId]: true }));
-    await new Promise(r => setTimeout(r, 2000));
-    const fakeCid = `qm${Math.random().toString(36).substring(2, 15)}`;
-    setWorkUrls(p => ({ ...p, [jobId]: `https://ipfs.io/ipfs/${fakeCid}` }));
-    setIpfsUploading(p => ({ ...p, [jobId]: false }));
+  const handleIpfsButtonClick = (jobId) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,video/*,application/pdf,.zip";
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      setIpfsUploading(p => ({ ...p, [jobId]: true }));
+      // Simulate real upload delay proportional to file size
+      const delay = Math.min(2000 + (file.size / 1000), 5000); 
+      await new Promise(r => setTimeout(r, delay));
+      
+      const fakeCid = `qm${Math.random().toString(36).substring(2, 15)}`;
+      setWorkUrls(p => ({ ...p, [jobId]: `https://ipfs.io/ipfs/${fakeCid}` }));
+      setIpfsUploading(p => ({ ...p, [jobId]: false }));
+    };
+    input.click();
   };
 
   const postedJobs = jobs.filter((j) => String(j.client) === walletAddress);
-  const freelanceJobs = jobs.filter((j) => String(j.freelancer) === walletAddress && String(j.freelancer) !== String(j.client));
+  
+  // ── Combined Working Jobs (On-chain + Recent Firestore Hires) ──────
+  const freelanceJobs = React.useMemo(() => {
+    const onChain = jobs.filter((j) => String(j.freelancer) === walletAddress && String(j.freelancer) !== String(j.client));
+    
+    // Add jobs that are "accepted" in Firestore but might not be indexed on-chain yet
+    const recentHires = appliedJobs
+      .filter(p => p.status?.toLowerCase() === "accepted")
+      .map(p => ({
+        id: p.jobId,
+        title: p.jobTitle,
+        description: "Recently Hired - Start working now!",
+        amount: p.bidAmount * 10_000_000, // convert back to stroops for consistency
+        token: p.token || "XLM",
+        client: p.clientAddress,
+        freelancer: walletAddress,
+        status: "InProgress",
+        isRecentHire: true
+      }));
+
+    // Deduplicate by jobId: prefer on-chain record if available
+    const seen = new Set(onChain.map(j => String(j.id)));
+    return [...onChain, ...recentHires.filter(j => !seen.has(String(j.id)))];
+  }, [jobs, appliedJobs, walletAddress]);
 
   const cardStyle = {
     background: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.95)",
@@ -255,7 +290,7 @@ export default function MyJobs({ jobs = [], loading: initialLoading, walletAddre
            {actionBtn("rgba(99, 102, 241, 0.1)", "View Details", () => navigate(`/find-jobs?id=${job.jobId}`), <Eye size={14} color="#a78bfa" />)}
            {actionBtn("rgba(255,255,255,0.05)", "Message Client", () => navigate("/chat", { state: { recipientAddress: clientAddress } }), <MessageCircle size={14} color="#fff" />)}
            
-           {status === "Accepted" && actionBtn("linear-gradient(135deg, #10b981, #059669)", "Submit Work", () => setSubTab("applied"), <CheckCircle size={14} color="#fff" />)}
+           {statusLabel === "Accepted" && actionBtn("linear-gradient(135deg, #10b981, #059669)", "Submit Work", () => setSubTab("applied"), <CheckCircle size={14} color="#fff" />)}
            {status === "Completed" && actionBtn("rgba(16, 185, 129, 0.15)", "View Payment", () => navigate("/payment"), <CreditCard size={14} color="#34d399" />)}
         </div>
       </motion.div>
@@ -277,7 +312,22 @@ export default function MyJobs({ jobs = [], loading: initialLoading, walletAddre
           <div style={{ flex: 1 }}><h3 style={{ color: isDark ? "#fff" : "#1a1a2e", fontWeight: 700, margin: "0 0 4px" }}>{job.title}</h3><p style={{ color: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)", fontSize: "0.85rem", lineHeight: 1.5, margin: 0 }}>{job.description}</p></div>
           <div style={{ textAlign: "right" }}><span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", background: statusInfo.bg, color: statusInfo.color, fontSize: "0.78rem", fontWeight: 700, marginBottom: "6px" }}>{statusInfo.label}</span><div style={{ color: "#34d399", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{amountVal} {token.symbol}</div></div>
         </div>
-        <div style={{ fontSize: "0.72rem", color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.4)", fontFamily: "'JetBrains Mono', monospace", marginBottom: "12px" }}>Job #{job.id} • Client: {shortenAddr(String(job.client))}</div>
+        <div style={{ fontSize: "0.72rem", color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.4)", fontFamily: "'JetBrains Mono', monospace", marginBottom: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <span>Job #{job.id} • Client: {shortenAddr(String(job.client))}</span>
+          {job.isRecentHire && (
+            <span style={{ 
+              background: "linear-gradient(135deg, #10b981, #3b82f6)", 
+              color: "#fff", 
+              padding: "2px 8px", 
+              borderRadius: "4px", 
+              fontSize: "0.6rem", 
+              fontWeight: 800,
+              animation: "pulse 2s infinite"
+            }}>
+              🚀 NEW HIRE
+            </span>
+          )}
+        </div>
         {isInProgress && (
           <div style={{ marginBottom: "12px" }}>
             <label style={{ color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)", fontSize: "0.82rem", display: "block", marginBottom: "6px", fontWeight: 600 }}>📎 Work URL / IPFS Proof</label>
@@ -286,7 +336,7 @@ export default function MyJobs({ jobs = [], loading: initialLoading, walletAddre
               {actionBtn("linear-gradient(135deg, #7c3aed, #4f46e5)", "Submit", () => url.trim() && onSubmitWork?.(job.id, url.trim()))}
             </div>
             <button 
-              onClick={() => simulateIpfsUpload(job.id)} 
+              onClick={() => handleIpfsButtonClick(job.id)} 
               disabled={ipfsUploading[job.id]}
               style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "10px", background: "rgba(167,139,250,0.1)", border: "1px dashed rgba(167,139,250,0.3)", borderRadius: "10px", color: "#a78bfa", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}
             >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Wallet,
@@ -43,32 +43,43 @@ export default function DashboardPage({ walletAddress, balance }) {
   });
   const [activities, setActivities] = useState([]);
   const [activeJobsList, setActiveJobsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // ── Fetch Dashboard Data ──
   useEffect(() => {
     if (!walletAddress) return;
 
     const fetchDashboardData = async () => {
-      // 1. Fetch Proposals (Pending Applications)
+      setLoading(true);
       try {
-        const propQuery = query(
-          collection(db, "proposals"),
-          where("freelancerAddress", "==", walletAddress),
-          where("status", "==", "pending")
-        );
-        const propSnap = await getDocs(propQuery);
-        setStats(prev => ({ ...prev, pendingProposals: propSnap.size }));
-      } catch (e) {
-        console.warn("Failed to fetch proposals count:", e);
-      }
+        // ── Fire all queries in parallel ─────────────────────────────────────
+        const [propSnap, jobsSnap, actSnap] = await Promise.all([
+          // 1. Fetch Proposals (Pending Applications)
+          getDocs(query(
+            collection(db, "proposals"),
+            where("freelancerAddress", "==", walletAddress),
+            where("status", "==", "pending")
+          )).catch(e => { console.warn("Proposals fetch fail:", e); return { size: 0 }; }),
 
-      // 2. Fetch Jobs (Active & Completed as Freelancer)
-      try {
-        const jobsQuery = query(
-          collection(db, "jobs"),
-          where("freelancer", "==", walletAddress)
-        );
-        const jobsSnap = await getDocs(jobsQuery);
+          // 2. Fetch Jobs (Active & Completed as Freelancer)
+          getDocs(query(
+            collection(db, "jobs"),
+            where("freelancer", "==", walletAddress)
+          )).catch(e => { console.warn("Jobs fetch fail:", e); return { forEach: () => {} }; }),
+
+          // 3. Fetch Recent Activities
+          getDocs(query(
+            collection(db, "activities"),
+            where("userAddress", "==", walletAddress),
+            orderBy("timestamp", "desc"),
+            limit(5)
+          )).catch(e => { console.warn("Activities fetch fail:", e); return { empty: true }; })
+        ]);
+
+        // ── Process Proposals ──
+        setStats(prev => ({ ...prev, pendingProposals: propSnap.size }));
+
+        // ── Process Jobs ──
         let active = 0;
         let completed = 0;
         let earnings = 0;
@@ -93,26 +104,17 @@ export default function DashboardPage({ walletAddress, balance }) {
           completedJobs: completed || prev.completedJobs
         }));
         if (jobList.length > 0) setActiveJobsList(jobList);
-      } catch (e) {
-        console.warn("Failed to fetch jobs data:", e);
-      }
 
-      // 3. Fetch Recent Activities
-      try {
-        const actQuery = query(
-          collection(db, "activities"),
-          where("userAddress", "==", walletAddress),
-          orderBy("timestamp", "desc"),
-          limit(5)
-        );
-        const actSnap = await getDocs(actQuery);
-        if (!actSnap.empty) {
+        // ── Process Activities ──
+        if (actSnap && !actSnap.empty) {
           const fetchedActs = actSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
           setActivities(fetchedActs);
         }
-      } catch (e) {
-        console.warn("Failed to fetch activities (likely missing index):", e);
-        // Keep mocks if fetch fails
+
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -211,7 +213,26 @@ export default function DashboardPage({ walletAddress, balance }) {
   }
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" style={{ position: "relative" }}>
+      {/* Loading Overlay (Subtle) */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            style={{ 
+              position: "absolute", top: 10, right: 20, zIndex: 10,
+              display: "flex", alignItems: "center", gap: "8px",
+              background: "rgba(99,102,241,0.1)", padding: "6px 12px", borderRadius: "10px",
+              border: "1px solid rgba(99,102,241,0.2)"
+            }}
+          >
+            <div className="spinner" style={{ width: "12px", height: "12px", margin: 0 }} />
+            <span style={{ fontSize: "0.75rem", color: "#a78bfa", fontWeight: 600 }}>Synchronizing...</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Welcome Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
         <div>
