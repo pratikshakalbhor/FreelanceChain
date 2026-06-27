@@ -12,7 +12,6 @@ const CACHE_NAME = 'fc-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/static/js/bundle.js',
   '/manifest.json',
   '/logo192.png',
   '/favicon.ico'
@@ -23,7 +22,12 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Pre-caching static assets');
-      return cache.addAll(STATIC_ASSETS);
+      // Use map + catch to ensure one failure doesn't break the whole SW install
+      return Promise.allSettled(
+        STATIC_ASSETS.map(url => 
+          cache.add(url).catch(err => console.warn(`[SW] Could not cache: ${url}`, err))
+        )
+      );
     })
   );
   self.skipWaiting();
