@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { SUPPORTED_TOKENS } from "../constants";
 import { db } from "../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { useWallet } from "../WalletContext";
 
 const STATUS_COLORS = {
@@ -77,58 +77,52 @@ export default function MyJobs({ jobs = [], loading: initialLoading, walletAddre
   const [ipfsUploading, setIpfsUploading] = useState({});
   const [jobMetadata, setJobMetadata] = useState({}); // To store applicants count from Firestore
 
-  // ── Fetch Applied Jobs from Firestore ──
+  // ── Real-time Fetch Applied Jobs from Firestore ──
   useEffect(() => {
     if (!walletAddress) return;
-    const fetchApplied = async () => {
-      setLoadingApplied(true);
-      console.log("DEBUG: Fetching applications for:", walletAddress);
-      try {
-        // Query proposals collection - this is the source of truth for applications
-        const q = query(
-          collection(db, "proposals"),
-          where("freelancerAddress", "==", walletAddress)
-        );
-        const snap = await getDocs(q);
-        console.log("DEBUG: Applications found:", snap.size);
-        
-        const list = snap.docs.map(d => ({ 
-          id: d.id, 
-          ...d.data(),
-          // Ensure jobId is present for linking
-          jobId: d.data().jobId || d.id 
-        }));
-        
-        setAppliedJobs(list);
-      } catch (e) {
-        console.error("Failed to fetch applied jobs:", e);
-      } finally {
-        setLoadingApplied(false);
-      }
-    };
-    fetchApplied();
+    setLoadingApplied(true);
+    
+    const q = query(
+      collection(db, "proposals"),
+      where("freelancerAddress", "==", walletAddress)
+    );
+    
+    const unsub = onSnapshot(q, (snap) => {
+      const list = snap.docs.map(d => ({ 
+        id: d.id, 
+        ...d.data(),
+        jobId: d.data().jobId || d.id 
+      }));
+      setAppliedJobs(list);
+      setLoadingApplied(false);
+    }, (e) => {
+      console.error("Applied jobs sync fail:", e);
+      setLoadingApplied(false);
+    });
+
+    return () => unsub();
   }, [walletAddress]);
 
-  // ── Fetch Job Metadata (Applicants Count) for Clients ──
+  // ── Real-time Job Metadata (Applicants Count) for Clients ──
   useEffect(() => {
     if (!walletAddress || userRole !== "client") return;
-    const fetchMetadata = async () => {
-      try {
-        const q = query(
-          collection(db, "jobs"),
-          where("client", "==", walletAddress)
-        );
-        const snap = await getDocs(q);
-        const meta = {};
-        snap.forEach(doc => {
-          meta[doc.id] = doc.data();
-        });
-        setJobMetadata(meta);
-      } catch (e) {
-        console.warn("Meta fetch failed:", e);
-      }
-    };
-    fetchMetadata();
+    
+    const q = query(
+      collection(db, "jobs"),
+      where("client", "==", walletAddress)
+    );
+    
+    const unsub = onSnapshot(q, (snap) => {
+      const meta = {};
+      snap.forEach(doc => {
+        meta[doc.id] = doc.data();
+      });
+      setJobMetadata(meta);
+    }, (e) => {
+      console.warn("Meta sync failed:", e);
+    });
+
+    return () => unsub();
   }, [walletAddress, userRole]);
   const handleIpfsButtonClick = (jobId) => {
     const input = document.createElement("input");
