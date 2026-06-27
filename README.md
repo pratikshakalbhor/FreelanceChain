@@ -166,7 +166,7 @@ stellar-new/
 *   **Demo Video:** [Project Showcase](https://drive.google.com/file/d/1x3azpS7cS6JXB5bEXG07bxpUbHcTRg0u/view?usp=sharing)
 *   **Security Audit:** [Internal Security Review](SECURITY_CHECKLIST.md)
 *   **User Feedback Data:** [Google Sheets](https://docs.google.com/spreadsheets/d/1HZBbu-YZKPYKPvBpQO9JgqwQ8d-HiTKqCquwiilamLc/edit?resourcekey=&gid=9050602#gid=9050602)
-*   **Ecosystem Contribution:** [Technical Blog: Building Secure Escrows on Soroban](https://medium.com/@pratikshakalbhor/building-secure-escrow-on-soroban)
+*   **Ecosystem Contribution:** [Technical Blog: How I Built a Decentralized Freelancing Platform on Stellar](HOW_I_BUILT_IT.md) | [Medium Mirror](https://medium.com/@pratikshakalbhor/building-secure-escrow-on-soroban)
 
 ## 📸 Screenshots
 ---
