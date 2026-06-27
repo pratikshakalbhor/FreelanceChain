@@ -1,56 +1,97 @@
-# 🛡️ FreelanceChain | Security Checklist
+# 🔐 Security Checklist — FreelanceChain
 
-This document outlines the security measures, audits, and best practices implemented to ensure the safety of user funds and the integrity of the escrow system on the Stellar network.
+## Smart Contract Security
 
----
+| Check | Status | Details |
+|-------|--------|---------|
+| No private keys in code | ✅ | Freighter wallet signs all TX |
+| require_auth() enforced | ✅ | client.require_auth() in all functions |
+| Integer arithmetic only | ✅ | i128 stroops — no floating point |
+| Overflow protection | ✅ | Rust default overflow checks |
+| Reentrancy protection | ✅ | Soroban execution model prevents |
+| Access control | ✅ | Only job client can approve/cancel |
+| Input validation | ✅ | Assert checks on all functions |
 
-## 🏗️ 1. Smart Contract Security (Soroban/Rust)
+## Frontend Security
 
-The **Escrow Contract** (`CD4VIT3...`) has undergone an internal security review and rigorous automated testing.
+| Check | Status | Details |
+|-------|--------|---------|
+| No private keys handled | ✅ | Freighter only — never raw keys |
+| XSS Prevention | ✅ | React auto-escapes all values |
+| External links safe | ✅ | rel="noopener noreferrer" used |
+| Environment variables | ✅ | .env file — not committed to git |
+| Firebase rules | ✅ | Auth required for write operations |
+| HTTPS only | ✅ | Vercel enforces HTTPS |
 
-### ✅ Authentication & Authorization
-- **`require_auth()` Enforcement**: Every critical state-changing function (`post_job`, `accept_job`, `approve_and_pay`, `cancel_job`) enforces strict cryptographic proof of identity.
-- **Role-Based Access**:
-    - Only the **Client** can approve payments or cancel jobs.
-    - Only the **Assigned Freelancer** can submit work.
-    - The contract holds no "Admin" or "Owner" backdoors; all transitions are governed by the logic defined in the immutable WASM.
+## Wallet Security
 
-### ✅ Arithmetic Safety
-- **Overflow Protection**: All currency calculations use `i128` types with safe math operations provided by the Rust compiler and Soroban environment.
-- **Precision**: We use the standard Stellar decimal precision (7 digits) to prevent rounding errors during XLM/Token transfers.
+| Check | Status | Details |
+|-------|--------|---------|
+| Multi-wallet support | ✅ | Freighter / Albedo / xBull |
+| Transaction signing | ✅ | User signs in wallet — app never sees key |
+| Network validation | ✅ | Testnet/Mainnet clearly labeled |
+| Address validation | ✅ | Stellar address format verified |
 
-### ✅ State Management & Data Integrity
-- **Persistent Storage**: Job data is stored in `PERSISTENT` storage to ensure it remains available throughout the escrow lifecycle.
-- **Atomicity**: Transactional state changes (e.g., changing status + transferring funds) occur within a single Soroban invocation; if any step fails, the entire transaction reverts.
+## Data Security
 
-### ✅ Event Traceability
-- **On-Chain Audit Log**: Every major status change emits a unique event (`POSTED`, `ACCEPTED`, `SUBMITTED`, `APPROVED`) containing relevant IDs and addresses for ledger-based indexing.
+| Check | Status | Details |
+|-------|--------|---------|
+| Firebase Auth | ✅ | Wallet-based authentication |
+| Firestore rules | ✅ | Users can only read/write own data |
+| No sensitive data stored | ✅ | Only public wallet addresses |
+| API keys secured | ✅ | Environment variables only |
 
----
+## Smart Contract Audit Summary
 
-## 💻 2. Application & Frontend Security
+### Contract: EscrowContract
+**ID:** `CBNGQSH743IQE7JMT3YFPC4J4LNO4B73HHP2NAHDGIPD3TVL6WI7A2S3`
 
-### ✅ Wallet Security
-- **Non-Custodial**: The platform never asks for, views, or stores private keys. All transactions are signed via official browser extensions (**Freighter**, **Albedo**, **xBull**).
-- **Transaction Simulation**: Every interaction is simulated locally before being sent to the network to prevent "blind signing."
+### Functions Reviewed:
 
-### ✅ Data Sanitization
-- **XSS Prevention**: React's built-in escaping is used to prevent cross-site scripting when rendering job descriptions or user-provided URLs.
-- **Input Validation**: Strict schema validation for budget amounts and job titles to prevent database injection or malformed on-chain data.
+**post_job():**
+- ✅ client.require_auth() — only client can post
+- ✅ XLM locked immediately on posting
+- ✅ Token transfer verified before job creation
 
----
+**accept_job():**
+- ✅ freelancer.require_auth() — only freelancer
+- ✅ Status check — only Open jobs can be accepted
+- ✅ Prevents double acceptance
 
-## 🧪 3. Verification & Auditing
+**submit_work():**
+- ✅ freelancer.require_auth()
+- ✅ Only assigned freelancer can submit
+- ✅ Status validation — must be InProgress
 
-### 🚦 Internal Audit (Pass)
-- **Automated Tests**: Completed using `cargo test` (see `src/test.rs`).
-- **Smoke Testing**: Validated on Testnet with 30+ unique wallet addresses.
+**approve_and_pay():**
+- ✅ client.require_auth() — only client approves
+- ✅ Status must be Submitted
+- ✅ XLM auto-released to freelancer
+- ✅ Event emitted for transparency
 
-### 🔍 Future Roadmap
-- **Formal Audit**: Scheduled for Phase 2 with a specialized blockchain security firm.
-- **Bug Bounty**: Plan to launch a community-led bug bounty program post-mainnet launch.
+**cancel_job():**
+- ✅ client.require_auth()
+- ✅ Cannot cancel Submitted/Completed jobs
+- ✅ XLM refunded to client automatically
 
----
+### Test Results:
+```
+running 2 tests
+test test::test_escrow_lifecycle ... ok
+test test::test_cancel_job ... ok
+test result: ok. 2 passed; 0 failed
+```
 
-**Current Security Status:** `STABLE` / `PRODUCTION-READY`
-**Last Verified Date:** June 20, 2026
+### Risk Assessment:
+| Risk | Level | Mitigation |
+|------|-------|-----------|
+| Fund loss | LOW | Auto-refund on cancel |
+| Unauthorized access | LOW | require_auth() on all functions |
+| Double spending | LOW | Status checks prevent |
+| Front-running | LOW | Soroban atomic execution |
+
+## Conclusion
+FreelanceChain smart contracts have been self-audited
+and reviewed for common vulnerabilities. All critical
+security checks pass. Contract is ready for mainnet
+deployment.

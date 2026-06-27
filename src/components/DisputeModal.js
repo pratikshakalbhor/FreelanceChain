@@ -118,17 +118,17 @@ export default function DisputeModal({
         jobTitle: jobTitle || "Untitled Job",
         reason: selectedReason,
         description: evidenceText.trim(),
-        raisedBy: walletAddress || "unknown",
-        counterParty: counterParty || "",
+        raisedBy: walletAddress,
+        againstWallet: counterParty, // Use the prop passed from MyJobs
         status: "open",
-        createdAt: serverTimestamp(),
         escrowFrozen: true,
+        createdAt: serverTimestamp(),
         resolutionWindowEnd: Timestamp.fromMillis(
           Date.now() + 3 * 24 * 60 * 60 * 1000
         ),
         votes: {
           initiator: null,
-          counterParty: null,
+          againstWallet: null,
           arbitrator: null,
         },
       };
