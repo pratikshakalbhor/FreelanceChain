@@ -170,7 +170,18 @@ export default function PostJobPage() {
                         onChange={(e) => setFormData({...formData, category: e.target.value})}
                         style={{ ...inputStyle, cursor: "pointer" }}
                       >
-                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        {CATEGORIES.map(c => (
+                          <option 
+                            key={c} 
+                            value={c}
+                            style={{ 
+                              background: isDark ? "#0f172a" : "#ffffff", 
+                              color: isDark ? "#ffffff" : "#1a1a2e" 
+                            }}
+                          >
+                            {c}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -180,7 +191,18 @@ export default function PostJobPage() {
                         onChange={(e) => setFormData({...formData, expLevel: e.target.value})}
                         style={{ ...inputStyle, cursor: "pointer" }}
                       >
-                        {EXP_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                        {EXP_LEVELS.map(l => (
+                          <option 
+                            key={l} 
+                            value={l}
+                            style={{ 
+                              background: isDark ? "#0f172a" : "#ffffff", 
+                              color: isDark ? "#ffffff" : "#1a1a2e" 
+                            }}
+                          >
+                            {l}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -366,7 +388,7 @@ export default function PostJobPage() {
                   type="number" 
                   value={formData.budget} 
                   onChange={(e) => setFormData({...formData, budget: Number(e.target.value)})}
-                  style={{ ...inputStyle, paddingLeft: "44px" }} 
+                  style={{ ...inputStyle, paddingLeft: "64px" }} 
                 />
                 <span style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#34d399", fontWeight: 800 }}>XLM</span>
               </div>

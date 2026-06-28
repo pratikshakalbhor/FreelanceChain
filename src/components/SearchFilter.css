@@ -86,6 +86,7 @@
 .category-select option,
 .sort-select option {
   background: #0f172a;
+  color: #ffffff;
 }
 
 .budget-slider-container {

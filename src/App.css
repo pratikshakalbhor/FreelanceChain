@@ -574,4 +574,27 @@ body {
 @keyframes float-up {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-4px); }
+}
+
+/* Select Option styling for Dark/Light themes */
+.dark-theme select option,
+select option {
+  background-color: #12122b;
+  color: #ffffff;
+}
+
+.light-theme select option {
+  background-color: #ffffff;
+  color: #1a1a2e;
+}
+
+/* Hide spin-buttons in number inputs globally for cleaner look */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
